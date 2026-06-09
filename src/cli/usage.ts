@@ -2,6 +2,7 @@ export const usage = `Usage:
   figma-inspect --list-projects [--json]
   figma-inspect --list-project-files --project-id <id> [--json]
   figma-inspect --list-all-project-files [--json]
+  figma-inspect --list-all-component-sets [--json]
   figma-inspect --list-pages --file-key <key> [--json]
   figma-inspect --list-component-sets --file-key <key> --node-id <id> [--json]
   figma-inspect --list-component-set-properties --file-key <key> --node-id <id> (--component-set-key <key> | --component-set-name <name>) [--json]
@@ -10,12 +11,13 @@ export const usage = `Usage:
 
 Environment:
   FIGMA_API_TOKEN  Figma personal access token
-  FIGMA_TEAM_ID    Figma team id (required for --list-projects and --list-all-project-files)
+  FIGMA_TEAM_ID    Figma team id (required for --list-projects, --list-all-project-files, and --list-all-component-sets)
 
 Options:
   --list-projects            List projects in a Figma team
   --list-project-files       List files in a Figma project
   --list-all-project-files   List files in all team projects
+  --list-all-component-sets  List component sets in all team project files
   --list-pages          List pages in a Figma file
   --list-component-sets   List component sets in a file node
   --list-component-set-properties List nested component sets exposed in a component set

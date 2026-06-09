@@ -9,6 +9,7 @@ import {
 import {
   FigmaInspectError,
   getNodeComponentSet,
+  listAllComponentSets,
   listComponentSetProperties,
   listNodeComponentSets,
 } from "../inspect/index.js";
@@ -20,6 +21,7 @@ import {
   writeJson,
   writePages,
   writeProjects,
+  writeTeamComponentSets,
   writeTeamProjectFiles,
 } from "./output.js";
 import { parseCommand } from "./parse-args.js";
@@ -59,6 +61,16 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
 
         const files = await listTeamProjectFiles({ token, teamId });
         writeTeamProjectFiles(files, command.json, io.stdout);
+        break;
+      }
+      case "list-all-component-sets": {
+        const teamId = io.env.FIGMA_TEAM_ID;
+        if (!teamId) {
+          throw new CliError("Missing FIGMA_TEAM_ID environment variable.");
+        }
+
+        const componentSets = await listAllComponentSets({ token, teamId });
+        writeTeamComponentSets(componentSets, command.json, io.stdout);
         break;
       }
       case "list-project-files": {

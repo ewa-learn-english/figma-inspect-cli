@@ -49,12 +49,13 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 1 | `--list-projects` | `--json` | needs `FIGMA_TEAM_ID` |
 | 2 | `--list-project-files` | `--project-id $PROJECT_ID --json` | |
 | 3 | `--list-all-project-files` | `--json` | needs `FIGMA_TEAM_ID` |
-| 4 | `--list-pages` | `--file-key $FILE_KEY --json` | |
-| 5 | `--list-component-sets` | `--file-key $FILE_KEY --node-id $NODE_ID --json` | |
-| 6 | `--list-component-set-properties` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME --json` | |
-| 7 | `--list-component-set-properties` | same + `--component-set-key $COMPONENT_SET_KEY --json` | key lookup variant |
-| 8 | `--inspect-component-set` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME` | no `--json` |
-| 9 | `--inspect-node` | `--file-key $FILE_KEY --node-id $NODE_ID` | raw API payload |
+| 4 | `--list-all-component-sets` | `--json` | needs `FIGMA_TEAM_ID`; can be slow |
+| 5 | `--list-pages` | `--file-key $FILE_KEY --json` | |
+| 6 | `--list-component-sets` | `--file-key $FILE_KEY --node-id $NODE_ID --json` | |
+| 7 | `--list-component-set-properties` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME --json` | |
+| 8 | `--list-component-set-properties` | same + `--component-set-key $COMPONENT_SET_KEY --json` | key lookup variant |
+| 9 | `--inspect-component-set` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME` | no `--json` |
+| 10 | `--inspect-node` | `--file-key $FILE_KEY --node-id $NODE_ID` | raw API payload |
 
 Example:
 
@@ -64,6 +65,7 @@ npm run build
 npx . --list-projects --json
 npx . --list-project-files --project-id "$PROJECT_ID" --json
 npx . --list-all-project-files --json
+npx . --list-all-component-sets --json
 npx . --list-pages --file-key O7aE7SeG2TRBCK5MsjkG7z --json
 npx . --list-component-sets --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2 --json
 npx . --list-component-set-properties --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2 --component-set-name Cell --json

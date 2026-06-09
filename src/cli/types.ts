@@ -17,6 +17,7 @@ export type CliCommand =
   | { kind: "list-projects"; json: boolean }
   | { kind: "list-project-files"; projectId: string; json: boolean }
   | { kind: "list-all-project-files"; json: boolean }
+  | { kind: "list-all-component-sets"; json: boolean }
   | { kind: "list-pages"; fileKey: string; json: boolean }
   | {
       kind: "list-component-sets";

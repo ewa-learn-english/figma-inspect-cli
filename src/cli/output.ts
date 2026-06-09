@@ -5,7 +5,10 @@ import type {
   FigmaTeamProjectFile,
 } from "../figma-api/schemas.js";
 import type { FigmaComponentSet } from "../inspect/schemas.js";
-import type { FigmaComponentSetProperty } from "../inspect/types.js";
+import type {
+  FigmaComponentSetProperty,
+  FigmaTeamComponentSet,
+} from "../inspect/types.js";
 import { formatTable, writeJsonOrTable } from "./format-table.js";
 
 export function writeJson(value: unknown, stdout: NodeJS.WriteStream): void {
@@ -157,6 +160,32 @@ export function writeComponentSets(
           { header: "ID", value: (set) => set.id },
           { header: "Key", value: (set) => set.key },
           { header: "Name", value: (set) => set.name },
+        ],
+        items,
+      ),
+  );
+}
+
+export function writeTeamComponentSets(
+  componentSets: FigmaTeamComponentSet[],
+  json: boolean,
+  stdout: NodeJS.WriteStream,
+): void {
+  writeJsonOrTable(
+    componentSets,
+    json,
+    stdout,
+    "No component sets found.",
+    (items) =>
+      formatTable(
+        [
+          { header: "ID", value: (set) => set.id },
+          { header: "Key", value: (set) => set.key },
+          { header: "Name", value: (set) => set.name },
+          { header: "File Key", value: (set) => set.file_key },
+          { header: "File", value: (set) => set.file_name },
+          { header: "Project ID", value: (set) => set.project_id },
+          { header: "Project", value: (set) => set.project_name },
         ],
         items,
       ),

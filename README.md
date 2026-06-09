@@ -29,6 +29,12 @@ List files in all team projects:
 npx . --list-all-project-files
 ```
 
+List component sets in all team project files:
+
+```sh
+npx . --list-all-component-sets
+```
+
 List pages in a file:
 
 ```sh
@@ -66,6 +72,7 @@ For script-friendly output:
 npx . --list-projects --json
 npx . --list-project-files --project-id <project_id> --json
 npx . --list-all-project-files --json
+npx . --list-all-component-sets --json
 npx . --list-pages --file-key <file_key> --json
 npx . --list-component-sets --file-key <file_key> --node-id <node_id> --json
 ```

@@ -8,6 +8,7 @@ interface ParsedFlags {
   listProjects: boolean;
   listProjectFiles: boolean;
   listAllProjectFiles: boolean;
+  listAllComponentSets: boolean;
   listPages: boolean;
   listComponentSets: boolean;
   listComponentSetProperties: boolean;
@@ -27,6 +28,7 @@ function emptyFlags(): ParsedFlags {
     listProjects: false,
     listProjectFiles: false,
     listAllProjectFiles: false,
+    listAllComponentSets: false,
     listPages: false,
     listComponentSets: false,
     listComponentSetProperties: false,
@@ -118,6 +120,9 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
     flags.listProjects ? ("list-projects" as const) : undefined,
     flags.listProjectFiles ? ("list-project-files" as const) : undefined,
     flags.listAllProjectFiles ? ("list-all-project-files" as const) : undefined,
+    flags.listAllComponentSets
+      ? ("list-all-component-sets" as const)
+      : undefined,
     flags.listPages ? ("list-pages" as const) : undefined,
     flags.listComponentSets ? ("list-component-sets" as const) : undefined,
     flags.listComponentSetProperties
@@ -129,7 +134,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
 
   if (selected.length === 0) {
     throw new CliError(
-      "Nothing to do. Pass --list-projects, --list-project-files, --list-all-project-files, --list-pages, --list-component-sets, --list-component-set-properties, --inspect-component-set, or --inspect-node.\n\n" +
+      "Nothing to do. Pass --list-projects, --list-project-files, --list-all-project-files, --list-all-component-sets, --list-pages, --list-component-sets, --list-component-set-properties, --inspect-component-set, or --inspect-node.\n\n" +
         usage,
     );
   }
@@ -145,6 +150,8 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
       return { kind: "list-projects", json: flags.json };
     case "list-all-project-files":
       return { kind: "list-all-project-files", json: flags.json };
+    case "list-all-component-sets":
+      return { kind: "list-all-component-sets", json: flags.json };
     case "list-project-files": {
       if (!flags.projectId) {
         throw new CliError("Missing --project-id for --list-project-files.");
@@ -219,6 +226,11 @@ export function parseCommand(argv: string[]): CliCommand {
 
     if (arg === "--list-all-project-files") {
       flags.listAllProjectFiles = true;
+      continue;
+    }
+
+    if (arg === "--list-all-component-sets") {
+      flags.listAllComponentSets = true;
       continue;
     }
 
