@@ -35,4 +35,12 @@ export type CliCommand =
       kind: "build-component-set-spec";
       inputPath: string;
       variablesPath?: string;
+      teamComponentsPath?: string;
+    }
+  | {
+      kind: "export-component-set";
+      outputDir: string;
+      componentSet: ComponentSetLookup;
+      variablesPath?: string;
+      teamComponentsPath?: string;
     };

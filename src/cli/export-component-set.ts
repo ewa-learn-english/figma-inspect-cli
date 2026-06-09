@@ -1,0 +1,82 @@
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
+import {
+  buildComponentSetSpecFromFile,
+  getNodeComponentSet,
+  resolveTeamComponentSetScope,
+} from "../inspect/index.js";
+import type { ComponentSetLookup } from "../inspect/types.js";
+
+export interface ExportComponentSetOptions {
+  token: string;
+  teamId: string;
+  outputDir: string;
+  componentSet: ComponentSetLookup;
+  variablesPath?: string;
+  teamComponentsPath?: string;
+}
+
+export interface ExportComponentSetResult {
+  rawPath: string;
+  buildPath: string;
+}
+
+function sanitizeFileName(name: string): string {
+  return name.replace(/[/\\?%*:|"<>]/g, "_");
+}
+
+function resolveExportBaseName(
+  componentSet: ComponentSetLookup,
+  rawName: string | undefined,
+): string {
+  if (componentSet.kind === "name") {
+    return componentSet.value;
+  }
+
+  return rawName ?? componentSet.value;
+}
+
+async function writeJsonFile(filePath: string, value: unknown): Promise<void> {
+  await writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+}
+
+export async function exportComponentSet(
+  options: ExportComponentSetOptions,
+): Promise<ExportComponentSetResult> {
+  const scope = await resolveTeamComponentSetScope({
+    token: options.token,
+    teamId: options.teamId,
+    componentSet: options.componentSet,
+  });
+  const raw = await getNodeComponentSet({
+    token: options.token,
+    ...scope,
+  });
+  const baseName = sanitizeFileName(
+    resolveExportBaseName(
+      options.componentSet,
+      typeof raw.name === "string" ? raw.name : undefined,
+    ),
+  );
+
+  await mkdir(options.outputDir, { recursive: true });
+
+  const rawPath = path.join(options.outputDir, `${baseName}.json`);
+  const buildPath = path.join(options.outputDir, `${baseName}.build.json`);
+
+  await writeJsonFile(rawPath, raw);
+  const spec = await buildComponentSetSpecFromFile(rawPath, {
+    variablesPath: options.variablesPath,
+    teamComponentsPath: options.teamComponentsPath,
+  });
+  await writeJsonFile(buildPath, spec);
+
+  return { rawPath, buildPath };
+}
+
+export function writeExportResult(
+  result: ExportComponentSetResult,
+  stdout: NodeJS.WriteStream,
+): void {
+  stdout.write(`${result.rawPath}\n${result.buildPath}\n`);
+}

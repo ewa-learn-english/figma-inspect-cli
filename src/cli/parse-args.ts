@@ -16,9 +16,12 @@ interface ParsedFlags {
   inspectTeamComponentSet: boolean;
   inspectFileNode: boolean;
   buildComponentSetSpec: boolean;
+  exportComponentSet: boolean;
   projectId: string | undefined;
   inputPath: string | undefined;
+  outputDir: string | undefined;
   variablesPath: string | undefined;
+  teamComponentsPath: string | undefined;
   fileKey: string | undefined;
   nodeId: string | undefined;
   componentSetKey: string | undefined;
@@ -40,9 +43,12 @@ function emptyFlags(): ParsedFlags {
     inspectTeamComponentSet: false,
     inspectFileNode: false,
     buildComponentSetSpec: false,
+    exportComponentSet: false,
     projectId: undefined,
     inputPath: undefined,
+    outputDir: undefined,
     variablesPath: undefined,
+    teamComponentsPath: undefined,
     fileKey: undefined,
     nodeId: undefined,
     componentSetKey: undefined,
@@ -148,11 +154,12 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
     flags.buildComponentSetSpec
       ? ("build-component-set-spec" as const)
       : undefined,
+    flags.exportComponentSet ? ("export-component-set" as const) : undefined,
   ].filter((command) => command !== undefined);
 
   if (selected.length === 0) {
     throw new CliError(
-      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --list-team-component-sets, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, or --build-component-set-spec.\n\n" +
+      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --list-team-component-sets, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, --build-component-set-spec, or --export-component-set.\n\n" +
         usage,
     );
   }
@@ -231,6 +238,24 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         kind: "build-component-set-spec",
         inputPath: flags.inputPath,
         variablesPath: flags.variablesPath,
+        teamComponentsPath: flags.teamComponentsPath,
+      };
+    }
+    case "export-component-set": {
+      if (!flags.outputDir) {
+        throw new CliError("Missing --output-dir for --export-component-set.");
+      }
+
+      return {
+        kind: "export-component-set",
+        outputDir: flags.outputDir,
+        componentSet: parseComponentSetLookup(
+          flags.componentSetKey,
+          flags.componentSetName,
+          "--export-component-set",
+        ),
+        variablesPath: flags.variablesPath,
+        teamComponentsPath: flags.teamComponentsPath,
       };
     }
     default: {
@@ -306,6 +331,11 @@ export function parseCommand(argv: string[]): CliCommand {
       continue;
     }
 
+    if (arg === "--export-component-set") {
+      flags.exportComponentSet = true;
+      continue;
+    }
+
     if (arg === "--input") {
       const { value, nextIndex } = readFlagValue(argv, index, arg);
       flags.inputPath = value;
@@ -316,6 +346,20 @@ export function parseCommand(argv: string[]): CliCommand {
     if (arg === "--variables") {
       const { value, nextIndex } = readFlagValue(argv, index, arg);
       flags.variablesPath = value;
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--team-components") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.teamComponentsPath = value;
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--output-dir") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.outputDir = value;
       index = nextIndex;
       continue;
     }

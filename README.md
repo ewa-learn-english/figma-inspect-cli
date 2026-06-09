@@ -77,7 +77,13 @@ Build an AI-friendly spec from a local COMPONENT_SET JSON file:
 ```sh
 npx . --inspect-component-set ... > tmp/Toast.json
 npx . --build-component-set-spec --input tmp/Toast.json
-npx . --build-component-set-spec --input tmp/Toast.json --variables tmp/cp-ds-styles-variables-local.json
+npx . --build-component-set-spec --input tmp/Toast.json --variables tmp/cp-ds-styles-variables-local.json --team-components tmp/ComponentSets.json
+```
+
+Export raw and build JSON for a published component set:
+
+```sh
+npx . --export-component-set --output-dir tmp --component-set-name RoadmapHeader --variables tmp/cp-ds-styles-variables-local.json --team-components tmp/ComponentSets.json
 ```
 
 For script-friendly output:

@@ -39,31 +39,39 @@ export interface DocumentNode {
   componentId?: string;
   isExposedInstance: boolean;
   children?: DocumentNode[];
+  [key: string]: unknown;
 }
 
+const documentNodeFieldsSchema = z
+  .object({
+    id: z.string().optional(),
+    name: z.string().optional(),
+    type: z.string().optional(),
+    componentId: z.string().optional(),
+    isExposedInstance: z
+      .unknown()
+      .optional()
+      .transform((value) => value === true),
+    children: z.array(z.unknown()).optional(),
+  })
+  .passthrough();
+
 const documentNodeSchema: z.ZodType<DocumentNode> = z.lazy(() =>
-  z
-    .object({
-      id: z.string().optional(),
-      name: z.string().optional(),
-      type: z.string().optional(),
-      componentId: z.string().optional(),
-      isExposedInstance: z
-        .unknown()
-        .optional()
-        .transform((value) => value === true),
-      children: z.array(z.unknown()).optional(),
-    })
-    .transform((node) => ({
-      id: node.id,
-      name: node.name,
-      type: node.type,
-      componentId: node.componentId,
+  documentNodeFieldsSchema.transform((node) => {
+    const { children, ...rest } = node;
+    const parsed: DocumentNode = {
+      ...rest,
       isExposedInstance: node.isExposedInstance,
-      children: node.children
-        ?.map((child) => documentNodeSchema.safeParse(child))
-        .flatMap((parsed) => (parsed.success ? [parsed.data] : [])),
-    })),
+    };
+
+    if (children) {
+      parsed.children = children
+        .map((child) => documentNodeSchema.safeParse(child))
+        .flatMap((result) => (result.success ? [result.data] : []));
+    }
+
+    return parsed;
+  }),
 );
 
 const fileNodeEntrySchema = z.object({

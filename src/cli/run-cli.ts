@@ -17,6 +17,10 @@ import {
 } from "../inspect/index.js";
 import { CliError } from "./errors.js";
 import {
+  exportComponentSet,
+  writeExportResult,
+} from "./export-component-set.js";
+import {
   writeComponentSetProperties,
   writeComponentSets,
   writeFiles,
@@ -42,6 +46,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
     try {
       const spec = await buildComponentSetSpecFromFile(command.inputPath, {
         variablesPath: command.variablesPath,
+        teamComponentsPath: command.teamComponentsPath,
       });
       writeJson(spec, io.stdout);
     } catch (error) {
@@ -58,6 +63,36 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
   const token = io.env.FIGMA_API_TOKEN;
   if (!token) {
     throw new CliError("Missing FIGMA_API_TOKEN environment variable.");
+  }
+
+  if (command.kind === "export-component-set") {
+    const teamId = io.env.FIGMA_TEAM_ID;
+    if (!teamId) {
+      throw new CliError("Missing FIGMA_TEAM_ID environment variable.");
+    }
+
+    try {
+      const result = await exportComponentSet({
+        token,
+        teamId,
+        outputDir: command.outputDir,
+        componentSet: command.componentSet,
+        variablesPath: command.variablesPath,
+        teamComponentsPath: command.teamComponentsPath,
+      });
+      writeExportResult(result, io.stdout);
+    } catch (error) {
+      if (
+        error instanceof FigmaApiError ||
+        error instanceof FigmaInspectError
+      ) {
+        throw new CliError(error.message);
+      }
+
+      throw error;
+    }
+
+    return;
   }
 
   try {

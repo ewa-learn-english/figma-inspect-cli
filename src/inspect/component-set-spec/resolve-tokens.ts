@@ -1,5 +1,8 @@
-import { isRecord } from "./figma-node.js";
-import type { ComponentSetSpec, SlimNode, VariantPatch } from "./types.js";
+import type {
+  ComponentSetSpec,
+  ComponentSetVariant,
+  SlimNode,
+} from "./types.js";
 import type { VariableRegistry } from "./variable-registry.js";
 
 function resolveVariableField(
@@ -25,11 +28,14 @@ function resolveValue(value: unknown, registry: VariableRegistry): unknown {
     return value.map((entry) => resolveValue(entry, registry));
   }
 
-  if (!isRecord(value)) {
+  if (typeof value !== "object" || value === null) {
     return value;
   }
 
-  const resolved = resolveVariableField(value, registry);
+  const resolved = resolveVariableField(
+    value as Record<string, unknown>,
+    registry,
+  );
   const output: Record<string, unknown> = {};
 
   for (const [key, entry] of Object.entries(resolved)) {
@@ -43,34 +49,13 @@ function resolveNode(node: SlimNode, registry: VariableRegistry): SlimNode {
   return resolveValue(node, registry) as SlimNode;
 }
 
-function resolvePatchChanges(
-  changes: Record<string, unknown>,
+function resolveVariant(
+  variant: ComponentSetVariant,
   registry: VariableRegistry,
-): Record<string, unknown> {
-  const resolved: Record<string, unknown> = {};
-
-  for (const [key, value] of Object.entries(changes)) {
-    if (key.endsWith(".variable") && typeof value === "string") {
-      const token = registry.resolve(value);
-      if (token) {
-        resolved[key.replace(/\.variable$/, ".token")] = token;
-        continue;
-      }
-    }
-
-    resolved[key] = value;
-  }
-
-  return resolved;
-}
-
-function resolvePatch(
-  patch: VariantPatch,
-  registry: VariableRegistry,
-): VariantPatch {
+): ComponentSetVariant {
   return {
-    when: patch.when,
-    changes: resolvePatchChanges(patch.changes, registry),
+    when: variant.when,
+    layout: resolveNode(variant.layout, registry),
   };
 }
 
@@ -80,9 +65,6 @@ export function resolveSpecTokens(
 ): ComponentSetSpec {
   return {
     ...spec,
-    layout: resolveNode(spec.layout, registry),
-    variantPatches: spec.variantPatches.map((patch) =>
-      resolvePatch(patch, registry),
-    ),
+    variants: spec.variants.map((variant) => resolveVariant(variant, registry)),
   };
 }

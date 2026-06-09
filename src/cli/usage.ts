@@ -9,7 +9,8 @@ export const usage = `Usage:
   figma-inspect --inspect-component-set --file-key <key> --node-id <id> (--component-set-key <key> | --component-set-name <name>)
   figma-inspect --inspect-team-component-set (--component-set-key <key> | --component-set-name <name>)
   figma-inspect --inspect-file-node --file-key <key> --node-id <id>
-  figma-inspect --build-component-set-spec --input <path> [--variables <path>]
+  figma-inspect --build-component-set-spec --input <path> [--variables <path>] [--team-components <path>]
+  figma-inspect --export-component-set --output-dir <dir> (--component-set-key <key> | --component-set-name <name>) [--variables <path>] [--team-components <path>]
 
 Environment:
   FIGMA_API_TOKEN  Figma personal access token
@@ -28,13 +29,16 @@ Options:
   --inspect-team-component-set    Find a published component set by name or key and print its raw JSON
   --inspect-file-node             Print raw JSON for a file node
   --build-component-set-spec      Build an AI-friendly spec from a local COMPONENT_SET JSON file
+  --export-component-set          Export raw and build JSON for a published team component set
   --input <path>                  Input JSON file path (required with --build-component-set-spec)
-  --variables <path>              Variables export JSON (optional with --build-component-set-spec)
+  --output-dir <dir>              Output directory (required with --export-component-set)
+  --variables <path>              Variables export JSON (optional with --build-component-set-spec and --export-component-set)
+  --team-components <path>        Team component sets JSON (optional with --build-component-set-spec and --export-component-set)
   --project-id <id>               Project id (required with --list-project-files)
   --file-key <key>                File key (required with --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, and --inspect-file-node)
   --node-id <id>                  Node id (required with --inspect-component-set-properties, --inspect-component-set, and --inspect-file-node)
-  --component-set-key <key>       Component set key (required with --inspect-component-set-properties and --inspect-component-set unless --component-set-name is set; also works with --inspect-team-component-set)
-  --component-set-name <n>        Component set name (required with --inspect-component-set-properties and --inspect-component-set unless --component-set-key is set; also works with --inspect-team-component-set)
+  --component-set-key <key>       Component set key (required with --inspect-component-set-properties and --inspect-component-set unless --component-set-name is set; also works with --inspect-team-component-set and --export-component-set)
+  --component-set-name <n>        Component set name (required with --inspect-component-set-properties and --inspect-component-set unless --component-set-key is set; also works with --inspect-team-component-set and --export-component-set)
   --json                          Print JSON instead of a table
   --help, -h                      Show this help message
 `;

@@ -1,4 +1,12 @@
 import {
+  readBoundVariable,
+  readBoundVariableAt,
+  readCornerRadiusUniformVariable,
+  readCornerRadiusVariable,
+  readNodeBoundVariables,
+} from "./bound-variables.js";
+import { extractInstanceSlots } from "./extract-slots.js";
+import {
   type FigmaNode,
   isRecord,
   readArray,
@@ -8,10 +16,12 @@ import {
   readRecord,
   readString,
 } from "./figma-node.js";
+import type { SlimContext } from "./slim-context.js";
 import type {
   SlimAlign,
   SlimBorder,
   SlimComponentRef,
+  SlimDimension,
   SlimEffect,
   SlimFill,
   SlimIcon,
@@ -61,6 +71,28 @@ function variableId(raw: unknown): string | undefined {
   }
 
   return id.replace(/^VariableID:/, "");
+}
+
+function slimDimension(
+  value: number | undefined,
+  variable: string | undefined,
+): number | SlimDimension | undefined {
+  if (variable) {
+    return pruneEmpty({ value, variable });
+  }
+
+  return value;
+}
+
+function slimStringDimension(
+  value: string | undefined,
+  variable: string | undefined,
+): string | SlimDimension | undefined {
+  if (variable) {
+    return pruneEmpty({ value, variable });
+  }
+
+  return value;
 }
 
 function rgbToHex(r: number, g: number, b: number): string {
@@ -128,11 +160,24 @@ function slimFills(raw: unknown): SlimFill[] | undefined {
 }
 
 function slimPadding(node: FigmaNode): SlimPadding | undefined {
+  const bound = readNodeBoundVariables(node);
   const padding: SlimPadding = {
-    top: readNumber(node, "paddingTop"),
-    right: readNumber(node, "paddingRight"),
-    bottom: readNumber(node, "paddingBottom"),
-    left: readNumber(node, "paddingLeft"),
+    top: slimDimension(
+      readNumber(node, "paddingTop"),
+      readBoundVariable(bound, "paddingTop"),
+    ),
+    right: slimDimension(
+      readNumber(node, "paddingRight"),
+      readBoundVariable(bound, "paddingRight"),
+    ),
+    bottom: slimDimension(
+      readNumber(node, "paddingBottom"),
+      readBoundVariable(bound, "paddingBottom"),
+    ),
+    left: slimDimension(
+      readNumber(node, "paddingLeft"),
+      readBoundVariable(bound, "paddingLeft"),
+    ),
   };
 
   return pruneEmpty(padding);
@@ -159,19 +204,35 @@ function slimSizing(node: FigmaNode): SlimSizing | undefined {
 }
 
 function slimLayout(node: FigmaNode): SlimLayout | undefined {
+  const bound = readNodeBoundVariables(node);
   const layoutMode = readString(node, "layoutMode");
   const layout: SlimLayout = {
-    gap: readNumber(node, "itemSpacing"),
+    gap: slimDimension(
+      readNumber(node, "itemSpacing"),
+      readBoundVariable(bound, "itemSpacing"),
+    ),
     padding: slimPadding(node),
     align: slimAlign(node),
     wrap: readString(node, "layoutWrap") === "WRAP" ? true : undefined,
     sizing: slimSizing(node),
     grow: readNumber(node, "layoutGrow"),
     alignSelf: readString(node, "layoutAlign"),
-    maxWidth: readNumber(node, "maxWidth"),
-    minWidth: readNumber(node, "minWidth"),
-    maxHeight: readNumber(node, "maxHeight"),
-    minHeight: readNumber(node, "minHeight"),
+    maxWidth: slimDimension(
+      readNumber(node, "maxWidth"),
+      readBoundVariable(bound, "maxWidth"),
+    ),
+    minWidth: slimDimension(
+      readNumber(node, "minWidth"),
+      readBoundVariable(bound, "minWidth"),
+    ),
+    maxHeight: slimDimension(
+      readNumber(node, "maxHeight"),
+      readBoundVariable(bound, "maxHeight"),
+    ),
+    minHeight: slimDimension(
+      readNumber(node, "minHeight"),
+      readBoundVariable(bound, "minHeight"),
+    ),
     clip: readBoolean(node, "clipsContent"),
   };
 
@@ -184,17 +245,33 @@ function slimLayout(node: FigmaNode): SlimLayout | undefined {
   return pruneEmpty(layout);
 }
 
-function slimRadius(node: FigmaNode): number | SlimRadius | undefined {
+function slimRadius(
+  node: FigmaNode,
+): number | SlimDimension | SlimRadius | undefined {
+  const bound = readNodeBoundVariables(node);
   const cornerRadius = readNumber(node, "cornerRadius");
   const radii = readRecord(node, "rectangleCornerRadii");
   const smoothing = readNumber(node, "cornerSmoothing");
+  const uniformVariable = readCornerRadiusUniformVariable(bound);
 
   if (radii) {
     const radius: SlimRadius = {
-      topLeft: readNumber(radii, "topLeftRadius"),
-      topRight: readNumber(radii, "topRightRadius"),
-      bottomLeft: readNumber(radii, "bottomLeftRadius"),
-      bottomRight: readNumber(radii, "bottomRightRadius"),
+      topLeft: slimDimension(
+        readNumber(radii, "topLeftRadius"),
+        readCornerRadiusVariable(bound, "topLeft"),
+      ),
+      topRight: slimDimension(
+        readNumber(radii, "topRightRadius"),
+        readCornerRadiusVariable(bound, "topRight"),
+      ),
+      bottomLeft: slimDimension(
+        readNumber(radii, "bottomLeftRadius"),
+        readCornerRadiusVariable(bound, "bottomLeft"),
+      ),
+      bottomRight: slimDimension(
+        readNumber(radii, "bottomRightRadius"),
+        readCornerRadiusVariable(bound, "bottomRight"),
+      ),
       smoothing,
     };
 
@@ -202,6 +279,10 @@ function slimRadius(node: FigmaNode): number | SlimRadius | undefined {
   }
 
   if (cornerRadius !== undefined) {
+    if (uniformVariable) {
+      return pruneEmpty({ value: cornerRadius, variable: uniformVariable });
+    }
+
     return cornerRadius;
   }
 
@@ -290,16 +371,35 @@ function slimStyle(node: FigmaNode): SlimStyle | undefined {
 
 function slimTextStyle(node: FigmaNode): SlimText | undefined {
   const style = readRecord(node, "style");
+  const bound = readNodeBoundVariables(node);
   const text: SlimText = {
     content: readString(node, "characters"),
-    fontFamily: style ? readString(style, "fontFamily") : undefined,
-    fontSize: style ? readNumber(style, "fontSize") : undefined,
-    fontWeight: style ? readNumber(style, "fontWeight") : undefined,
-    fontStyle: style ? readString(style, "fontStyle") : undefined,
+    fontFamily: slimStringDimension(
+      style ? readString(style, "fontFamily") : undefined,
+      readBoundVariableAt(bound, "fontFamily"),
+    ),
+    fontSize: slimDimension(
+      style ? readNumber(style, "fontSize") : undefined,
+      readBoundVariableAt(bound, "fontSize"),
+    ),
+    fontWeight: slimDimension(
+      style ? readNumber(style, "fontWeight") : undefined,
+      readBoundVariableAt(bound, "fontWeight"),
+    ),
+    fontStyle: slimStringDimension(
+      style ? readString(style, "fontStyle") : undefined,
+      readBoundVariableAt(bound, "fontStyle"),
+    ),
     align: style ? readString(style, "textAlignHorizontal") : undefined,
     verticalAlign: style ? readString(style, "textAlignVertical") : undefined,
-    lineHeight: style ? readNumber(style, "lineHeightPx") : undefined,
-    letterSpacing: style ? readNumber(style, "letterSpacing") : undefined,
+    lineHeight: slimDimension(
+      style ? readNumber(style, "lineHeightPx") : undefined,
+      readBoundVariableAt(bound, "lineHeight"),
+    ),
+    letterSpacing: slimDimension(
+      style ? readNumber(style, "letterSpacing") : undefined,
+      readBoundVariableAt(bound, "letterSpacing"),
+    ),
     autoResize: style ? readString(style, "textAutoResize") : undefined,
     color: slimFills(node.fills)?.[0],
   };
@@ -409,10 +509,10 @@ function slimIconFromInstance(node: FigmaNode): SlimIcon | undefined {
 
 function slimChildren(
   node: FigmaNode,
-  propIdToName: Map<string, string>,
+  context: SlimContext,
 ): SlimNode[] | undefined {
   const children = readChildren(node)
-    .map((child) => slimNode(child, propIdToName))
+    .map((child) => slimNode(child, context))
     .filter((child): child is SlimNode => child !== undefined);
 
   return children.length > 0 ? children : undefined;
@@ -420,7 +520,7 @@ function slimChildren(
 
 export function slimNode(
   node: FigmaNode,
-  propIdToName: Map<string, string>,
+  context: SlimContext,
 ): SlimNode | undefined {
   const type = readString(node, "type");
   if (!type) {
@@ -428,6 +528,7 @@ export function slimNode(
   }
 
   const references = readRecord(node, "componentPropertyReferences");
+  const propIdToName = context.propIdToName;
   const slim: SlimNode = {
     name: readString(node, "name"),
     type: type.toLowerCase(),
@@ -452,131 +553,25 @@ export function slimNode(
   }
 
   if (type === "INSTANCE") {
-    slim.component = slimComponentRef(node, propIdToName);
-    const icon = slimIconFromInstance(node);
-    if (icon) {
-      slim.icon = icon;
+    const componentName = readString(node, "name");
+    const componentId = readString(node, "componentId");
+
+    if (context.teamComponents?.isKnownComponent(componentName, componentId)) {
+      slim.type = "component";
+      slim.component = componentName ?? componentId;
+      slim.slots = extractInstanceSlots(node, context.teamComponents);
     } else {
-      slim.children = slimChildren(node, propIdToName);
+      slim.component = slimComponentRef(node, propIdToName);
+      const icon = slimIconFromInstance(node);
+      if (icon) {
+        slim.icon = icon;
+      } else {
+        slim.children = slimChildren(node, context);
+      }
     }
   } else if (type !== "VECTOR") {
-    slim.children = slimChildren(node, propIdToName);
+    slim.children = slimChildren(node, context);
   }
 
   return pruneEmpty(slim);
-}
-
-export function flattenSlimNode(
-  node: SlimNode,
-  prefix = "",
-): Map<string, unknown> {
-  const entries = new Map<string, unknown>();
-
-  const assign = (key: string, value: unknown) => {
-    if (value !== undefined) {
-      entries.set(prefix ? `${prefix}.${key}` : key, value);
-    }
-  };
-
-  assign("name", node.name);
-  assign("type", node.type);
-  assign("prop", node.prop);
-  assign("visible", node.visible);
-
-  if (node.layout) {
-    flattenObject(
-      node.layout as Record<string, unknown>,
-      prefix ? `${prefix}.layout` : "layout",
-      entries,
-    );
-  }
-  if (node.style) {
-    flattenObject(
-      node.style as Record<string, unknown>,
-      prefix ? `${prefix}.style` : "style",
-      entries,
-    );
-  }
-  if (node.text) {
-    flattenObject(
-      node.text as Record<string, unknown>,
-      prefix ? `${prefix}.text` : "text",
-      entries,
-    );
-  }
-  if (node.component) {
-    flattenObject(
-      node.component as Record<string, unknown>,
-      prefix ? `${prefix}.component` : "component",
-      entries,
-    );
-  }
-  if (node.icon) {
-    flattenObject(
-      node.icon as Record<string, unknown>,
-      prefix ? `${prefix}.icon` : "icon",
-      entries,
-    );
-  }
-
-  node.children?.forEach((child, index) => {
-    for (const [key, value] of flattenSlimNode(
-      child,
-      `${prefix ? `${prefix}.` : ""}children.${index}`,
-    )) {
-      entries.set(key, value);
-    }
-  });
-
-  return entries;
-}
-
-function flattenObject(
-  value: Record<string, unknown>,
-  prefix: string,
-  entries: Map<string, unknown>,
-): void {
-  for (const [key, entry] of Object.entries(value)) {
-    const path = `${prefix}.${key}`;
-    if (entry === undefined || entry === null) {
-      continue;
-    }
-
-    if (Array.isArray(entry)) {
-      entry.forEach((item, index) => {
-        if (isRecord(item)) {
-          flattenObject(item, `${path}.${index}`, entries);
-        } else {
-          entries.set(`${path}.${index}`, item);
-        }
-      });
-      continue;
-    }
-
-    if (isRecord(entry)) {
-      flattenObject(entry, path, entries);
-      continue;
-    }
-
-    entries.set(path, entry);
-  }
-}
-
-function deepEqual(left: unknown, right: unknown): boolean {
-  return JSON.stringify(left) === JSON.stringify(right);
-}
-
-export function diffFlatMaps(
-  base: Map<string, unknown>,
-  other: Map<string, unknown>,
-): Record<string, unknown> {
-  const changes: Record<string, unknown> = {};
-
-  for (const [key, value] of other) {
-    if (!base.has(key) || !deepEqual(base.get(key), value)) {
-      changes[key] = value;
-    }
-  }
-
-  return changes;
 }

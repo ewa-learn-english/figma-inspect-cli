@@ -59,6 +59,8 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 11 | `--inspect-file-node` | `--file-key $FILE_KEY --node-id $NODE_ID` | raw API payload |
 | 12 | `--build-component-set-spec` | `--input tmp/component-set.json` | local file only; no Figma token |
 | 13 | `--build-component-set-spec` | `--input tmp/component-set.json --variables tmp/variables.json` | resolves Figma variable ids to token names |
+| 14 | `--build-component-set-spec` | `--input tmp/component-set.json --team-components tmp/ComponentSets.json` | collapses known team components to slots |
+| 15 | `--export-component-set` | `--output-dir tmp --component-set-name $COMPONENT_SET_NAME` | writes `<name>.json` and `<name>.build.json`; needs `FIGMA_TEAM_ID` |
 
 Example:
 
@@ -77,6 +79,8 @@ npx . --inspect-team-component-set --component-set-name Cell
 npx . --inspect-file-node --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2
 npx . --build-component-set-spec --input tmp/component-set.json
 npx . --build-component-set-spec --input tmp/component-set.json --variables tmp/variables.json
+npx . --build-component-set-spec --input tmp/component-set.json --team-components tmp/ComponentSets.json
+npx . --export-component-set --output-dir tmp --component-set-name "$COMPONENT_SET_NAME"
 ```
 
 ## Execution rules
