@@ -23,9 +23,16 @@ List files in a project:
 npx . --list-project-files --project-id <project_id>
 ```
 
+List pages in a file:
+
+```sh
+npx . --list-pages --file-key <file_key>
+```
+
 For script-friendly output:
 
 ```sh
 npx . --list-projects --json
 npx . --list-project-files --project-id <project_id> --json
+npx . --list-pages --file-key <file_key> --json
 ```

@@ -22,3 +22,14 @@ export interface ListProjectFilesOptions {
   projectId: string;
   fetchImpl?: typeof fetch;
 }
+
+export interface FigmaPage {
+  id: string;
+  name: string;
+}
+
+export interface ListFilePagesOptions {
+  token: string;
+  fileKey: string;
+  fetchImpl?: typeof fetch;
+}

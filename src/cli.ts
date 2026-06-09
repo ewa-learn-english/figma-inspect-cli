@@ -1,13 +1,15 @@
 import {
   FigmaApiError,
+  listFilePages,
   listProjectFiles,
   listTeamProjects,
 } from "./figma-api/index.js";
-import type { FigmaFile, FigmaProject } from "./figma-api/types.js";
+import type { FigmaFile, FigmaPage, FigmaProject } from "./figma-api/types.js";
 
 const usage = `Usage:
   figma-inspect --list-projects [--json]
   figma-inspect --list-project-files --project-id <id> [--json]
+  figma-inspect --list-pages --file-key <key> [--json]
 
 Environment:
   FIGMA_API_TOKEN  Figma personal access token
@@ -16,7 +18,9 @@ Environment:
 Options:
   --list-projects       List projects in a Figma team
   --list-project-files  List files in a Figma project
+  --list-pages          List pages in a Figma file
   --project-id <id>     Project id (required with --list-project-files)
+  --file-key <key>      File key (required with --list-pages)
   --json                Print JSON instead of a table
   --help, -h            Show this help message
 `;
@@ -25,7 +29,9 @@ export interface CliOptions {
   help: boolean;
   listProjects: boolean;
   listProjectFiles: boolean;
+  listPages: boolean;
   projectId: string | undefined;
+  fileKey: string | undefined;
   json: boolean;
 }
 
@@ -43,9 +49,13 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
     return;
   }
 
-  if (!options.listProjects && !options.listProjectFiles) {
+  if (
+    !options.listProjects &&
+    !options.listProjectFiles &&
+    !options.listPages
+  ) {
     throw new CliError(
-      "Nothing to do. Pass --list-projects or --list-project-files.\n\n" +
+      "Nothing to do. Pass --list-projects, --list-project-files, or --list-pages.\n\n" +
         usage,
     );
   }
@@ -67,15 +77,28 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
       return;
     }
 
-    if (!options.projectId) {
-      throw new CliError("Missing --project-id for --list-project-files.");
+    if (options.listProjectFiles) {
+      if (!options.projectId) {
+        throw new CliError("Missing --project-id for --list-project-files.");
+      }
+
+      const files = await listProjectFiles({
+        token,
+        projectId: options.projectId,
+      });
+      writeFiles(files, options, io.stdout);
+      return;
     }
 
-    const files = await listProjectFiles({
+    if (!options.fileKey) {
+      throw new CliError("Missing --file-key for --list-pages.");
+    }
+
+    const pages = await listFilePages({
       token,
-      projectId: options.projectId,
+      fileKey: options.fileKey,
     });
-    writeFiles(files, options, io.stdout);
+    writePages(pages, options, io.stdout);
   } catch (error) {
     if (error instanceof FigmaApiError) {
       throw new CliError(error.message);
@@ -90,7 +113,9 @@ export function parseArgs(argv: string[]): CliOptions {
     help: false,
     listProjects: false,
     listProjectFiles: false,
+    listPages: false,
     projectId: undefined,
+    fileKey: undefined,
     json: false,
   };
 
@@ -112,6 +137,11 @@ export function parseArgs(argv: string[]): CliOptions {
       continue;
     }
 
+    if (arg === "--list-pages") {
+      options.listPages = true;
+      continue;
+    }
+
     if (arg === "--project-id") {
       const value = argv[index + 1];
       if (!value || value.startsWith("-")) {
@@ -119,6 +149,17 @@ export function parseArgs(argv: string[]): CliOptions {
       }
 
       options.projectId = value;
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--file-key") {
+      const value = argv[index + 1];
+      if (!value || value.startsWith("-")) {
+        throw new CliError("Missing value for --file-key.");
+      }
+
+      options.fileKey = value;
       index += 1;
       continue;
     }
@@ -239,6 +280,50 @@ function writeFiles(
       ...rows.map(
         (row) =>
           `${pad(row.key, widths.key)}  ${pad(row.name, widths.name)}  ${pad(row.modified, widths.modified)}`,
+      ),
+    ].join("\n")}\n`,
+  );
+}
+
+interface PageRow {
+  id: string;
+  name: string;
+}
+
+function writePages(
+  pages: FigmaPage[],
+  options: CliOptions,
+  stdout: NodeJS.WriteStream,
+): void {
+  if (options.json) {
+    stdout.write(`${JSON.stringify(pages, null, 2)}\n`);
+    return;
+  }
+
+  if (pages.length === 0) {
+    stdout.write("No pages found.\n");
+    return;
+  }
+
+  const rows: PageRow[] = pages.map((page) => ({
+    id: String(page.id ?? ""),
+    name: String(page.name ?? ""),
+  }));
+
+  const widths = {
+    id: Math.max("ID".length, ...rows.map((row) => row.id.length)),
+    name: Math.max("Name".length, ...rows.map((row) => row.name.length)),
+  };
+
+  const header = `${pad("ID", widths.id)}  ${pad("Name", widths.name)}`;
+  const divider = `${"-".repeat(widths.id)}  ${"-".repeat(widths.name)}`;
+
+  stdout.write(
+    `${[
+      header,
+      divider,
+      ...rows.map(
+        (row) => `${pad(row.id, widths.id)}  ${pad(row.name, widths.name)}`,
       ),
     ].join("\n")}\n`,
   );
