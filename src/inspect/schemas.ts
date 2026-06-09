@@ -48,7 +48,10 @@ const documentNodeSchema: z.ZodType<DocumentNode> = z.lazy(() =>
       name: z.string().optional(),
       type: z.string().optional(),
       componentId: z.string().optional(),
-      isExposedInstance: z.unknown().transform((value) => value === true),
+      isExposedInstance: z
+        .unknown()
+        .optional()
+        .transform((value) => value === true),
       children: z.array(z.unknown()).optional(),
     })
     .transform((node) => ({
