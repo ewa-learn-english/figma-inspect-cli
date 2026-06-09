@@ -37,7 +37,7 @@ Use these defaults unless the user provides overrides in the chat:
 
 Derive at runtime when needed:
 
-- `PROJECT_ID` — from `--list-projects --json`; pick the project whose files include `FILE_KEY`, or the first project if user did not specify.
+- `PROJECT_ID` — from `--list-team-projects --json`; pick the project whose files include `FILE_KEY`, or the first project if user did not specify.
 - `COMPONENT_SET_KEY` — from `--list-file-component-sets --file-key $FILE_KEY --json`; pick the entry whose `name` equals `COMPONENT_SET_NAME`.
 
 ## Commands to test
@@ -46,31 +46,31 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 
 | # | Command | Required args | Notes |
 |---|---|---|---|
-| 1 | `--list-projects` | `--json` | needs `FIGMA_TEAM_ID` |
+| 1 | `--list-team-projects` | `--json` | needs `FIGMA_TEAM_ID` |
 | 2 | `--list-project-files` | `--project-id $PROJECT_ID --json` | |
-| 3 | `--list-all-project-files` | `--json` | needs `FIGMA_TEAM_ID` |
-| 4 | `--list-all-component-sets` | `--json` | needs `FIGMA_TEAM_ID`; published sets only |
-| 5 | `--list-pages` | `--file-key $FILE_KEY --json` | |
+| 3 | `--list-team-project-files` | `--json` | needs `FIGMA_TEAM_ID` |
+| 4 | `--list-team-component-sets` | `--json` | needs `FIGMA_TEAM_ID`; published sets only |
+| 5 | `--list-file-pages` | `--file-key $FILE_KEY --json` | |
 | 6 | `--list-file-component-sets` | `--file-key $FILE_KEY --json` | |
-| 7 | `--list-component-set-properties` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME --json` | |
-| 8 | `--list-component-set-properties` | same + `--component-set-key $COMPONENT_SET_KEY --json` | key lookup variant |
+| 7 | `--inspect-component-set-properties` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME --json` | |
+| 8 | `--inspect-component-set-properties` | same + `--component-set-key $COMPONENT_SET_KEY --json` | key lookup variant |
 | 9 | `--inspect-component-set` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME` | no `--json` |
-| 10 | `--inspect-node` | `--file-key $FILE_KEY --node-id $NODE_ID` | raw API payload |
+| 10 | `--inspect-file-node` | `--file-key $FILE_KEY --node-id $NODE_ID` | raw API payload |
 
 Example:
 
 ```sh
 npm run build
 
-npx . --list-projects --json
+npx . --list-team-projects --json
 npx . --list-project-files --project-id "$PROJECT_ID" --json
-npx . --list-all-project-files --json
-npx . --list-all-component-sets --json
-npx . --list-pages --file-key O7aE7SeG2TRBCK5MsjkG7z --json
+npx . --list-team-project-files --json
+npx . --list-team-component-sets --json
+npx . --list-file-pages --file-key O7aE7SeG2TRBCK5MsjkG7z --json
 npx . --list-file-component-sets --file-key O7aE7SeG2TRBCK5MsjkG7z --json
-npx . --list-component-set-properties --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2 --component-set-name Cell --json
+npx . --inspect-component-set-properties --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2 --component-set-name Cell --json
 npx . --inspect-component-set --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2 --component-set-name Cell
-npx . --inspect-node --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2
+npx . --inspect-file-node --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2
 ```
 
 ## Execution rules
@@ -90,7 +90,7 @@ npx . --inspect-node --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2
 
 | Command | Exit | Result |
 |---|---|---|
-| --list-projects | 0 | OK — N projects |
+| --list-team-projects | 0 | OK — N projects |
 | ... | | |
 
 ### Fixes applied

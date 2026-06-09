@@ -43,7 +43,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
 
   try {
     switch (command.kind) {
-      case "list-projects": {
+      case "list-team-projects": {
         const teamId = io.env.FIGMA_TEAM_ID;
         if (!teamId) {
           throw new CliError("Missing FIGMA_TEAM_ID environment variable.");
@@ -53,7 +53,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         writeProjects(projects, command.json, io.stdout);
         break;
       }
-      case "list-all-project-files": {
+      case "list-team-project-files": {
         const teamId = io.env.FIGMA_TEAM_ID;
         if (!teamId) {
           throw new CliError("Missing FIGMA_TEAM_ID environment variable.");
@@ -63,7 +63,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         writeTeamProjectFiles(files, command.json, io.stdout);
         break;
       }
-      case "list-all-component-sets": {
+      case "list-team-component-sets": {
         const teamId = io.env.FIGMA_TEAM_ID;
         if (!teamId) {
           throw new CliError("Missing FIGMA_TEAM_ID environment variable.");
@@ -81,7 +81,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         writeFiles(files, command.json, io.stdout);
         break;
       }
-      case "list-pages": {
+      case "list-file-pages": {
         const pages = await listFilePages({
           token,
           fileKey: command.fileKey,
@@ -107,7 +107,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         );
         break;
       }
-      case "list-component-set-properties": {
+      case "inspect-component-set-properties": {
         const properties = await listComponentSetProperties({
           token,
           ...command.scope,
@@ -123,7 +123,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         writeJson(componentSet, io.stdout);
         break;
       }
-      case "inspect-node": {
+      case "inspect-file-node": {
         const node = await getFileNode({
           token,
           fileKey: command.fileKey,

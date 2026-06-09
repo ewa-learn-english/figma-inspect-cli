@@ -5,15 +5,15 @@ import { usage } from "./usage.js";
 
 interface ParsedFlags {
   help: boolean;
-  listProjects: boolean;
+  listTeamProjects: boolean;
   listProjectFiles: boolean;
-  listAllProjectFiles: boolean;
-  listAllComponentSets: boolean;
-  listPages: boolean;
+  listTeamProjectFiles: boolean;
+  listTeamComponentSets: boolean;
+  listFilePages: boolean;
   listFileComponentSets: boolean;
-  listComponentSetProperties: boolean;
+  inspectComponentSetProperties: boolean;
   inspectComponentSet: boolean;
-  inspectNode: boolean;
+  inspectFileNode: boolean;
   projectId: string | undefined;
   fileKey: string | undefined;
   nodeId: string | undefined;
@@ -25,15 +25,15 @@ interface ParsedFlags {
 function emptyFlags(): ParsedFlags {
   return {
     help: false,
-    listProjects: false,
+    listTeamProjects: false,
     listProjectFiles: false,
-    listAllProjectFiles: false,
-    listAllComponentSets: false,
-    listPages: false,
+    listTeamProjectFiles: false,
+    listTeamComponentSets: false,
+    listFilePages: false,
     listFileComponentSets: false,
-    listComponentSetProperties: false,
+    inspectComponentSetProperties: false,
     inspectComponentSet: false,
-    inspectNode: false,
+    inspectFileNode: false,
     projectId: undefined,
     fileKey: undefined,
     nodeId: undefined,
@@ -117,26 +117,28 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
   }
 
   const selected = [
-    flags.listProjects ? ("list-projects" as const) : undefined,
+    flags.listTeamProjects ? ("list-team-projects" as const) : undefined,
     flags.listProjectFiles ? ("list-project-files" as const) : undefined,
-    flags.listAllProjectFiles ? ("list-all-project-files" as const) : undefined,
-    flags.listAllComponentSets
-      ? ("list-all-component-sets" as const)
+    flags.listTeamProjectFiles
+      ? ("list-team-project-files" as const)
       : undefined,
-    flags.listPages ? ("list-pages" as const) : undefined,
+    flags.listTeamComponentSets
+      ? ("list-team-component-sets" as const)
+      : undefined,
+    flags.listFilePages ? ("list-file-pages" as const) : undefined,
     flags.listFileComponentSets
       ? ("list-file-component-sets" as const)
       : undefined,
-    flags.listComponentSetProperties
-      ? ("list-component-set-properties" as const)
+    flags.inspectComponentSetProperties
+      ? ("inspect-component-set-properties" as const)
       : undefined,
     flags.inspectComponentSet ? ("inspect-component-set" as const) : undefined,
-    flags.inspectNode ? ("inspect-node" as const) : undefined,
+    flags.inspectFileNode ? ("inspect-file-node" as const) : undefined,
   ].filter((command) => command !== undefined);
 
   if (selected.length === 0) {
     throw new CliError(
-      "Nothing to do. Pass --list-projects, --list-project-files, --list-all-project-files, --list-all-component-sets, --list-pages, --list-file-component-sets, --list-component-set-properties, --inspect-component-set, or --inspect-node.\n\n" +
+      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --list-team-component-sets, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, or --inspect-file-node.\n\n" +
         usage,
     );
   }
@@ -148,12 +150,12 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
   const command = selected[0];
 
   switch (command) {
-    case "list-projects":
-      return { kind: "list-projects", json: flags.json };
-    case "list-all-project-files":
-      return { kind: "list-all-project-files", json: flags.json };
-    case "list-all-component-sets":
-      return { kind: "list-all-component-sets", json: flags.json };
+    case "list-team-projects":
+      return { kind: "list-team-projects", json: flags.json };
+    case "list-team-project-files":
+      return { kind: "list-team-project-files", json: flags.json };
+    case "list-team-component-sets":
+      return { kind: "list-team-component-sets", json: flags.json };
     case "list-project-files": {
       if (!flags.projectId) {
         throw new CliError("Missing --project-id for --list-project-files.");
@@ -165,10 +167,10 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         json: flags.json,
       };
     }
-    case "list-pages":
+    case "list-file-pages":
       return {
-        kind: "list-pages",
-        fileKey: requireFileKey(flags.fileKey, "--list-pages"),
+        kind: "list-file-pages",
+        fileKey: requireFileKey(flags.fileKey, "--list-file-pages"),
         json: flags.json,
       };
     case "list-file-component-sets":
@@ -177,12 +179,12 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         fileKey: requireFileKey(flags.fileKey, "--list-file-component-sets"),
         json: flags.json,
       };
-    case "list-component-set-properties":
+    case "inspect-component-set-properties":
       return {
-        kind: "list-component-set-properties",
+        kind: "inspect-component-set-properties",
         scope: requireComponentSetScope(
           flags,
-          "--list-component-set-properties",
+          "--inspect-component-set-properties",
         ),
         json: flags.json,
       };
@@ -191,11 +193,11 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         kind: "inspect-component-set",
         scope: requireComponentSetScope(flags, "--inspect-component-set"),
       };
-    case "inspect-node":
+    case "inspect-file-node":
       return {
-        kind: "inspect-node",
-        fileKey: requireFileKey(flags.fileKey, "--inspect-node"),
-        nodeId: requireNodeId(flags.nodeId, "--inspect-node"),
+        kind: "inspect-file-node",
+        fileKey: requireFileKey(flags.fileKey, "--inspect-file-node"),
+        nodeId: requireNodeId(flags.nodeId, "--inspect-file-node"),
       };
     default: {
       const exhaustive: never = command;
@@ -215,8 +217,8 @@ export function parseCommand(argv: string[]): CliCommand {
       continue;
     }
 
-    if (arg === "--list-projects") {
-      flags.listProjects = true;
+    if (arg === "--list-team-projects") {
+      flags.listTeamProjects = true;
       continue;
     }
 
@@ -225,18 +227,18 @@ export function parseCommand(argv: string[]): CliCommand {
       continue;
     }
 
-    if (arg === "--list-all-project-files") {
-      flags.listAllProjectFiles = true;
+    if (arg === "--list-team-project-files") {
+      flags.listTeamProjectFiles = true;
       continue;
     }
 
-    if (arg === "--list-all-component-sets") {
-      flags.listAllComponentSets = true;
+    if (arg === "--list-team-component-sets") {
+      flags.listTeamComponentSets = true;
       continue;
     }
 
-    if (arg === "--list-pages") {
-      flags.listPages = true;
+    if (arg === "--list-file-pages") {
+      flags.listFilePages = true;
       continue;
     }
 
@@ -245,8 +247,8 @@ export function parseCommand(argv: string[]): CliCommand {
       continue;
     }
 
-    if (arg === "--list-component-set-properties") {
-      flags.listComponentSetProperties = true;
+    if (arg === "--inspect-component-set-properties") {
+      flags.inspectComponentSetProperties = true;
       continue;
     }
 
@@ -255,8 +257,8 @@ export function parseCommand(argv: string[]): CliCommand {
       continue;
     }
 
-    if (arg === "--inspect-node") {
-      flags.inspectNode = true;
+    if (arg === "--inspect-file-node") {
+      flags.inspectFileNode = true;
       continue;
     }
 
