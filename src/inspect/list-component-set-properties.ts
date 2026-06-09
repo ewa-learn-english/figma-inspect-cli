@@ -1,20 +1,13 @@
 import type {
   ComponentEntry,
   ComponentSetEntry,
+  DocumentNode,
 } from "./get-node-component-set.js";
 import { loadComponentSetContext } from "./get-node-component-set.js";
 import type {
+  ComponentSetScopeOptions,
   FigmaComponentSetProperty,
-  GetNodeComponentSetOptions,
 } from "./types.js";
-
-interface DocumentNode {
-  name?: string;
-  type?: string;
-  componentId?: string;
-  isExposedInstance?: boolean;
-  children?: DocumentNode[];
-}
 
 function buildComponentSetNameIndex(
   componentSets: Record<string, ComponentSetEntry>,
@@ -131,13 +124,13 @@ function collectNestedComponents(
 }
 
 export async function listComponentSetProperties(
-  options: GetNodeComponentSetOptions,
+  options: ComponentSetScopeOptions,
 ): Promise<FigmaComponentSetProperty[]> {
   const { tree, componentSets, components } =
     await loadComponentSetContext(options);
   const seen = new Map<string, FigmaComponentSetProperty>();
   collectNestedComponents(
-    tree as DocumentNode,
+    tree,
     buildComponentSetNameIndex(componentSets),
     componentSets,
     components,

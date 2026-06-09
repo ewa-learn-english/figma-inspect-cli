@@ -1,20 +1,23 @@
 import {
   FigmaApiError,
   getFileNode,
-  getNodeComponentSet,
-  listComponentSetProperties,
   listFilePages,
-  listNodeComponentSets,
   listProjectFiles,
   listTeamProjects,
 } from "./figma-api/index.js";
+import type { FigmaFile, FigmaPage, FigmaProject } from "./figma-api/types.js";
+import { formatTable, writeJsonOrTable } from "./format-table.js";
+import {
+  FigmaInspectError,
+  getNodeComponentSet,
+  listComponentSetProperties,
+  listNodeComponentSets,
+} from "./inspect/index.js";
 import type {
+  ComponentSetLookup,
   FigmaComponentSet,
   FigmaComponentSetProperty,
-  FigmaFile,
-  FigmaPage,
-  FigmaProject,
-} from "./figma-api/types.js";
+} from "./inspect/types.js";
 
 const usage = `Usage:
   figma-inspect --list-projects [--json]
@@ -105,7 +108,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
       }
 
       const projects = await listTeamProjects({ token, teamId });
-      writeProjects(projects, options, io.stdout);
+      writeProjects(projects, options.json, io.stdout);
       return;
     }
 
@@ -118,7 +121,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         token,
         projectId: options.projectId,
       });
-      writeFiles(files, options, io.stdout);
+      writeFiles(files, options.json, io.stdout);
       return;
     }
 
@@ -136,91 +139,33 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         fileKey: options.fileKey,
         nodeId: options.nodeId,
       });
-      writeComponentSets(componentSets, options, io.stdout);
+      writeComponentSets(componentSets, options.json, io.stdout);
       return;
     }
 
     if (options.listComponentSetProperties) {
-      if (!options.fileKey) {
-        throw new CliError(
-          "Missing --file-key for --list-component-set-properties.",
-        );
-      }
-
-      if (!options.nodeId) {
-        throw new CliError(
-          "Missing --node-id for --list-component-set-properties.",
-        );
-      }
-
-      if (options.componentSetKey && options.componentSetName) {
-        throw new CliError(
-          "Pass either --component-set-key or --component-set-name for --list-component-set-properties.",
-        );
-      }
-
-      if (!options.componentSetKey && !options.componentSetName) {
-        throw new CliError(
-          "Missing --component-set-key or --component-set-name for --list-component-set-properties.",
-        );
-      }
-
-      try {
-        const properties = await listComponentSetProperties({
-          token,
-          fileKey: options.fileKey,
-          nodeId: options.nodeId,
-          componentSetKey: options.componentSetKey,
-          componentSetName: options.componentSetName,
-        });
-        writeComponentSetProperties(properties, options, io.stdout);
-      } catch (error) {
-        if (error instanceof Error) {
-          throw new CliError(error.message);
-        }
-
-        throw error;
-      }
+      const scope = requireComponentSetScope(
+        options,
+        "--list-component-set-properties",
+      );
+      const properties = await listComponentSetProperties({
+        token,
+        ...scope,
+      });
+      writeComponentSetProperties(properties, options.json, io.stdout);
       return;
     }
 
     if (options.inspectComponentSet) {
-      if (!options.fileKey) {
-        throw new CliError("Missing --file-key for --inspect-component-set.");
-      }
-
-      if (!options.nodeId) {
-        throw new CliError("Missing --node-id for --inspect-component-set.");
-      }
-
-      if (options.componentSetKey && options.componentSetName) {
-        throw new CliError(
-          "Pass either --component-set-key or --component-set-name for --inspect-component-set.",
-        );
-      }
-
-      if (!options.componentSetKey && !options.componentSetName) {
-        throw new CliError(
-          "Missing --component-set-key or --component-set-name for --inspect-component-set.",
-        );
-      }
-
-      try {
-        const componentSet = await getNodeComponentSet({
-          token,
-          fileKey: options.fileKey,
-          nodeId: options.nodeId,
-          componentSetKey: options.componentSetKey,
-          componentSetName: options.componentSetName,
-        });
-        io.stdout.write(`${JSON.stringify(componentSet, null, 2)}\n`);
-      } catch (error) {
-        if (error instanceof Error) {
-          throw new CliError(error.message);
-        }
-
-        throw error;
-      }
+      const scope = requireComponentSetScope(
+        options,
+        "--inspect-component-set",
+      );
+      const componentSet = await getNodeComponentSet({
+        token,
+        ...scope,
+      });
+      io.stdout.write(`${JSON.stringify(componentSet, null, 2)}\n`);
       return;
     }
 
@@ -250,14 +195,65 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
       token,
       fileKey: options.fileKey,
     });
-    writePages(pages, options, io.stdout);
+    writePages(pages, options.json, io.stdout);
   } catch (error) {
-    if (error instanceof FigmaApiError) {
+    if (error instanceof FigmaApiError || error instanceof FigmaInspectError) {
       throw new CliError(error.message);
     }
 
     throw error;
   }
+}
+
+function requireComponentSetScope(
+  options: CliOptions,
+  command: string,
+): {
+  fileKey: string;
+  nodeId: string;
+  componentSet: ComponentSetLookup;
+} {
+  if (!options.fileKey) {
+    throw new CliError(`Missing --file-key for ${command}.`);
+  }
+
+  if (!options.nodeId) {
+    throw new CliError(`Missing --node-id for ${command}.`);
+  }
+
+  return {
+    fileKey: options.fileKey,
+    nodeId: options.nodeId,
+    componentSet: parseComponentSetLookup(
+      options.componentSetKey,
+      options.componentSetName,
+      command,
+    ),
+  };
+}
+
+function parseComponentSetLookup(
+  componentSetKey: string | undefined,
+  componentSetName: string | undefined,
+  command: string,
+): ComponentSetLookup {
+  if (componentSetKey && componentSetName) {
+    throw new CliError(
+      `Pass either --component-set-key or --component-set-name for ${command}.`,
+    );
+  }
+
+  if (componentSetKey) {
+    return { kind: "key", value: componentSetKey };
+  }
+
+  if (componentSetName) {
+    return { kind: "name", value: componentSetName };
+  }
+
+  throw new CliError(
+    `Missing --component-set-key or --component-set-name for ${command}.`,
+  );
 }
 
 export function parseArgs(argv: string[]): CliOptions {
@@ -395,55 +391,26 @@ interface ProjectRow {
 
 function writeProjects(
   projects: FigmaProject[],
-  options: CliOptions,
+  json: boolean,
   stdout: NodeJS.WriteStream,
 ): void {
-  if (options.json) {
-    stdout.write(`${JSON.stringify(projects, null, 2)}\n`);
-    return;
-  }
+  writeJsonOrTable(projects, json, stdout, "No projects found.", (items) => {
+    const rows: ProjectRow[] = items.map((project) => ({
+      id: String(project.id ?? ""),
+      name: String(project.name ?? ""),
+      files: project.file_count == null ? "" : String(project.file_count),
+    }));
+    const showFiles = rows.some((row) => row.files.length > 0);
+    const columns = [
+      { header: "ID", value: (row: ProjectRow) => row.id },
+      { header: "Name", value: (row: ProjectRow) => row.name },
+      ...(showFiles
+        ? [{ header: "Files", value: (row: ProjectRow) => row.files }]
+        : []),
+    ];
 
-  if (projects.length === 0) {
-    stdout.write("No projects found.\n");
-    return;
-  }
-
-  const rows: ProjectRow[] = projects.map((project) => ({
-    id: String(project.id ?? ""),
-    name: String(project.name ?? ""),
-    files: project.file_count == null ? "" : String(project.file_count),
-  }));
-  const showFiles = rows.some((row) => row.files.length > 0);
-
-  const widths: { id: number; name: number; files?: number } = {
-    id: Math.max("ID".length, ...rows.map((row) => row.id.length)),
-    name: Math.max("Name".length, ...rows.map((row) => row.name.length)),
-  };
-
-  if (showFiles) {
-    widths.files = Math.max(
-      "Files".length,
-      ...rows.map((row) => row.files.length),
-    );
-  }
-
-  const header = showFiles
-    ? `${pad("ID", widths.id)}  ${pad("Name", widths.name)}  ${pad("Files", widths.files!)}`
-    : `${pad("ID", widths.id)}  ${pad("Name", widths.name)}`;
-  const divider = showFiles
-    ? `${"-".repeat(widths.id)}  ${"-".repeat(widths.name)}  ${"-".repeat(widths.files!)}`
-    : `${"-".repeat(widths.id)}  ${"-".repeat(widths.name)}`;
-
-  stdout.write(
-    `${[
-      header,
-      divider,
-      ...rows.map((row) => {
-        const base = `${pad(row.id, widths.id)}  ${pad(row.name, widths.name)}`;
-        return showFiles ? `${base}  ${pad(row.files, widths.files!)}` : base;
-      }),
-    ].join("\n")}\n`,
-  );
+    return formatTable(columns, rows);
+  });
 }
 
 interface FileRow {
@@ -454,182 +421,94 @@ interface FileRow {
 
 function writeFiles(
   files: FigmaFile[],
-  options: CliOptions,
+  json: boolean,
   stdout: NodeJS.WriteStream,
 ): void {
-  if (options.json) {
-    stdout.write(`${JSON.stringify(files, null, 2)}\n`);
-    return;
-  }
+  writeJsonOrTable(files, json, stdout, "No files found.", (items) => {
+    const rows: FileRow[] = items.map((file) => ({
+      key: String(file.key ?? ""),
+      name: String(file.name ?? ""),
+      modified: String(file.last_modified ?? ""),
+    }));
 
-  if (files.length === 0) {
-    stdout.write("No files found.\n");
-    return;
-  }
-
-  const rows: FileRow[] = files.map((file) => ({
-    key: String(file.key ?? ""),
-    name: String(file.name ?? ""),
-    modified: String(file.last_modified ?? ""),
-  }));
-
-  const widths = {
-    key: Math.max("Key".length, ...rows.map((row) => row.key.length)),
-    name: Math.max("Name".length, ...rows.map((row) => row.name.length)),
-    modified: Math.max(
-      "Modified".length,
-      ...rows.map((row) => row.modified.length),
-    ),
-  };
-
-  const header = `${pad("Key", widths.key)}  ${pad("Name", widths.name)}  ${pad("Modified", widths.modified)}`;
-  const divider = `${"-".repeat(widths.key)}  ${"-".repeat(widths.name)}  ${"-".repeat(widths.modified)}`;
-
-  stdout.write(
-    `${[
-      header,
-      divider,
-      ...rows.map(
-        (row) =>
-          `${pad(row.key, widths.key)}  ${pad(row.name, widths.name)}  ${pad(row.modified, widths.modified)}`,
-      ),
-    ].join("\n")}\n`,
-  );
-}
-
-interface PageRow {
-  id: string;
-  name: string;
-}
-
-interface ComponentSetRow {
-  id: string;
-  key: string;
-  name: string;
+    return formatTable(
+      [
+        { header: "Key", value: (row: FileRow) => row.key },
+        { header: "Name", value: (row: FileRow) => row.name },
+        { header: "Modified", value: (row: FileRow) => row.modified },
+      ],
+      rows,
+    );
+  });
 }
 
 function writeComponentSetProperties(
   properties: FigmaComponentSetProperty[],
-  options: CliOptions,
+  json: boolean,
   stdout: NodeJS.WriteStream,
 ): void {
-  if (options.json) {
-    stdout.write(`${JSON.stringify(properties, null, 2)}\n`);
-    return;
-  }
-
-  if (properties.length === 0) {
-    stdout.write("No component set properties found.\n");
-    return;
-  }
-
-  const widths = {
-    id: Math.max("ID".length, ...properties.map((property) => property.id.length)),
-    name: Math.max(
-      "Name".length,
-      ...properties.map((property) => property.name.length),
-    ),
-    exposed: "Exposed".length,
-  };
-
-  const header = `${pad("ID", widths.id)}  ${pad("Name", widths.name)}  ${pad("Exposed", widths.exposed)}`;
-  const divider = `${"-".repeat(widths.id)}  ${"-".repeat(widths.name)}  ${"-".repeat(widths.exposed)}`;
-
-  stdout.write(
-    `${[
-      header,
-      divider,
-      ...properties.map((property) => {
-        const exposed = property.isExposedInstance ? "true" : "false";
-        return `${pad(property.id, widths.id)}  ${pad(property.name, widths.name)}  ${pad(exposed, widths.exposed)}`;
-      }),
-    ].join("\n")}\n`,
+  writeJsonOrTable(
+    properties,
+    json,
+    stdout,
+    "No component set properties found.",
+    (items) =>
+      formatTable(
+        [
+          { header: "ID", value: (property) => property.id },
+          { header: "Name", value: (property) => property.name },
+          {
+            header: "Exposed",
+            value: (property) =>
+              property.isExposedInstance ? "true" : "false",
+          },
+        ],
+        items,
+      ),
   );
 }
 
 function writeComponentSets(
   componentSets: FigmaComponentSet[],
-  options: CliOptions,
+  json: boolean,
   stdout: NodeJS.WriteStream,
 ): void {
-  if (options.json) {
-    stdout.write(`${JSON.stringify(componentSets, null, 2)}\n`);
-    return;
-  }
-
-  if (componentSets.length === 0) {
-    stdout.write("No component sets found.\n");
-    return;
-  }
-
-  const rows: ComponentSetRow[] = componentSets.map((set) => ({
-    id: set.id,
-    key: set.key,
-    name: set.name,
-  }));
-
-  const widths = {
-    id: Math.max("ID".length, ...rows.map((row) => row.id.length)),
-    key: Math.max("Key".length, ...rows.map((row) => row.key.length)),
-    name: Math.max("Name".length, ...rows.map((row) => row.name.length)),
-  };
-
-  const header = `${pad("ID", widths.id)}  ${pad("Key", widths.key)}  ${pad("Name", widths.name)}`;
-  const divider = `${"-".repeat(widths.id)}  ${"-".repeat(widths.key)}  ${"-".repeat(widths.name)}`;
-
-  stdout.write(
-    `${[
-      header,
-      divider,
-      ...rows.map(
-        (row) =>
-          `${pad(row.id, widths.id)}  ${pad(row.key, widths.key)}  ${pad(row.name, widths.name)}`,
+  writeJsonOrTable(
+    componentSets,
+    json,
+    stdout,
+    "No component sets found.",
+    (items) =>
+      formatTable(
+        [
+          { header: "ID", value: (set) => set.id },
+          { header: "Key", value: (set) => set.key },
+          { header: "Name", value: (set) => set.name },
+        ],
+        items,
       ),
-    ].join("\n")}\n`,
   );
 }
 
 function writePages(
   pages: FigmaPage[],
-  options: CliOptions,
+  json: boolean,
   stdout: NodeJS.WriteStream,
 ): void {
-  if (options.json) {
-    stdout.write(`${JSON.stringify(pages, null, 2)}\n`);
-    return;
-  }
+  writeJsonOrTable(pages, json, stdout, "No pages found.", (items) => {
+    const rows = items.map((page) => ({
+      id: String(page.id ?? ""),
+      name: String(page.name ?? ""),
+    }));
 
-  if (pages.length === 0) {
-    stdout.write("No pages found.\n");
-    return;
-  }
-
-  const rows: PageRow[] = pages.map((page) => ({
-    id: String(page.id ?? ""),
-    name: String(page.name ?? ""),
-  }));
-
-  const widths = {
-    id: Math.max("ID".length, ...rows.map((row) => row.id.length)),
-    name: Math.max("Name".length, ...rows.map((row) => row.name.length)),
-  };
-
-  const header = `${pad("ID", widths.id)}  ${pad("Name", widths.name)}`;
-  const divider = `${"-".repeat(widths.id)}  ${"-".repeat(widths.name)}`;
-
-  stdout.write(
-    `${[
-      header,
-      divider,
-      ...rows.map(
-        (row) => `${pad(row.id, widths.id)}  ${pad(row.name, widths.name)}`,
-      ),
-    ].join("\n")}\n`,
-  );
-}
-
-function pad(value: string, length: number): string {
-  return value + " ".repeat(Math.max(0, length - value.length));
+    return formatTable(
+      [
+        { header: "ID", value: (row) => row.id },
+        { header: "Name", value: (row) => row.name },
+      ],
+      rows,
+    );
+  });
 }
 
 export class CliError extends Error {}

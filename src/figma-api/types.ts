@@ -11,6 +11,11 @@ export interface FigmaFile {
   last_modified?: string;
 }
 
+export interface FigmaPage {
+  id: string;
+  name: string;
+}
+
 export interface ListTeamProjectsOptions {
   token: string;
   teamId: string;
@@ -21,11 +26,6 @@ export interface ListProjectFilesOptions {
   token: string;
   projectId: string;
   fetchImpl?: typeof fetch;
-}
-
-export interface FigmaPage {
-  id: string;
-  name: string;
 }
 
 export interface ListFilePagesOptions {
@@ -39,32 +39,4 @@ export interface GetFileNodeOptions {
   fileKey: string;
   nodeId: string;
   fetchImpl?: typeof fetch;
-}
-
-export interface FigmaComponentSet {
-  id: string;
-  key: string;
-  name: string;
-}
-
-export interface ListNodeComponentSetsOptions {
-  token: string;
-  fileKey: string;
-  nodeId: string;
-  fetchImpl?: typeof fetch;
-}
-
-export interface GetNodeComponentSetOptions {
-  token: string;
-  fileKey: string;
-  nodeId: string;
-  componentSetKey?: string;
-  componentSetName?: string;
-  fetchImpl?: typeof fetch;
-}
-
-export interface FigmaComponentSetProperty {
-  id: string;
-  name: string;
-  isExposedInstance: boolean;
 }
