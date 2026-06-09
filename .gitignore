@@ -1,6 +1,7 @@
 node_modules/
 dist/
 tmp/
+.agents/skills/deslopify/MEMORY.md
 .DS_Store
 *.log
 .env
