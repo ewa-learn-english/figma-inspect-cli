@@ -12,6 +12,7 @@ export const usage = `Usage:
 Environment:
   FIGMA_API_TOKEN  Figma personal access token
   FIGMA_TEAM_ID    Figma team id (required for --list-projects, --list-all-project-files, and --list-all-component-sets)
+  FIGMA_CACHE      Set to 0 to disable the on-disk response cache (enabled by default)
 
 Options:
   --list-projects            List projects in a Figma team

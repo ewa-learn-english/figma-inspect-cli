@@ -35,6 +35,7 @@ npm run format           # apply Biome formatting
 - Keep changes focused; match existing style in surrounding code.
 - Figma API requests stay in `src/figma-api/`, inspection logic in `src/inspect/`, CLI wiring in `src/cli/`.
 - Required env vars: `FIGMA_API_TOKEN`, `FIGMA_TEAM_ID`.
+- API responses are cached on disk under the system temp directory (`figma-inspect-cli-cache/`). Set `FIGMA_CACHE=0` to disable.
 - Run `npm run check` before finishing; fix new issues you introduce.
 
 ## Skills
