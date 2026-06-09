@@ -10,7 +10,7 @@ interface ParsedFlags {
   listAllProjectFiles: boolean;
   listAllComponentSets: boolean;
   listPages: boolean;
-  listComponentSets: boolean;
+  listFileComponentSets: boolean;
   listComponentSetProperties: boolean;
   inspectComponentSet: boolean;
   inspectNode: boolean;
@@ -30,7 +30,7 @@ function emptyFlags(): ParsedFlags {
     listAllProjectFiles: false,
     listAllComponentSets: false,
     listPages: false,
-    listComponentSets: false,
+    listFileComponentSets: false,
     listComponentSetProperties: false,
     inspectComponentSet: false,
     inspectNode: false,
@@ -124,7 +124,9 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
       ? ("list-all-component-sets" as const)
       : undefined,
     flags.listPages ? ("list-pages" as const) : undefined,
-    flags.listComponentSets ? ("list-component-sets" as const) : undefined,
+    flags.listFileComponentSets
+      ? ("list-file-component-sets" as const)
+      : undefined,
     flags.listComponentSetProperties
       ? ("list-component-set-properties" as const)
       : undefined,
@@ -134,7 +136,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
 
   if (selected.length === 0) {
     throw new CliError(
-      "Nothing to do. Pass --list-projects, --list-project-files, --list-all-project-files, --list-all-component-sets, --list-pages, --list-component-sets, --list-component-set-properties, --inspect-component-set, or --inspect-node.\n\n" +
+      "Nothing to do. Pass --list-projects, --list-project-files, --list-all-project-files, --list-all-component-sets, --list-pages, --list-file-component-sets, --list-component-set-properties, --inspect-component-set, or --inspect-node.\n\n" +
         usage,
     );
   }
@@ -169,11 +171,10 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         fileKey: requireFileKey(flags.fileKey, "--list-pages"),
         json: flags.json,
       };
-    case "list-component-sets":
+    case "list-file-component-sets":
       return {
-        kind: "list-component-sets",
-        fileKey: requireFileKey(flags.fileKey, "--list-component-sets"),
-        nodeId: requireNodeId(flags.nodeId, "--list-component-sets"),
+        kind: "list-file-component-sets",
+        fileKey: requireFileKey(flags.fileKey, "--list-file-component-sets"),
         json: flags.json,
       };
     case "list-component-set-properties":
@@ -239,8 +240,8 @@ export function parseCommand(argv: string[]): CliCommand {
       continue;
     }
 
-    if (arg === "--list-component-sets") {
-      flags.listComponentSets = true;
+    if (arg === "--list-file-component-sets") {
+      flags.listFileComponentSets = true;
       continue;
     }
 

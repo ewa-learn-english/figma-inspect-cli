@@ -38,7 +38,7 @@ Use these defaults unless the user provides overrides in the chat:
 Derive at runtime when needed:
 
 - `PROJECT_ID` — from `--list-projects --json`; pick the project whose files include `FILE_KEY`, or the first project if user did not specify.
-- `COMPONENT_SET_KEY` — from `--list-component-sets --file-key $FILE_KEY --node-id $NODE_ID --json`; pick the entry whose `name` equals `COMPONENT_SET_NAME`.
+- `COMPONENT_SET_KEY` — from `--list-file-component-sets --file-key $FILE_KEY --json`; pick the entry whose `name` equals `COMPONENT_SET_NAME`.
 
 ## Commands to test
 
@@ -51,7 +51,7 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 3 | `--list-all-project-files` | `--json` | needs `FIGMA_TEAM_ID` |
 | 4 | `--list-all-component-sets` | `--json` | needs `FIGMA_TEAM_ID`; published sets only |
 | 5 | `--list-pages` | `--file-key $FILE_KEY --json` | |
-| 6 | `--list-component-sets` | `--file-key $FILE_KEY --node-id $NODE_ID --json` | |
+| 6 | `--list-file-component-sets` | `--file-key $FILE_KEY --json` | |
 | 7 | `--list-component-set-properties` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME --json` | |
 | 8 | `--list-component-set-properties` | same + `--component-set-key $COMPONENT_SET_KEY --json` | key lookup variant |
 | 9 | `--inspect-component-set` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME` | no `--json` |
@@ -67,7 +67,7 @@ npx . --list-project-files --project-id "$PROJECT_ID" --json
 npx . --list-all-project-files --json
 npx . --list-all-component-sets --json
 npx . --list-pages --file-key O7aE7SeG2TRBCK5MsjkG7z --json
-npx . --list-component-sets --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2 --json
+npx . --list-file-component-sets --file-key O7aE7SeG2TRBCK5MsjkG7z --json
 npx . --list-component-set-properties --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2 --component-set-name Cell --json
 npx . --inspect-component-set --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2 --component-set-name Cell
 npx . --inspect-node --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2

@@ -41,10 +41,10 @@ List pages in a file:
 npx . --list-pages --file-key <file_key>
 ```
 
-List component sets in a node:
+List component sets in a file:
 
 ```sh
-npx . --list-component-sets --file-key <file_key> --node-id <node_id>
+npx . --list-file-component-sets --file-key <file_key>
 ```
 
 List nested component sets exposed in a component set:
@@ -74,5 +74,5 @@ npx . --list-project-files --project-id <project_id> --json
 npx . --list-all-project-files --json
 npx . --list-all-component-sets --json
 npx . --list-pages --file-key <file_key> --json
-npx . --list-component-sets --file-key <file_key> --node-id <node_id> --json
+npx . --list-file-component-sets --file-key <file_key> --json
 ```

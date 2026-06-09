@@ -19,12 +19,7 @@ export type CliCommand =
   | { kind: "list-all-project-files"; json: boolean }
   | { kind: "list-all-component-sets"; json: boolean }
   | { kind: "list-pages"; fileKey: string; json: boolean }
-  | {
-      kind: "list-component-sets";
-      fileKey: string;
-      nodeId: string;
-      json: boolean;
-    }
+  | { kind: "list-file-component-sets"; fileKey: string; json: boolean }
   | {
       kind: "list-component-set-properties";
       scope: ComponentSetCommandScope;

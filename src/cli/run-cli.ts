@@ -1,6 +1,7 @@
 import {
   FigmaApiError,
   getFileNode,
+  listFileComponentSets,
   listFilePages,
   listProjectFiles,
   listTeamProjectFiles,
@@ -11,7 +12,6 @@ import {
   getNodeComponentSet,
   listAllComponentSets,
   listComponentSetProperties,
-  listNodeComponentSets,
 } from "../inspect/index.js";
 import { CliError } from "./errors.js";
 import {
@@ -89,13 +89,22 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         writePages(pages, command.json, io.stdout);
         break;
       }
-      case "list-component-sets": {
-        const componentSets = await listNodeComponentSets({
+      case "list-file-component-sets": {
+        const publishedSets = await listFileComponentSets({
           token,
           fileKey: command.fileKey,
-          nodeId: command.nodeId,
         });
-        writeComponentSets(componentSets, command.json, io.stdout);
+        writeComponentSets(
+          publishedSets
+            .map((componentSet) => ({
+              id: componentSet.node_id,
+              key: componentSet.key,
+              name: componentSet.name,
+            }))
+            .sort((left, right) => left.name.localeCompare(right.name)),
+          command.json,
+          io.stdout,
+        );
         break;
       }
       case "list-component-set-properties": {

@@ -22,6 +22,12 @@ export interface ListProjectFilesOptions {
   fetchImpl?: typeof fetch;
 }
 
+export interface ListFileComponentSetsOptions {
+  token: string;
+  fileKey: string;
+  fetchImpl?: typeof fetch;
+}
+
 export interface ListFilePagesOptions {
   token: string;
   fileKey: string;

@@ -130,3 +130,9 @@ export function parseTeamComponentSetsResponse(payload: unknown): {
     "Invalid Figma team component sets response.",
   );
 }
+
+export function parseFileComponentSetsResponse(
+  payload: unknown,
+): FigmaPublishedComponentSet[] {
+  return parseTeamComponentSetsResponse(payload).componentSets;
+}
