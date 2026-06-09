@@ -1,9 +1,3 @@
-export interface FigmaComponentSet {
-  id: string;
-  key: string;
-  name: string;
-}
-
 export interface FigmaComponentSetProperty {
   id: string;
   name: string;

@@ -14,7 +14,7 @@ Node.js CLI for inspecting Figma API resources.
 ```
 src/
   bin/figma-inspect.ts   # entry point
-  cli.ts                 # argument parsing, output formatting
+  cli/                   # argument parsing, output formatting
   figma-api/             # Figma REST client (HTTP only)
   inspect/               # inspection logic on top of API responses
 ```
@@ -33,7 +33,7 @@ npm run format           # apply Biome formatting
 ## Conventions
 
 - Keep changes focused; match existing style in surrounding code.
-- Figma API requests stay in `src/figma-api/`, inspection logic in `src/inspect/`, CLI wiring in `src/cli.ts`.
+- Figma API requests stay in `src/figma-api/`, inspection logic in `src/inspect/`, CLI wiring in `src/cli/`.
 - Required env vars: `FIGMA_API_TOKEN`, `FIGMA_TEAM_ID`.
 - Run `npm run check` before finishing; fix new issues you introduce.
 

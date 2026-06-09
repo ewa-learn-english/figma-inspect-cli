@@ -1,6 +1,5 @@
 import { FIGMA_API_BASE_URL } from "./constants.js";
-import { FigmaApiError } from "./figma-api-error.js";
-import { formatFigmaError } from "./format-figma-error.js";
+import { figmaRequest } from "./figma-request.js";
 import type { GetFileNodeOptions } from "./types.js";
 
 export async function getFileNode({
@@ -14,15 +13,5 @@ export async function getFileNode({
   );
   url.searchParams.set("ids", nodeId);
 
-  const response = await fetchImpl(url, {
-    headers: {
-      "X-FIGMA-TOKEN": token,
-    },
-  });
-
-  if (!response.ok) {
-    throw new FigmaApiError(await formatFigmaError(response));
-  }
-
-  return response.json();
+  return figmaRequest(url, token, fetchImpl);
 }

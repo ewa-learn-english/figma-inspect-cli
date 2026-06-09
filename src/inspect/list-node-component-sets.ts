@@ -1,8 +1,5 @@
-import { fetchFileNodeEntry } from "./parse-file-nodes-response.js";
-import type {
-  FigmaComponentSet,
-  ListNodeComponentSetsOptions,
-} from "./types.js";
+import { type FigmaComponentSet, fetchFileNodeEntry } from "./schemas.js";
+import type { ListNodeComponentSetsOptions } from "./types.js";
 
 export async function listNodeComponentSets({
   token,
@@ -17,11 +14,7 @@ export async function listNodeComponentSets({
     fetchImpl,
   });
 
-  return Object.entries(nodeEntry.componentSets)
-    .map(([id, set]) => ({
-      id,
-      key: set.key ?? "",
-      name: set.name ?? "",
-    }))
-    .sort((left, right) => left.name.localeCompare(right.name));
+  return Object.values(nodeEntry.componentSets).sort((left, right) =>
+    left.name.localeCompare(right.name),
+  );
 }

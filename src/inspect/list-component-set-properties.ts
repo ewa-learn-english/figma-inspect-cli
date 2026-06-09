@@ -1,23 +1,21 @@
+import { loadComponentSetContext } from "./get-node-component-set.js";
 import type {
   ComponentEntry,
-  ComponentSetEntry,
   DocumentNode,
-} from "./get-node-component-set.js";
-import { loadComponentSetContext } from "./get-node-component-set.js";
+  FigmaComponentSet,
+} from "./schemas.js";
 import type {
   ComponentSetScopeOptions,
   FigmaComponentSetProperty,
 } from "./types.js";
 
 function buildComponentSetNameIndex(
-  componentSets: Record<string, ComponentSetEntry>,
+  componentSets: Record<string, FigmaComponentSet>,
 ): Map<string, string> {
   const index = new Map<string, string>();
 
   for (const [id, entry] of Object.entries(componentSets)) {
-    if (entry.name) {
-      index.set(entry.name, id);
-    }
+    index.set(entry.name, id);
   }
 
   return index;
@@ -41,7 +39,7 @@ function addNestedComponent(
 function resolveNestedComponentFromInstance(
   root: DocumentNode,
   componentSetIdsByName: Map<string, string>,
-  componentSets: Record<string, ComponentSetEntry>,
+  componentSets: Record<string, FigmaComponentSet>,
   components: Record<string, ComponentEntry>,
 ): FigmaComponentSetProperty | undefined {
   if (root.type !== "INSTANCE" || !root.name) {
@@ -68,7 +66,7 @@ function resolveNestedComponentFromInstance(
 
   if (component.componentSetId) {
     const componentSet = componentSets[component.componentSetId];
-    if (componentSet?.name && componentSet.name === root.name) {
+    if (componentSet !== undefined && componentSet.name === root.name) {
       return {
         id: component.componentSetId,
         name: componentSet.name,
@@ -93,7 +91,7 @@ function resolveNestedComponentFromInstance(
 function collectNestedComponents(
   root: DocumentNode,
   componentSetIdsByName: Map<string, string>,
-  componentSets: Record<string, ComponentSetEntry>,
+  componentSets: Record<string, FigmaComponentSet>,
   components: Record<string, ComponentEntry>,
   seen: Map<string, FigmaComponentSetProperty>,
 ): void {

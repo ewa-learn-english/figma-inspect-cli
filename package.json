@@ -26,5 +26,8 @@
     "knip": "6.16.1",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
   }
 }

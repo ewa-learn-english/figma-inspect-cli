@@ -1,17 +1,15 @@
 import { FigmaInspectError } from "./errors.js";
-import type {
-  ComponentEntry,
-  ComponentSetEntry,
-  DocumentNode,
-} from "./parse-file-nodes-response.js";
-import { fetchFileNodeEntry } from "./parse-file-nodes-response.js";
+import {
+  type ComponentEntry,
+  type DocumentNode,
+  type FigmaComponentSet,
+  fetchFileNodeEntry,
+} from "./schemas.js";
 import type { ComponentSetLookup, ComponentSetScopeOptions } from "./types.js";
-
-export type { ComponentEntry, ComponentSetEntry, DocumentNode };
 
 export interface ComponentSetContext {
   tree: DocumentNode;
-  componentSets: Record<string, ComponentSetEntry>;
+  componentSets: Record<string, FigmaComponentSet>;
   components: Record<string, ComponentEntry>;
 }
 
@@ -43,7 +41,7 @@ function findDocumentNode(
 }
 
 function resolveComponentSetId(
-  componentSets: Record<string, ComponentSetEntry>,
+  componentSets: Record<string, FigmaComponentSet>,
   lookup: ComponentSetLookup,
   nodeId: string,
 ): string {

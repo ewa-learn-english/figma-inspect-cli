@@ -16,6 +16,7 @@ import {
   writeComponentSetProperties,
   writeComponentSets,
   writeFiles,
+  writeJson,
   writePages,
   writeProjects,
 } from "./output.js";
@@ -86,7 +87,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
           token,
           ...command.scope,
         });
-        io.stdout.write(`${JSON.stringify(componentSet, null, 2)}\n`);
+        writeJson(componentSet, io.stdout);
         break;
       }
       case "inspect-node": {
@@ -95,7 +96,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
           fileKey: command.fileKey,
           nodeId: command.nodeId,
         });
-        io.stdout.write(`${JSON.stringify(node, null, 2)}\n`);
+        writeJson(node, io.stdout);
         break;
       }
       default: {

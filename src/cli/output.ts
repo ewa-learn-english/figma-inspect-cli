@@ -1,9 +1,15 @@
-import type { FigmaFile, FigmaPage, FigmaProject } from "../figma-api/types.js";
 import type {
-  FigmaComponentSet,
-  FigmaComponentSetProperty,
-} from "../inspect/types.js";
+  FigmaFile,
+  FigmaPage,
+  FigmaProject,
+} from "../figma-api/schemas.js";
+import type { FigmaComponentSet } from "../inspect/schemas.js";
+import type { FigmaComponentSetProperty } from "../inspect/types.js";
 import { formatTable, writeJsonOrTable } from "./format-table.js";
+
+export function writeJson(value: unknown, stdout: NodeJS.WriteStream): void {
+  stdout.write(`${JSON.stringify(value, null, 2)}\n`);
+}
 
 interface ProjectRow {
   id: string;
@@ -18,9 +24,9 @@ export function writeProjects(
 ): void {
   writeJsonOrTable(projects, json, stdout, "No projects found.", (items) => {
     const rows: ProjectRow[] = items.map((project) => ({
-      id: String(project.id ?? ""),
-      name: String(project.name ?? ""),
-      files: project.file_count == null ? "" : String(project.file_count),
+      id: project.id,
+      name: project.name,
+      files: project.file_count === undefined ? "" : String(project.file_count),
     }));
     const showFiles = rows.some((row) => row.files.length > 0);
     const columns = [
@@ -48,9 +54,9 @@ export function writeFiles(
 ): void {
   writeJsonOrTable(files, json, stdout, "No files found.", (items) => {
     const rows: FileRow[] = items.map((file) => ({
-      key: String(file.key ?? ""),
-      name: String(file.name ?? ""),
-      modified: String(file.last_modified ?? ""),
+      key: file.key,
+      name: file.name,
+      modified: file.last_modified,
     }));
 
     return formatTable(
@@ -119,8 +125,8 @@ export function writePages(
 ): void {
   writeJsonOrTable(pages, json, stdout, "No pages found.", (items) => {
     const rows = items.map((page) => ({
-      id: String(page.id ?? ""),
-      name: String(page.name ?? ""),
+      id: page.id,
+      name: page.name,
     }));
 
     return formatTable(

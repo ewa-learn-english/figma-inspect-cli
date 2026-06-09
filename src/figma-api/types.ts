@@ -1,21 +1,3 @@
-export interface FigmaProject {
-  id: string | number;
-  name?: string;
-  file_count?: number | null;
-}
-
-export interface FigmaFile {
-  key: string;
-  name?: string;
-  thumbnail_url?: string;
-  last_modified?: string;
-}
-
-export interface FigmaPage {
-  id: string;
-  name: string;
-}
-
 export interface ListTeamProjectsOptions {
   token: string;
   teamId: string;
