@@ -1,4 +1,5 @@
 import { CACHE_DISABLED_ENV, CachedFigmaRequest } from "./cache/index.js";
+import { fetchFigmaResponse } from "./fetch-with-retry.js";
 import { FigmaApiError } from "./figma-api-error.js";
 import { formatFigmaError } from "./format-figma-error.js";
 
@@ -11,11 +12,7 @@ async function fetchWithoutCache(
   token: string,
   fetchImpl: typeof fetch,
 ): Promise<unknown> {
-  const response = await fetchImpl(url, {
-    headers: {
-      "X-FIGMA-TOKEN": token,
-    },
-  });
+  const response = await fetchFigmaResponse(url, token, fetchImpl);
 
   if (!response.ok) {
     throw new FigmaApiError(await formatFigmaError(response));

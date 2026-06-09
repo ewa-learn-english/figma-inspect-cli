@@ -1,3 +1,4 @@
+import { fetchFigmaResponse } from "../fetch-with-retry.js";
 import { FigmaApiError } from "../figma-api-error.js";
 import { formatFigmaError } from "../format-figma-error.js";
 import { ENTRY_TTL_MS, FILE_VERSION_MAX_AGE_MS } from "./constants.js";
@@ -19,11 +20,7 @@ async function fetchFromNetwork(
   token: string,
   fetchImpl: typeof fetch,
 ): Promise<FetchedResponse> {
-  const response = await fetchImpl(url, {
-    headers: {
-      "X-FIGMA-TOKEN": token,
-    },
-  });
+  const response = await fetchFigmaResponse(url, token, fetchImpl);
 
   if (!response.ok) {
     throw new FigmaApiError(await formatFigmaError(response));
