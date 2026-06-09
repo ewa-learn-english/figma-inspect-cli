@@ -29,6 +29,12 @@ List pages in a file:
 npx . --list-pages --file-key <file_key>
 ```
 
+List component sets in a node:
+
+```sh
+npx . --list-component-sets --file-key <file_key> --node-id <node_id>
+```
+
 Inspect raw JSON for a node (page, frame, etc.):
 
 ```sh
@@ -41,4 +47,5 @@ For script-friendly output:
 npx . --list-projects --json
 npx . --list-project-files --project-id <project_id> --json
 npx . --list-pages --file-key <file_key> --json
+npx . --list-component-sets --file-key <file_key> --node-id <node_id> --json
 ```

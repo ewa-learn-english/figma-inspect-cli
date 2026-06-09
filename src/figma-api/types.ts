@@ -40,3 +40,16 @@ export interface GetFileNodeOptions {
   nodeId: string;
   fetchImpl?: typeof fetch;
 }
+
+export interface FigmaComponentSet {
+  id: string;
+  key: string;
+  name: string;
+}
+
+export interface ListNodeComponentSetsOptions {
+  token: string;
+  fileKey: string;
+  nodeId: string;
+  fetchImpl?: typeof fetch;
+}

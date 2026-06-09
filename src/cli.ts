@@ -2,15 +2,22 @@ import {
   FigmaApiError,
   getFileNode,
   listFilePages,
+  listNodeComponentSets,
   listProjectFiles,
   listTeamProjects,
 } from "./figma-api/index.js";
-import type { FigmaFile, FigmaPage, FigmaProject } from "./figma-api/types.js";
+import type {
+  FigmaComponentSet,
+  FigmaFile,
+  FigmaPage,
+  FigmaProject,
+} from "./figma-api/types.js";
 
 const usage = `Usage:
   figma-inspect --list-projects [--json]
   figma-inspect --list-project-files --project-id <id> [--json]
   figma-inspect --list-pages --file-key <key> [--json]
+  figma-inspect --list-component-sets --file-key <key> --node-id <id> [--json]
   figma-inspect --inspect-node --file-key <key> --node-id <id>
 
 Environment:
@@ -21,10 +28,11 @@ Options:
   --list-projects       List projects in a Figma team
   --list-project-files  List files in a Figma project
   --list-pages          List pages in a Figma file
+  --list-component-sets List component sets in a file node
   --inspect-node        Print raw JSON for a file node
   --project-id <id>     Project id (required with --list-project-files)
-  --file-key <key>      File key (required with --list-pages and --inspect-node)
-  --node-id <id>        Node id (required with --inspect-node)
+  --file-key <key>      File key (required with --list-pages, --list-component-sets, and --inspect-node)
+  --node-id <id>        Node id (required with --list-component-sets and --inspect-node)
   --json                Print JSON instead of a table
   --help, -h            Show this help message
 `;
@@ -34,6 +42,7 @@ export interface CliOptions {
   listProjects: boolean;
   listProjectFiles: boolean;
   listPages: boolean;
+  listComponentSets: boolean;
   inspectNode: boolean;
   projectId: string | undefined;
   fileKey: string | undefined;
@@ -59,10 +68,11 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
     !options.listProjects &&
     !options.listProjectFiles &&
     !options.listPages &&
+    !options.listComponentSets &&
     !options.inspectNode
   ) {
     throw new CliError(
-      "Nothing to do. Pass --list-projects, --list-project-files, --list-pages, or --inspect-node.\n\n" +
+      "Nothing to do. Pass --list-projects, --list-project-files, --list-pages, --list-component-sets, or --inspect-node.\n\n" +
         usage,
     );
   }
@@ -94,6 +104,24 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         projectId: options.projectId,
       });
       writeFiles(files, options, io.stdout);
+      return;
+    }
+
+    if (options.listComponentSets) {
+      if (!options.fileKey) {
+        throw new CliError("Missing --file-key for --list-component-sets.");
+      }
+
+      if (!options.nodeId) {
+        throw new CliError("Missing --node-id for --list-component-sets.");
+      }
+
+      const componentSets = await listNodeComponentSets({
+        token,
+        fileKey: options.fileKey,
+        nodeId: options.nodeId,
+      });
+      writeComponentSets(componentSets, options, io.stdout);
       return;
     }
 
@@ -139,6 +167,7 @@ export function parseArgs(argv: string[]): CliOptions {
     listProjects: false,
     listProjectFiles: false,
     listPages: false,
+    listComponentSets: false,
     inspectNode: false,
     projectId: undefined,
     fileKey: undefined,
@@ -166,6 +195,11 @@ export function parseArgs(argv: string[]): CliOptions {
 
     if (arg === "--list-pages") {
       options.listPages = true;
+      continue;
+    }
+
+    if (arg === "--list-component-sets") {
+      options.listComponentSets = true;
       continue;
     }
 
@@ -331,6 +365,54 @@ function writeFiles(
 interface PageRow {
   id: string;
   name: string;
+}
+
+interface ComponentSetRow {
+  id: string;
+  key: string;
+  name: string;
+}
+
+function writeComponentSets(
+  componentSets: FigmaComponentSet[],
+  options: CliOptions,
+  stdout: NodeJS.WriteStream,
+): void {
+  if (options.json) {
+    stdout.write(`${JSON.stringify(componentSets, null, 2)}\n`);
+    return;
+  }
+
+  if (componentSets.length === 0) {
+    stdout.write("No component sets found.\n");
+    return;
+  }
+
+  const rows: ComponentSetRow[] = componentSets.map((set) => ({
+    id: set.id,
+    key: set.key,
+    name: set.name,
+  }));
+
+  const widths = {
+    id: Math.max("ID".length, ...rows.map((row) => row.id.length)),
+    key: Math.max("Key".length, ...rows.map((row) => row.key.length)),
+    name: Math.max("Name".length, ...rows.map((row) => row.name.length)),
+  };
+
+  const header = `${pad("ID", widths.id)}  ${pad("Key", widths.key)}  ${pad("Name", widths.name)}`;
+  const divider = `${"-".repeat(widths.id)}  ${"-".repeat(widths.key)}  ${"-".repeat(widths.name)}`;
+
+  stdout.write(
+    `${[
+      header,
+      divider,
+      ...rows.map(
+        (row) =>
+          `${pad(row.id, widths.id)}  ${pad(row.key, widths.key)}  ${pad(row.name, widths.name)}`,
+      ),
+    ].join("\n")}\n`,
+  );
 }
 
 function writePages(
