@@ -1,5 +1,6 @@
 import {
   FigmaApiError,
+  getFileNode,
   listFilePages,
   listProjectFiles,
   listTeamProjects,
@@ -10,6 +11,7 @@ const usage = `Usage:
   figma-inspect --list-projects [--json]
   figma-inspect --list-project-files --project-id <id> [--json]
   figma-inspect --list-pages --file-key <key> [--json]
+  figma-inspect --inspect-node --file-key <key> --node-id <id>
 
 Environment:
   FIGMA_API_TOKEN  Figma personal access token
@@ -19,8 +21,10 @@ Options:
   --list-projects       List projects in a Figma team
   --list-project-files  List files in a Figma project
   --list-pages          List pages in a Figma file
+  --inspect-node        Print raw JSON for a file node
   --project-id <id>     Project id (required with --list-project-files)
-  --file-key <key>      File key (required with --list-pages)
+  --file-key <key>      File key (required with --list-pages and --inspect-node)
+  --node-id <id>        Node id (required with --inspect-node)
   --json                Print JSON instead of a table
   --help, -h            Show this help message
 `;
@@ -30,8 +34,10 @@ export interface CliOptions {
   listProjects: boolean;
   listProjectFiles: boolean;
   listPages: boolean;
+  inspectNode: boolean;
   projectId: string | undefined;
   fileKey: string | undefined;
+  nodeId: string | undefined;
   json: boolean;
 }
 
@@ -52,10 +58,11 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
   if (
     !options.listProjects &&
     !options.listProjectFiles &&
-    !options.listPages
+    !options.listPages &&
+    !options.inspectNode
   ) {
     throw new CliError(
-      "Nothing to do. Pass --list-projects, --list-project-files, or --list-pages.\n\n" +
+      "Nothing to do. Pass --list-projects, --list-project-files, --list-pages, or --inspect-node.\n\n" +
         usage,
     );
   }
@@ -90,6 +97,24 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
       return;
     }
 
+    if (options.inspectNode) {
+      if (!options.fileKey) {
+        throw new CliError("Missing --file-key for --inspect-node.");
+      }
+
+      if (!options.nodeId) {
+        throw new CliError("Missing --node-id for --inspect-node.");
+      }
+
+      const node = await getFileNode({
+        token,
+        fileKey: options.fileKey,
+        nodeId: options.nodeId,
+      });
+      io.stdout.write(`${JSON.stringify(node, null, 2)}\n`);
+      return;
+    }
+
     if (!options.fileKey) {
       throw new CliError("Missing --file-key for --list-pages.");
     }
@@ -114,8 +139,10 @@ export function parseArgs(argv: string[]): CliOptions {
     listProjects: false,
     listProjectFiles: false,
     listPages: false,
+    inspectNode: false,
     projectId: undefined,
     fileKey: undefined,
+    nodeId: undefined,
     json: false,
   };
 
@@ -142,6 +169,11 @@ export function parseArgs(argv: string[]): CliOptions {
       continue;
     }
 
+    if (arg === "--inspect-node") {
+      options.inspectNode = true;
+      continue;
+    }
+
     if (arg === "--project-id") {
       const value = argv[index + 1];
       if (!value || value.startsWith("-")) {
@@ -160,6 +192,17 @@ export function parseArgs(argv: string[]): CliOptions {
       }
 
       options.fileKey = value;
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--node-id") {
+      const value = argv[index + 1];
+      if (!value || value.startsWith("-")) {
+        throw new CliError("Missing value for --node-id.");
+      }
+
+      options.nodeId = value;
       index += 1;
       continue;
     }

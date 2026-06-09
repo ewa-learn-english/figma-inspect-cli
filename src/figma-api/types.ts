@@ -33,3 +33,10 @@ export interface ListFilePagesOptions {
   fileKey: string;
   fetchImpl?: typeof fetch;
 }
+
+export interface GetFileNodeOptions {
+  token: string;
+  fileKey: string;
+  nodeId: string;
+  fetchImpl?: typeof fetch;
+}

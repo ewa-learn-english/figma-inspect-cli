@@ -29,6 +29,12 @@ List pages in a file:
 npx . --list-pages --file-key <file_key>
 ```
 
+Inspect raw JSON for a node (page, frame, etc.):
+
+```sh
+npx . --inspect-node --file-key <file_key> --node-id <node_id>
+```
+
 For script-friendly output:
 
 ```sh
