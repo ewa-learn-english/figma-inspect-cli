@@ -3,6 +3,7 @@ import {
   getFileNode,
   listFilePages,
   listProjectFiles,
+  listTeamProjectFiles,
   listTeamProjects,
 } from "../figma-api/index.js";
 import {
@@ -19,6 +20,7 @@ import {
   writeJson,
   writePages,
   writeProjects,
+  writeTeamProjectFiles,
 } from "./output.js";
 import { parseCommand } from "./parse-args.js";
 import type { CliIo } from "./types.js";
@@ -47,6 +49,16 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
 
         const projects = await listTeamProjects({ token, teamId });
         writeProjects(projects, command.json, io.stdout);
+        break;
+      }
+      case "list-all-project-files": {
+        const teamId = io.env.FIGMA_TEAM_ID;
+        if (!teamId) {
+          throw new CliError("Missing FIGMA_TEAM_ID environment variable.");
+        }
+
+        const files = await listTeamProjectFiles({ token, teamId });
+        writeTeamProjectFiles(files, command.json, io.stdout);
         break;
       }
       case "list-project-files": {

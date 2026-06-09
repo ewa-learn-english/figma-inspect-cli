@@ -37,6 +37,10 @@ const figmaPageSchema = z
 
 export type FigmaProject = z.infer<typeof figmaProjectSchema>;
 export type FigmaFile = z.infer<typeof figmaFileSchema>;
+export type FigmaTeamProjectFile = FigmaFile & {
+  project_id: string;
+  project_name: string;
+};
 export type FigmaPage = z.infer<typeof figmaPageSchema>;
 
 const teamProjectsResponseSchema = z

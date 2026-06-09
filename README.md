@@ -23,6 +23,12 @@ List files in a project:
 npx . --list-project-files --project-id <project_id>
 ```
 
+List files in all team projects:
+
+```sh
+npx . --list-all-project-files
+```
+
 List pages in a file:
 
 ```sh
@@ -59,6 +65,7 @@ For script-friendly output:
 ```sh
 npx . --list-projects --json
 npx . --list-project-files --project-id <project_id> --json
+npx . --list-all-project-files --json
 npx . --list-pages --file-key <file_key> --json
 npx . --list-component-sets --file-key <file_key> --node-id <node_id> --json
 ```

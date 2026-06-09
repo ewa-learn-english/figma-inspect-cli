@@ -4,6 +4,12 @@ export interface ListTeamProjectsOptions {
   fetchImpl?: typeof fetch;
 }
 
+export interface ListTeamProjectFilesOptions {
+  token: string;
+  teamId: string;
+  fetchImpl?: typeof fetch;
+}
+
 export interface ListProjectFilesOptions {
   token: string;
   projectId: string;

@@ -7,6 +7,7 @@ interface ParsedFlags {
   help: boolean;
   listProjects: boolean;
   listProjectFiles: boolean;
+  listAllProjectFiles: boolean;
   listPages: boolean;
   listComponentSets: boolean;
   listComponentSetProperties: boolean;
@@ -25,6 +26,7 @@ function emptyFlags(): ParsedFlags {
     help: false,
     listProjects: false,
     listProjectFiles: false,
+    listAllProjectFiles: false,
     listPages: false,
     listComponentSets: false,
     listComponentSetProperties: false,
@@ -115,6 +117,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
   const selected = [
     flags.listProjects ? ("list-projects" as const) : undefined,
     flags.listProjectFiles ? ("list-project-files" as const) : undefined,
+    flags.listAllProjectFiles ? ("list-all-project-files" as const) : undefined,
     flags.listPages ? ("list-pages" as const) : undefined,
     flags.listComponentSets ? ("list-component-sets" as const) : undefined,
     flags.listComponentSetProperties
@@ -126,7 +129,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
 
   if (selected.length === 0) {
     throw new CliError(
-      "Nothing to do. Pass --list-projects, --list-project-files, --list-pages, --list-component-sets, --list-component-set-properties, --inspect-component-set, or --inspect-node.\n\n" +
+      "Nothing to do. Pass --list-projects, --list-project-files, --list-all-project-files, --list-pages, --list-component-sets, --list-component-set-properties, --inspect-component-set, or --inspect-node.\n\n" +
         usage,
     );
   }
@@ -140,6 +143,8 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
   switch (command) {
     case "list-projects":
       return { kind: "list-projects", json: flags.json };
+    case "list-all-project-files":
+      return { kind: "list-all-project-files", json: flags.json };
     case "list-project-files": {
       if (!flags.projectId) {
         throw new CliError("Missing --project-id for --list-project-files.");
@@ -209,6 +214,11 @@ export function parseCommand(argv: string[]): CliCommand {
 
     if (arg === "--list-project-files") {
       flags.listProjectFiles = true;
+      continue;
+    }
+
+    if (arg === "--list-all-project-files") {
+      flags.listAllProjectFiles = true;
       continue;
     }
 
