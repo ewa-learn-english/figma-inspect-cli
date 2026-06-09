@@ -37,6 +37,12 @@ npm run format           # apply Biome formatting
 - Required env vars: `FIGMA_API_TOKEN`, `FIGMA_TEAM_ID`.
 - Run `npm run check` before finishing; fix new issues you introduce.
 
+## Skills
+
+Project skills live in `.agents/skills/`.
+
+- **live-test** — live end-to-end CLI checks against the Figma API. Invoke explicitly in chat when you need to verify commands (`/live-test`, "live-test"). When you add, remove, or change CLI commands or flags, update `.agents/skills/live-test/SKILL.md` in the same change (command table, examples, fixture notes). Keep it aligned with `src/cli/usage.ts`.
+
 ## Commits
 
 1. Format: `<ImperativeVerb> <description>`.
