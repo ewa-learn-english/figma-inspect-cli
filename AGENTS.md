@@ -35,3 +35,13 @@ npm run format           # apply Biome formatting
 - Figma API logic stays in `src/figma-api/`, CLI wiring in `src/cli.ts`.
 - Required env vars: `FIGMA_API_TOKEN`, `FIGMA_TEAM_ID`.
 - Run `npm run check` before finishing; fix new issues you introduce.
+
+## Commits
+
+1. Format: `<ImperativeVerb> <description>`.
+2. Start with imperative verb (`Add`, `Fix`, `Update`, `Remove`, `Refactor`, etc.).
+3. Do not add trailing period to commit header.
+4. Use sentence case.
+5. Do not include ticket ID in commit header.
+6. Optional body explains why, not what.
+7. English only.
