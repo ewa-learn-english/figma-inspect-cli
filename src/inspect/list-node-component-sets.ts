@@ -1,4 +1,5 @@
-import { type FigmaComponentSet, fetchFileNodeEntry } from "./schemas.js";
+import { fetchFileNodeEntry } from "./fetch-file-node-entry.js";
+import type { FigmaComponentSet } from "./schemas.js";
 import type { ListNodeComponentSetsOptions } from "./types.js";
 
 export async function listNodeComponentSets({

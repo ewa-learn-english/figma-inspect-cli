@@ -1,4 +1,4 @@
-import { loadComponentSetContext } from "./get-node-component-set.js";
+import { loadComponentSetContext } from "./component-set-context.js";
 import type {
   ComponentEntry,
   DocumentNode,
@@ -8,18 +8,6 @@ import type {
   ComponentSetScopeOptions,
   FigmaComponentSetProperty,
 } from "./types.js";
-
-function buildComponentSetNameIndex(
-  componentSets: Record<string, FigmaComponentSet>,
-): Map<string, string> {
-  const index = new Map<string, string>();
-
-  for (const [id, entry] of Object.entries(componentSets)) {
-    index.set(entry.name, id);
-  }
-
-  return index;
-}
 
 function addNestedComponent(
   seen: Map<string, FigmaComponentSetProperty>,
@@ -46,7 +34,7 @@ function resolveNestedComponentFromInstance(
     return undefined;
   }
 
-  const isExposedInstance = root.isExposedInstance === true;
+  const isExposedInstance = root.isExposedInstance;
 
   if (isExposedInstance) {
     const componentSetId = componentSetIdsByName.get(root.name);
@@ -106,7 +94,7 @@ function collectNestedComponents(
     addNestedComponent(seen, nested);
   }
 
-  if (!Array.isArray(root.children)) {
+  if (!root.children) {
     return;
   }
 
@@ -124,16 +112,10 @@ function collectNestedComponents(
 export async function listComponentSetProperties(
   options: ComponentSetScopeOptions,
 ): Promise<FigmaComponentSetProperty[]> {
-  const { tree, componentSets, components } =
+  const { tree, componentSets, components, nameIndex } =
     await loadComponentSetContext(options);
   const seen = new Map<string, FigmaComponentSetProperty>();
-  collectNestedComponents(
-    tree,
-    buildComponentSetNameIndex(componentSets),
-    componentSets,
-    components,
-    seen,
-  );
+  collectNestedComponents(tree, nameIndex, componentSets, components, seen);
 
   return [...seen.values()].sort((left, right) =>
     left.name.localeCompare(right.name),

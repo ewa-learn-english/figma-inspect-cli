@@ -1,6 +1,4 @@
 import { z } from "zod";
-import { getFileNode } from "../figma-api/get-file-node.js";
-import type { GetFileNodeOptions } from "../figma-api/types.js";
 import { parseValidRecord } from "../zod/parse-valid-entries.js";
 import { FigmaInspectError } from "./errors.js";
 
@@ -79,7 +77,10 @@ const fileNodesResponseSchema = z.object({
   nodes: z.record(z.string(), z.unknown()),
 });
 
-function parseFileNodeEntry(payload: unknown, nodeId: string): FileNodeEntry {
+export function parseFileNodeEntry(
+  payload: unknown,
+  nodeId: string,
+): FileNodeEntry {
   const response = fileNodesResponseSchema.safeParse(payload);
   if (!response.success) {
     throw new FigmaInspectError("Invalid Figma file nodes response.");
@@ -96,11 +97,4 @@ function parseFileNodeEntry(payload: unknown, nodeId: string): FileNodeEntry {
   }
 
   return parsed.data;
-}
-
-export async function fetchFileNodeEntry(
-  options: GetFileNodeOptions,
-): Promise<FileNodeEntry> {
-  const payload = await getFileNode(options);
-  return parseFileNodeEntry(payload, options.nodeId);
 }
