@@ -17,8 +17,15 @@ List projects for a team:
 npx . --list-projects
 ```
 
+List files in a project:
+
+```sh
+npx . --list-project-files --project-id <project_id>
+```
+
 For script-friendly output:
 
 ```sh
 npx . --list-projects --json
+npx . --list-project-files --project-id <project_id> --json
 ```
