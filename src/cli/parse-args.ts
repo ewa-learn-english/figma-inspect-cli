@@ -14,7 +14,10 @@ interface ParsedFlags {
   inspectComponentSetProperties: boolean;
   inspectComponentSet: boolean;
   inspectFileNode: boolean;
+  buildComponentSetSpec: boolean;
   projectId: string | undefined;
+  inputPath: string | undefined;
+  variablesPath: string | undefined;
   fileKey: string | undefined;
   nodeId: string | undefined;
   componentSetKey: string | undefined;
@@ -34,7 +37,10 @@ function emptyFlags(): ParsedFlags {
     inspectComponentSetProperties: false,
     inspectComponentSet: false,
     inspectFileNode: false,
+    buildComponentSetSpec: false,
     projectId: undefined,
+    inputPath: undefined,
+    variablesPath: undefined,
     fileKey: undefined,
     nodeId: undefined,
     componentSetKey: undefined,
@@ -134,11 +140,14 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
       : undefined,
     flags.inspectComponentSet ? ("inspect-component-set" as const) : undefined,
     flags.inspectFileNode ? ("inspect-file-node" as const) : undefined,
+    flags.buildComponentSetSpec
+      ? ("build-component-set-spec" as const)
+      : undefined,
   ].filter((command) => command !== undefined);
 
   if (selected.length === 0) {
     throw new CliError(
-      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --list-team-component-sets, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, or --inspect-file-node.\n\n" +
+      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --list-team-component-sets, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-file-node, or --build-component-set-spec.\n\n" +
         usage,
     );
   }
@@ -199,6 +208,17 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         fileKey: requireFileKey(flags.fileKey, "--inspect-file-node"),
         nodeId: requireNodeId(flags.nodeId, "--inspect-file-node"),
       };
+    case "build-component-set-spec": {
+      if (!flags.inputPath) {
+        throw new CliError("Missing --input for --build-component-set-spec.");
+      }
+
+      return {
+        kind: "build-component-set-spec",
+        inputPath: flags.inputPath,
+        variablesPath: flags.variablesPath,
+      };
+    }
     default: {
       const exhaustive: never = command;
       return exhaustive;
@@ -259,6 +279,25 @@ export function parseCommand(argv: string[]): CliCommand {
 
     if (arg === "--inspect-file-node") {
       flags.inspectFileNode = true;
+      continue;
+    }
+
+    if (arg === "--build-component-set-spec") {
+      flags.buildComponentSetSpec = true;
+      continue;
+    }
+
+    if (arg === "--input") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.inputPath = value;
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--variables") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.variablesPath = value;
+      index = nextIndex;
       continue;
     }
 

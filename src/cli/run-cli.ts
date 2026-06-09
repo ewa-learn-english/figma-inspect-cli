@@ -8,6 +8,7 @@ import {
   listTeamProjects,
 } from "../figma-api/index.js";
 import {
+  buildComponentSetSpecFromFile,
   FigmaInspectError,
   getNodeComponentSet,
   listAllComponentSets,
@@ -33,6 +34,23 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
 
   if (command.kind === "help") {
     io.stdout.write(usage);
+    return;
+  }
+
+  if (command.kind === "build-component-set-spec") {
+    try {
+      const spec = await buildComponentSetSpecFromFile(command.inputPath, {
+        variablesPath: command.variablesPath,
+      });
+      writeJson(spec, io.stdout);
+    } catch (error) {
+      if (error instanceof FigmaInspectError) {
+        throw new CliError(error.message);
+      }
+
+      throw error;
+    }
+
     return;
   }
 

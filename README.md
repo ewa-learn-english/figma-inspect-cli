@@ -66,6 +66,14 @@ Inspect raw JSON for a node (page, frame, etc.):
 npx . --inspect-file-node --file-key <file_key> --node-id <node_id>
 ```
 
+Build an AI-friendly spec from a local COMPONENT_SET JSON file:
+
+```sh
+npx . --inspect-component-set ... > tmp/Toast.json
+npx . --build-component-set-spec --input tmp/Toast.json
+npx . --build-component-set-spec --input tmp/Toast.json --variables tmp/cp-ds-styles-variables-local.json
+```
+
 For script-friendly output:
 
 ```sh

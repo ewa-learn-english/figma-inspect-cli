@@ -8,6 +8,7 @@ export const usage = `Usage:
   figma-inspect --inspect-component-set-properties --file-key <key> --node-id <id> (--component-set-key <key> | --component-set-name <name>) [--json]
   figma-inspect --inspect-component-set --file-key <key> --node-id <id> (--component-set-key <key> | --component-set-name <name>)
   figma-inspect --inspect-file-node --file-key <key> --node-id <id>
+  figma-inspect --build-component-set-spec --input <path> [--variables <path>]
 
 Environment:
   FIGMA_API_TOKEN  Figma personal access token
@@ -24,6 +25,9 @@ Options:
   --inspect-component-set-properties List nested component sets exposed in a component set
   --inspect-component-set         Print raw JSON for a COMPONENT_SET node in a file tree
   --inspect-file-node             Print raw JSON for a file node
+  --build-component-set-spec      Build an AI-friendly spec from a local COMPONENT_SET JSON file
+  --input <path>                  Input JSON file path (required with --build-component-set-spec)
+  --variables <path>              Variables export JSON (optional with --build-component-set-spec)
   --project-id <id>               Project id (required with --list-project-files)
   --file-key <key>                File key (required with --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, and --inspect-file-node)
   --node-id <id>                  Node id (required with --inspect-component-set-properties, --inspect-component-set, and --inspect-file-node)

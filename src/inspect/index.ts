@@ -1,3 +1,4 @@
+export { buildComponentSetSpecFromFile } from "./component-set-spec/index.js";
 export { FigmaInspectError } from "./errors.js";
 export { getNodeComponentSet } from "./get-node-component-set.js";
 export { listAllComponentSets } from "./list-all-component-sets.js";

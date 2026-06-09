@@ -26,4 +26,9 @@ export type CliCommand =
       json: boolean;
     }
   | { kind: "inspect-component-set"; scope: ComponentSetCommandScope }
-  | { kind: "inspect-file-node"; fileKey: string; nodeId: string };
+  | { kind: "inspect-file-node"; fileKey: string; nodeId: string }
+  | {
+      kind: "build-component-set-spec";
+      inputPath: string;
+      variablesPath?: string;
+    };
