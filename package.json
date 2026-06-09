@@ -1,0 +1,30 @@
+{
+  "name": "figma-inspect-cli",
+  "version": "0.1.0",
+  "description": "Small CLI for inspecting Figma API resources.",
+  "type": "module",
+  "bin": {
+    "figma-inspect": "./dist/bin/figma-inspect.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node ./dist/bin/figma-inspect.js",
+    "dev": "tsx ./src/bin/figma-inspect.ts",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check . && knip",
+    "knip": "knip",
+    "prepublishOnly": "npm run build"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "2.4.16",
+    "@types/node": "^22.15.29",
+    "knip": "6.16.1",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}
