@@ -60,6 +60,12 @@ npx . --inspect-component-set --file-key <file_key> --node-id <node_id> --compon
 npx . --inspect-component-set --file-key <file_key> --node-id <node_id> --component-set-name Toast
 ```
 
+Find a published component set by name and inspect it (requires `FIGMA_TEAM_ID`):
+
+```sh
+npx . --inspect-team-component-set --component-set-name Toast
+```
+
 Inspect raw JSON for a node (page, frame, etc.):
 
 ```sh

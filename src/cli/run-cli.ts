@@ -13,6 +13,7 @@ import {
   getNodeComponentSet,
   listAllComponentSets,
   listComponentSetProperties,
+  resolveTeamComponentSetScope,
 } from "../inspect/index.js";
 import { CliError } from "./errors.js";
 import {
@@ -137,6 +138,24 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         const componentSet = await getNodeComponentSet({
           token,
           ...command.scope,
+        });
+        writeJson(componentSet, io.stdout);
+        break;
+      }
+      case "inspect-team-component-set": {
+        const teamId = io.env.FIGMA_TEAM_ID;
+        if (!teamId) {
+          throw new CliError("Missing FIGMA_TEAM_ID environment variable.");
+        }
+
+        const scope = await resolveTeamComponentSetScope({
+          token,
+          teamId,
+          componentSet: command.componentSet,
+        });
+        const componentSet = await getNodeComponentSet({
+          token,
+          ...scope,
         });
         writeJson(componentSet, io.stdout);
         break;

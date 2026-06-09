@@ -55,9 +55,10 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 7 | `--inspect-component-set-properties` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME --json` | |
 | 8 | `--inspect-component-set-properties` | same + `--component-set-key $COMPONENT_SET_KEY --json` | key lookup variant |
 | 9 | `--inspect-component-set` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME` | no `--json` |
-| 10 | `--inspect-file-node` | `--file-key $FILE_KEY --node-id $NODE_ID` | raw API payload |
-| 11 | `--build-component-set-spec` | `--input tmp/component-set.json` | local file only; no Figma token |
-| 12 | `--build-component-set-spec` | `--input tmp/component-set.json --variables tmp/variables.json` | resolves Figma variable ids to token names |
+| 10 | `--inspect-team-component-set` | `--component-set-name $COMPONENT_SET_NAME` | resolves file/node from team; needs `FIGMA_TEAM_ID` |
+| 11 | `--inspect-file-node` | `--file-key $FILE_KEY --node-id $NODE_ID` | raw API payload |
+| 12 | `--build-component-set-spec` | `--input tmp/component-set.json` | local file only; no Figma token |
+| 13 | `--build-component-set-spec` | `--input tmp/component-set.json --variables tmp/variables.json` | resolves Figma variable ids to token names |
 
 Example:
 
@@ -72,6 +73,7 @@ npx . --list-file-pages --file-key O7aE7SeG2TRBCK5MsjkG7z --json
 npx . --list-file-component-sets --file-key O7aE7SeG2TRBCK5MsjkG7z --json
 npx . --inspect-component-set-properties --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2 --component-set-name Cell --json
 npx . --inspect-component-set --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2 --component-set-name Cell
+npx . --inspect-team-component-set --component-set-name Cell
 npx . --inspect-file-node --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2
 npx . --build-component-set-spec --input tmp/component-set.json
 npx . --build-component-set-spec --input tmp/component-set.json --variables tmp/variables.json

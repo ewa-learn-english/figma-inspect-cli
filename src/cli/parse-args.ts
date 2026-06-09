@@ -13,6 +13,7 @@ interface ParsedFlags {
   listFileComponentSets: boolean;
   inspectComponentSetProperties: boolean;
   inspectComponentSet: boolean;
+  inspectTeamComponentSet: boolean;
   inspectFileNode: boolean;
   buildComponentSetSpec: boolean;
   projectId: string | undefined;
@@ -36,6 +37,7 @@ function emptyFlags(): ParsedFlags {
     listFileComponentSets: false,
     inspectComponentSetProperties: false,
     inspectComponentSet: false,
+    inspectTeamComponentSet: false,
     inspectFileNode: false,
     buildComponentSetSpec: false,
     projectId: undefined,
@@ -139,6 +141,9 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
       ? ("inspect-component-set-properties" as const)
       : undefined,
     flags.inspectComponentSet ? ("inspect-component-set" as const) : undefined,
+    flags.inspectTeamComponentSet
+      ? ("inspect-team-component-set" as const)
+      : undefined,
     flags.inspectFileNode ? ("inspect-file-node" as const) : undefined,
     flags.buildComponentSetSpec
       ? ("build-component-set-spec" as const)
@@ -147,7 +152,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
 
   if (selected.length === 0) {
     throw new CliError(
-      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --list-team-component-sets, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-file-node, or --build-component-set-spec.\n\n" +
+      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --list-team-component-sets, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, or --build-component-set-spec.\n\n" +
         usage,
     );
   }
@@ -201,6 +206,15 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
       return {
         kind: "inspect-component-set",
         scope: requireComponentSetScope(flags, "--inspect-component-set"),
+      };
+    case "inspect-team-component-set":
+      return {
+        kind: "inspect-team-component-set",
+        componentSet: parseComponentSetLookup(
+          flags.componentSetKey,
+          flags.componentSetName,
+          "--inspect-team-component-set",
+        ),
       };
     case "inspect-file-node":
       return {
@@ -274,6 +288,11 @@ export function parseCommand(argv: string[]): CliCommand {
 
     if (arg === "--inspect-component-set") {
       flags.inspectComponentSet = true;
+      continue;
+    }
+
+    if (arg === "--inspect-team-component-set") {
+      flags.inspectTeamComponentSet = true;
       continue;
     }
 

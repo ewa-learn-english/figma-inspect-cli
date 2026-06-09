@@ -1,0 +1,72 @@
+import { FigmaInspectError } from "./errors.js";
+import { listAllComponentSets } from "./list-all-component-sets.js";
+import type {
+  ComponentSetLookup,
+  ComponentSetScopeOptions,
+  FigmaTeamComponentSet,
+} from "./types.js";
+
+export interface ResolveTeamComponentSetOptions {
+  token: string;
+  teamId: string;
+  componentSet: ComponentSetLookup;
+  fetchImpl?: typeof fetch;
+}
+
+function matchesLookup(
+  componentSet: FigmaTeamComponentSet,
+  lookup: ComponentSetLookup,
+): boolean {
+  return lookup.kind === "name"
+    ? componentSet.name === lookup.value
+    : componentSet.key === lookup.value;
+}
+
+function formatTeamComponentSetLocation(
+  componentSet: FigmaTeamComponentSet,
+): string {
+  return `${componentSet.name} (${componentSet.file_name}, ${componentSet.project_name})`;
+}
+
+export async function resolveTeamComponentSetScope({
+  token,
+  teamId,
+  componentSet,
+  fetchImpl,
+}: ResolveTeamComponentSetOptions): Promise<
+  Pick<ComponentSetScopeOptions, "fileKey" | "nodeId" | "componentSet">
+> {
+  const publishedSets = await listAllComponentSets({
+    token,
+    teamId,
+    fetchImpl,
+  });
+  const matches = publishedSets.filter((entry) =>
+    matchesLookup(entry, componentSet),
+  );
+
+  if (matches.length === 0) {
+    const label =
+      componentSet.kind === "name"
+        ? `name "${componentSet.value}"`
+        : `key ${componentSet.value}`;
+    throw new FigmaInspectError(
+      `No published component set with ${label} found in team.`,
+    );
+  }
+
+  if (matches.length > 1) {
+    const locations = matches.map(formatTeamComponentSetLocation).join("; ");
+    throw new FigmaInspectError(
+      `Multiple published component sets match: ${locations}. Use --inspect-component-set with --file-key and --node-id.`,
+    );
+  }
+
+  const match = matches[0];
+
+  return {
+    fileKey: match.file_key,
+    nodeId: match.id,
+    componentSet,
+  };
+}

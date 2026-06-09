@@ -7,12 +7,13 @@ export const usage = `Usage:
   figma-inspect --list-file-component-sets --file-key <key> [--json]
   figma-inspect --inspect-component-set-properties --file-key <key> --node-id <id> (--component-set-key <key> | --component-set-name <name>) [--json]
   figma-inspect --inspect-component-set --file-key <key> --node-id <id> (--component-set-key <key> | --component-set-name <name>)
+  figma-inspect --inspect-team-component-set (--component-set-key <key> | --component-set-name <name>)
   figma-inspect --inspect-file-node --file-key <key> --node-id <id>
   figma-inspect --build-component-set-spec --input <path> [--variables <path>]
 
 Environment:
   FIGMA_API_TOKEN  Figma personal access token
-  FIGMA_TEAM_ID    Figma team id (required for --list-team-projects, --list-team-project-files, and --list-team-component-sets)
+  FIGMA_TEAM_ID    Figma team id (required for --list-team-projects, --list-team-project-files, --list-team-component-sets, and --inspect-team-component-set)
   FIGMA_CACHE      Set to 0 to disable the on-disk response cache (enabled by default)
 
 Options:
@@ -24,6 +25,7 @@ Options:
   --list-file-component-sets      List component sets in a Figma file
   --inspect-component-set-properties List nested component sets exposed in a component set
   --inspect-component-set         Print raw JSON for a COMPONENT_SET node in a file tree
+  --inspect-team-component-set    Find a published component set by name or key and print its raw JSON
   --inspect-file-node             Print raw JSON for a file node
   --build-component-set-spec      Build an AI-friendly spec from a local COMPONENT_SET JSON file
   --input <path>                  Input JSON file path (required with --build-component-set-spec)
@@ -31,8 +33,8 @@ Options:
   --project-id <id>               Project id (required with --list-project-files)
   --file-key <key>                File key (required with --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, and --inspect-file-node)
   --node-id <id>                  Node id (required with --inspect-component-set-properties, --inspect-component-set, and --inspect-file-node)
-  --component-set-key <key>       Component set key (required with --inspect-component-set-properties and --inspect-component-set unless --component-set-name is set)
-  --component-set-name <n>        Component set name (required with --inspect-component-set-properties and --inspect-component-set unless --component-set-key is set)
+  --component-set-key <key>       Component set key (required with --inspect-component-set-properties and --inspect-component-set unless --component-set-name is set; also works with --inspect-team-component-set)
+  --component-set-name <n>        Component set name (required with --inspect-component-set-properties and --inspect-component-set unless --component-set-key is set; also works with --inspect-team-component-set)
   --json                          Print JSON instead of a table
   --help, -h                      Show this help message
 `;
