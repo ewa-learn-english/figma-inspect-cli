@@ -62,3 +62,9 @@ export interface GetNodeComponentSetOptions {
   componentSetName?: string;
   fetchImpl?: typeof fetch;
 }
+
+export interface FigmaComponentSetProperty {
+  id: string;
+  name: string;
+  isExposedInstance: boolean;
+}

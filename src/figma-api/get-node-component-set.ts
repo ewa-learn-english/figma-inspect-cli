@@ -1,9 +1,21 @@
 import { getFileNode } from "./get-file-node.js";
 import type { GetNodeComponentSetOptions } from "./types.js";
 
-interface ComponentSetEntry {
+export interface ComponentSetEntry {
   key?: string;
   name?: string;
+}
+
+export interface ComponentEntry {
+  key?: string;
+  name?: string;
+  componentSetId?: string;
+}
+
+export interface ComponentSetContext {
+  tree: Record<string, unknown>;
+  componentSets: Record<string, ComponentSetEntry>;
+  components: Record<string, ComponentEntry>;
 }
 
 interface DocumentNode {
@@ -15,6 +27,7 @@ interface DocumentNode {
 interface NodeEntry {
   document?: DocumentNode;
   componentSets?: Record<string, ComponentSetEntry>;
+  components?: Record<string, ComponentEntry>;
 }
 
 interface FileNodesResponse {
@@ -86,14 +99,10 @@ function resolveComponentSetId(
   return matches[0][0];
 }
 
-export async function getNodeComponentSet({
-  token,
-  fileKey,
-  nodeId,
-  componentSetKey,
-  componentSetName,
-  fetchImpl,
-}: GetNodeComponentSetOptions): Promise<Record<string, unknown>> {
+function assertComponentSetLookupOptions(
+  componentSetKey: string | undefined,
+  componentSetName: string | undefined,
+): void {
   if (componentSetKey && componentSetName) {
     throw new Error("Pass either componentSetKey or componentSetName, not both.");
   }
@@ -101,6 +110,17 @@ export async function getNodeComponentSet({
   if (!componentSetKey && !componentSetName) {
     throw new Error("Missing componentSetKey or componentSetName.");
   }
+}
+
+export async function loadComponentSetContext({
+  token,
+  fileKey,
+  nodeId,
+  componentSetKey,
+  componentSetName,
+  fetchImpl,
+}: GetNodeComponentSetOptions): Promise<ComponentSetContext> {
+  assertComponentSetLookupOptions(componentSetKey, componentSetName);
 
   const payload = (await getFileNode({
     token,
@@ -134,5 +154,16 @@ export async function getNodeComponentSet({
     );
   }
 
-  return documentNode as Record<string, unknown>;
+  return {
+    tree: documentNode as Record<string, unknown>,
+    componentSets,
+    components: nodeEntry.components ?? {},
+  };
+}
+
+export async function getNodeComponentSet(
+  options: GetNodeComponentSetOptions,
+): Promise<Record<string, unknown>> {
+  const { tree } = await loadComponentSetContext(options);
+  return tree;
 }

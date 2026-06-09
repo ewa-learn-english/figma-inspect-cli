@@ -35,6 +35,12 @@ List component sets in a node:
 npx . --list-component-sets --file-key <file_key> --node-id <node_id>
 ```
 
+List nested component sets exposed in a component set:
+
+```sh
+npx . --list-component-set-properties --file-key <file_key> --node-id <node_id> --component-set-name Cell --json
+```
+
 Inspect raw JSON for a COMPONENT_SET node in a page tree:
 
 ```sh

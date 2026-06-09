@@ -2,6 +2,7 @@ import {
   FigmaApiError,
   getFileNode,
   getNodeComponentSet,
+  listComponentSetProperties,
   listFilePages,
   listNodeComponentSets,
   listProjectFiles,
@@ -9,6 +10,7 @@ import {
 } from "./figma-api/index.js";
 import type {
   FigmaComponentSet,
+  FigmaComponentSetProperty,
   FigmaFile,
   FigmaPage,
   FigmaProject,
@@ -19,6 +21,7 @@ const usage = `Usage:
   figma-inspect --list-project-files --project-id <id> [--json]
   figma-inspect --list-pages --file-key <key> [--json]
   figma-inspect --list-component-sets --file-key <key> --node-id <id> [--json]
+  figma-inspect --list-component-set-properties --file-key <key> --node-id <id> (--component-set-key <key> | --component-set-name <name>) [--json]
   figma-inspect --inspect-component-set --file-key <key> --node-id <id> (--component-set-key <key> | --component-set-name <name>)
   figma-inspect --inspect-node --file-key <key> --node-id <id>
 
@@ -30,14 +33,15 @@ Options:
   --list-projects       List projects in a Figma team
   --list-project-files  List files in a Figma project
   --list-pages          List pages in a Figma file
-  --list-component-sets List component sets in a file node
+  --list-component-sets   List component sets in a file node
+  --list-component-set-properties List nested component sets exposed in a component set
   --inspect-component-set Print raw JSON for a COMPONENT_SET node in a file tree
   --inspect-node          Print raw JSON for a file node
   --project-id <id>       Project id (required with --list-project-files)
-  --file-key <key>        File key (required with --list-pages, --list-component-sets, --inspect-component-set, and --inspect-node)
-  --node-id <id>          Node id (required with --list-component-sets, --inspect-component-set, and --inspect-node)
-  --component-set-key <key> Component set key (required with --inspect-component-set unless --component-set-name is set)
-  --component-set-name <n>  Component set name (required with --inspect-component-set unless --component-set-key is set)
+  --file-key <key>        File key (required with --list-pages, --list-component-sets, --list-component-set-properties, --inspect-component-set, and --inspect-node)
+  --node-id <id>          Node id (required with --list-component-sets, --list-component-set-properties, --inspect-component-set, and --inspect-node)
+  --component-set-key <key> Component set key (required with --list-component-set-properties and --inspect-component-set unless --component-set-name is set)
+  --component-set-name <n>  Component set name (required with --list-component-set-properties and --inspect-component-set unless --component-set-key is set)
   --json                Print JSON instead of a table
   --help, -h            Show this help message
 `;
@@ -48,6 +52,7 @@ export interface CliOptions {
   listProjectFiles: boolean;
   listPages: boolean;
   listComponentSets: boolean;
+  listComponentSetProperties: boolean;
   inspectComponentSet: boolean;
   inspectNode: boolean;
   projectId: string | undefined;
@@ -77,11 +82,12 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
     !options.listProjectFiles &&
     !options.listPages &&
     !options.listComponentSets &&
+    !options.listComponentSetProperties &&
     !options.inspectComponentSet &&
     !options.inspectNode
   ) {
     throw new CliError(
-      "Nothing to do. Pass --list-projects, --list-project-files, --list-pages, --list-component-sets, --inspect-component-set, or --inspect-node.\n\n" +
+      "Nothing to do. Pass --list-projects, --list-project-files, --list-pages, --list-component-sets, --list-component-set-properties, --inspect-component-set, or --inspect-node.\n\n" +
         usage,
     );
   }
@@ -131,6 +137,50 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         nodeId: options.nodeId,
       });
       writeComponentSets(componentSets, options, io.stdout);
+      return;
+    }
+
+    if (options.listComponentSetProperties) {
+      if (!options.fileKey) {
+        throw new CliError(
+          "Missing --file-key for --list-component-set-properties.",
+        );
+      }
+
+      if (!options.nodeId) {
+        throw new CliError(
+          "Missing --node-id for --list-component-set-properties.",
+        );
+      }
+
+      if (options.componentSetKey && options.componentSetName) {
+        throw new CliError(
+          "Pass either --component-set-key or --component-set-name for --list-component-set-properties.",
+        );
+      }
+
+      if (!options.componentSetKey && !options.componentSetName) {
+        throw new CliError(
+          "Missing --component-set-key or --component-set-name for --list-component-set-properties.",
+        );
+      }
+
+      try {
+        const properties = await listComponentSetProperties({
+          token,
+          fileKey: options.fileKey,
+          nodeId: options.nodeId,
+          componentSetKey: options.componentSetKey,
+          componentSetName: options.componentSetName,
+        });
+        writeComponentSetProperties(properties, options, io.stdout);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw new CliError(error.message);
+        }
+
+        throw error;
+      }
       return;
     }
 
@@ -217,6 +267,7 @@ export function parseArgs(argv: string[]): CliOptions {
     listProjectFiles: false,
     listPages: false,
     listComponentSets: false,
+    listComponentSetProperties: false,
     inspectComponentSet: false,
     inspectNode: false,
     projectId: undefined,
@@ -252,6 +303,11 @@ export function parseArgs(argv: string[]): CliOptions {
 
     if (arg === "--list-component-sets") {
       options.listComponentSets = true;
+      continue;
+    }
+
+    if (arg === "--list-component-set-properties") {
+      options.listComponentSetProperties = true;
       continue;
     }
 
@@ -450,6 +506,45 @@ interface ComponentSetRow {
   id: string;
   key: string;
   name: string;
+}
+
+function writeComponentSetProperties(
+  properties: FigmaComponentSetProperty[],
+  options: CliOptions,
+  stdout: NodeJS.WriteStream,
+): void {
+  if (options.json) {
+    stdout.write(`${JSON.stringify(properties, null, 2)}\n`);
+    return;
+  }
+
+  if (properties.length === 0) {
+    stdout.write("No component set properties found.\n");
+    return;
+  }
+
+  const widths = {
+    id: Math.max("ID".length, ...properties.map((property) => property.id.length)),
+    name: Math.max(
+      "Name".length,
+      ...properties.map((property) => property.name.length),
+    ),
+    exposed: "Exposed".length,
+  };
+
+  const header = `${pad("ID", widths.id)}  ${pad("Name", widths.name)}  ${pad("Exposed", widths.exposed)}`;
+  const divider = `${"-".repeat(widths.id)}  ${"-".repeat(widths.name)}  ${"-".repeat(widths.exposed)}`;
+
+  stdout.write(
+    `${[
+      header,
+      divider,
+      ...properties.map((property) => {
+        const exposed = property.isExposedInstance ? "true" : "false";
+        return `${pad(property.id, widths.id)}  ${pad(property.name, widths.name)}  ${pad(exposed, widths.exposed)}`;
+      }),
+    ].join("\n")}\n`,
+  );
 }
 
 function writeComponentSets(
