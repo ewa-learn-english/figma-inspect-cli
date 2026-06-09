@@ -35,6 +35,13 @@ List component sets in a node:
 npx . --list-component-sets --file-key <file_key> --node-id <node_id>
 ```
 
+Inspect raw JSON for a COMPONENT_SET node in a page tree:
+
+```sh
+npx . --inspect-component-set --file-key <file_key> --node-id <node_id> --component-set-key <component_set_key>
+npx . --inspect-component-set --file-key <file_key> --node-id <node_id> --component-set-name Toast
+```
+
 Inspect raw JSON for a node (page, frame, etc.):
 
 ```sh

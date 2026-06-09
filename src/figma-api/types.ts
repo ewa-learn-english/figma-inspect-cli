@@ -53,3 +53,12 @@ export interface ListNodeComponentSetsOptions {
   nodeId: string;
   fetchImpl?: typeof fetch;
 }
+
+export interface GetNodeComponentSetOptions {
+  token: string;
+  fileKey: string;
+  nodeId: string;
+  componentSetKey?: string;
+  componentSetName?: string;
+  fetchImpl?: typeof fetch;
+}

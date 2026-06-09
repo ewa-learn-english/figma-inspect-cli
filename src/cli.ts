@@ -1,6 +1,7 @@
 import {
   FigmaApiError,
   getFileNode,
+  getNodeComponentSet,
   listFilePages,
   listNodeComponentSets,
   listProjectFiles,
@@ -18,6 +19,7 @@ const usage = `Usage:
   figma-inspect --list-project-files --project-id <id> [--json]
   figma-inspect --list-pages --file-key <key> [--json]
   figma-inspect --list-component-sets --file-key <key> --node-id <id> [--json]
+  figma-inspect --inspect-component-set --file-key <key> --node-id <id> (--component-set-key <key> | --component-set-name <name>)
   figma-inspect --inspect-node --file-key <key> --node-id <id>
 
 Environment:
@@ -29,10 +31,13 @@ Options:
   --list-project-files  List files in a Figma project
   --list-pages          List pages in a Figma file
   --list-component-sets List component sets in a file node
-  --inspect-node        Print raw JSON for a file node
-  --project-id <id>     Project id (required with --list-project-files)
-  --file-key <key>      File key (required with --list-pages, --list-component-sets, and --inspect-node)
-  --node-id <id>        Node id (required with --list-component-sets and --inspect-node)
+  --inspect-component-set Print raw JSON for a COMPONENT_SET node in a file tree
+  --inspect-node          Print raw JSON for a file node
+  --project-id <id>       Project id (required with --list-project-files)
+  --file-key <key>        File key (required with --list-pages, --list-component-sets, --inspect-component-set, and --inspect-node)
+  --node-id <id>          Node id (required with --list-component-sets, --inspect-component-set, and --inspect-node)
+  --component-set-key <key> Component set key (required with --inspect-component-set unless --component-set-name is set)
+  --component-set-name <n>  Component set name (required with --inspect-component-set unless --component-set-key is set)
   --json                Print JSON instead of a table
   --help, -h            Show this help message
 `;
@@ -43,10 +48,13 @@ export interface CliOptions {
   listProjectFiles: boolean;
   listPages: boolean;
   listComponentSets: boolean;
+  inspectComponentSet: boolean;
   inspectNode: boolean;
   projectId: string | undefined;
   fileKey: string | undefined;
   nodeId: string | undefined;
+  componentSetKey: string | undefined;
+  componentSetName: string | undefined;
   json: boolean;
 }
 
@@ -69,10 +77,11 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
     !options.listProjectFiles &&
     !options.listPages &&
     !options.listComponentSets &&
+    !options.inspectComponentSet &&
     !options.inspectNode
   ) {
     throw new CliError(
-      "Nothing to do. Pass --list-projects, --list-project-files, --list-pages, --list-component-sets, or --inspect-node.\n\n" +
+      "Nothing to do. Pass --list-projects, --list-project-files, --list-pages, --list-component-sets, --inspect-component-set, or --inspect-node.\n\n" +
         usage,
     );
   }
@@ -125,6 +134,46 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
       return;
     }
 
+    if (options.inspectComponentSet) {
+      if (!options.fileKey) {
+        throw new CliError("Missing --file-key for --inspect-component-set.");
+      }
+
+      if (!options.nodeId) {
+        throw new CliError("Missing --node-id for --inspect-component-set.");
+      }
+
+      if (options.componentSetKey && options.componentSetName) {
+        throw new CliError(
+          "Pass either --component-set-key or --component-set-name for --inspect-component-set.",
+        );
+      }
+
+      if (!options.componentSetKey && !options.componentSetName) {
+        throw new CliError(
+          "Missing --component-set-key or --component-set-name for --inspect-component-set.",
+        );
+      }
+
+      try {
+        const componentSet = await getNodeComponentSet({
+          token,
+          fileKey: options.fileKey,
+          nodeId: options.nodeId,
+          componentSetKey: options.componentSetKey,
+          componentSetName: options.componentSetName,
+        });
+        io.stdout.write(`${JSON.stringify(componentSet, null, 2)}\n`);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw new CliError(error.message);
+        }
+
+        throw error;
+      }
+      return;
+    }
+
     if (options.inspectNode) {
       if (!options.fileKey) {
         throw new CliError("Missing --file-key for --inspect-node.");
@@ -168,10 +217,13 @@ export function parseArgs(argv: string[]): CliOptions {
     listProjectFiles: false,
     listPages: false,
     listComponentSets: false,
+    inspectComponentSet: false,
     inspectNode: false,
     projectId: undefined,
     fileKey: undefined,
     nodeId: undefined,
+    componentSetKey: undefined,
+    componentSetName: undefined,
     json: false,
   };
 
@@ -200,6 +252,11 @@ export function parseArgs(argv: string[]): CliOptions {
 
     if (arg === "--list-component-sets") {
       options.listComponentSets = true;
+      continue;
+    }
+
+    if (arg === "--inspect-component-set") {
+      options.inspectComponentSet = true;
       continue;
     }
 
@@ -237,6 +294,28 @@ export function parseArgs(argv: string[]): CliOptions {
       }
 
       options.nodeId = value;
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--component-set-key") {
+      const value = argv[index + 1];
+      if (!value || value.startsWith("-")) {
+        throw new CliError("Missing value for --component-set-key.");
+      }
+
+      options.componentSetKey = value;
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--component-set-name") {
+      const value = argv[index + 1];
+      if (!value || value.startsWith("-")) {
+        throw new CliError("Missing value for --component-set-name.");
+      }
+
+      options.componentSetName = value;
       index += 1;
       continue;
     }
