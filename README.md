@@ -29,7 +29,7 @@ List files in all team projects:
 npx . --list-all-project-files
 ```
 
-List component sets in all team project files:
+List published component sets in a team:
 
 ```sh
 npx . --list-all-component-sets

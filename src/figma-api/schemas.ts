@@ -43,6 +43,17 @@ export type FigmaTeamProjectFile = FigmaFile & {
 };
 export type FigmaPage = z.infer<typeof figmaPageSchema>;
 
+const publishedComponentSetSchema = z.object({
+  key: z.string(),
+  file_key: z.string(),
+  node_id: z.string(),
+  name: z.string(),
+});
+
+export type FigmaPublishedComponentSet = z.infer<
+  typeof publishedComponentSetSchema
+>;
+
 const teamProjectsResponseSchema = z
   .object({
     projects: z.array(z.unknown()),
@@ -65,6 +76,26 @@ const filePagesResponseSchema = z
     parseValidEntries(figmaPageSchema, document.children),
   );
 
+const teamComponentSetsResponseSchema = z
+  .object({
+    meta: z.object({
+      component_sets: z.array(z.unknown()),
+      cursor: z
+        .object({
+          after: z.union([z.string(), z.number()]).optional(),
+        })
+        .optional(),
+    }),
+  })
+  .transform(({ meta }) => ({
+    componentSets: parseValidEntries(
+      publishedComponentSetSchema,
+      meta.component_sets,
+    ),
+    cursorAfter:
+      meta.cursor?.after === undefined ? undefined : String(meta.cursor.after),
+  }));
+
 export function parseTeamProjectsResponse(payload: unknown): FigmaProject[] {
   return parseFigmaResponse(
     teamProjectsResponseSchema,
@@ -86,5 +117,16 @@ export function parseFilePagesResponse(payload: unknown): FigmaPage[] {
     filePagesResponseSchema,
     payload,
     "Invalid Figma file response.",
+  );
+}
+
+export function parseTeamComponentSetsResponse(payload: unknown): {
+  componentSets: FigmaPublishedComponentSet[];
+  cursorAfter: string | undefined;
+} {
+  return parseFigmaResponse(
+    teamComponentSetsResponseSchema,
+    payload,
+    "Invalid Figma team component sets response.",
   );
 }

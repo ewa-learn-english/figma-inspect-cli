@@ -49,7 +49,7 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 1 | `--list-projects` | `--json` | needs `FIGMA_TEAM_ID` |
 | 2 | `--list-project-files` | `--project-id $PROJECT_ID --json` | |
 | 3 | `--list-all-project-files` | `--json` | needs `FIGMA_TEAM_ID` |
-| 4 | `--list-all-component-sets` | `--json` | needs `FIGMA_TEAM_ID`; can be slow |
+| 4 | `--list-all-component-sets` | `--json` | needs `FIGMA_TEAM_ID`; published sets only |
 | 5 | `--list-pages` | `--file-key $FILE_KEY --json` | |
 | 6 | `--list-component-sets` | `--file-key $FILE_KEY --node-id $NODE_ID --json` | |
 | 7 | `--list-component-set-properties` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME --json` | |

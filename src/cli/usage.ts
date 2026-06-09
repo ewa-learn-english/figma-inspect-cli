@@ -18,7 +18,7 @@ Options:
   --list-projects            List projects in a Figma team
   --list-project-files       List files in a Figma project
   --list-all-project-files   List files in all team projects
-  --list-all-component-sets  List component sets in all team project files
+  --list-all-component-sets  List published component sets in a Figma team
   --list-pages          List pages in a Figma file
   --list-component-sets   List component sets in a file node
   --list-component-set-properties List nested component sets exposed in a component set

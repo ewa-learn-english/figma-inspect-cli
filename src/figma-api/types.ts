@@ -10,6 +10,12 @@ export interface ListTeamProjectFilesOptions {
   fetchImpl?: typeof fetch;
 }
 
+export interface ListTeamComponentSetsOptions {
+  token: string;
+  teamId: string;
+  fetchImpl?: typeof fetch;
+}
+
 export interface ListProjectFilesOptions {
   token: string;
   projectId: string;
