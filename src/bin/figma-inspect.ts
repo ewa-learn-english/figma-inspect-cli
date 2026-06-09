@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { CliError, runCli } from "../cli.js";
+import { CliError, runCli } from "../cli/index.js";
 
 runCli(process.argv.slice(2), {
   env: process.env,

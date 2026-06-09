@@ -1,0 +1,134 @@
+import type { FigmaFile, FigmaPage, FigmaProject } from "../figma-api/types.js";
+import type {
+  FigmaComponentSet,
+  FigmaComponentSetProperty,
+} from "../inspect/types.js";
+import { formatTable, writeJsonOrTable } from "./format-table.js";
+
+interface ProjectRow {
+  id: string;
+  name: string;
+  files: string;
+}
+
+export function writeProjects(
+  projects: FigmaProject[],
+  json: boolean,
+  stdout: NodeJS.WriteStream,
+): void {
+  writeJsonOrTable(projects, json, stdout, "No projects found.", (items) => {
+    const rows: ProjectRow[] = items.map((project) => ({
+      id: String(project.id ?? ""),
+      name: String(project.name ?? ""),
+      files: project.file_count == null ? "" : String(project.file_count),
+    }));
+    const showFiles = rows.some((row) => row.files.length > 0);
+    const columns = [
+      { header: "ID", value: (row: ProjectRow) => row.id },
+      { header: "Name", value: (row: ProjectRow) => row.name },
+      ...(showFiles
+        ? [{ header: "Files", value: (row: ProjectRow) => row.files }]
+        : []),
+    ];
+
+    return formatTable(columns, rows);
+  });
+}
+
+interface FileRow {
+  key: string;
+  name: string;
+  modified: string;
+}
+
+export function writeFiles(
+  files: FigmaFile[],
+  json: boolean,
+  stdout: NodeJS.WriteStream,
+): void {
+  writeJsonOrTable(files, json, stdout, "No files found.", (items) => {
+    const rows: FileRow[] = items.map((file) => ({
+      key: String(file.key ?? ""),
+      name: String(file.name ?? ""),
+      modified: String(file.last_modified ?? ""),
+    }));
+
+    return formatTable(
+      [
+        { header: "Key", value: (row: FileRow) => row.key },
+        { header: "Name", value: (row: FileRow) => row.name },
+        { header: "Modified", value: (row: FileRow) => row.modified },
+      ],
+      rows,
+    );
+  });
+}
+
+export function writeComponentSetProperties(
+  properties: FigmaComponentSetProperty[],
+  json: boolean,
+  stdout: NodeJS.WriteStream,
+): void {
+  writeJsonOrTable(
+    properties,
+    json,
+    stdout,
+    "No component set properties found.",
+    (items) =>
+      formatTable(
+        [
+          { header: "ID", value: (property) => property.id },
+          { header: "Name", value: (property) => property.name },
+          {
+            header: "Exposed",
+            value: (property) =>
+              property.isExposedInstance ? "true" : "false",
+          },
+        ],
+        items,
+      ),
+  );
+}
+
+export function writeComponentSets(
+  componentSets: FigmaComponentSet[],
+  json: boolean,
+  stdout: NodeJS.WriteStream,
+): void {
+  writeJsonOrTable(
+    componentSets,
+    json,
+    stdout,
+    "No component sets found.",
+    (items) =>
+      formatTable(
+        [
+          { header: "ID", value: (set) => set.id },
+          { header: "Key", value: (set) => set.key },
+          { header: "Name", value: (set) => set.name },
+        ],
+        items,
+      ),
+  );
+}
+
+export function writePages(
+  pages: FigmaPage[],
+  json: boolean,
+  stdout: NodeJS.WriteStream,
+): void {
+  writeJsonOrTable(pages, json, stdout, "No pages found.", (items) => {
+    const rows = items.map((page) => ({
+      id: String(page.id ?? ""),
+      name: String(page.name ?? ""),
+    }));
+
+    return formatTable(
+      [
+        { header: "ID", value: (row) => row.id },
+        { header: "Name", value: (row) => row.name },
+      ],
+      rows,
+    );
+  });
+}
