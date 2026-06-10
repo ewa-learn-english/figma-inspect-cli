@@ -1,6 +1,6 @@
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { contractFixturesDir } from "../../test/fixtures.js";
 import {
   type ContractLock,
   diffContractLock,
@@ -10,10 +10,7 @@ import {
   toLockVariants,
 } from "./contract-lock.js";
 
-const contractDir = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../../tmp",
-);
+const contractDir = contractFixturesDir;
 
 const baseLock: ContractLock = {
   version: 1,
@@ -46,7 +43,7 @@ describe("resolveContractLockPath", () => {
 });
 
 describe("readContractLock", () => {
-  it("loads TextInput lock metadata from tmp", async () => {
+  it("loads TextInput lock metadata from fixtures", async () => {
     const lock = await readContractLock(
       resolveContractLockPath(contractDir, "TextInput"),
     );

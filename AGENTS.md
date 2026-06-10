@@ -79,7 +79,7 @@ With `--export-assets`: `<Name>.assets/*.svg` on disk; paths referenced from `me
 ```sh
 npm run dev       # tsx from source
 npm run build     # compile to dist/
-npm run check     # biome check + knip
+npm run check     # biome check + knip + unit tests
 npm run test      # vitest unit tests
 npm run test:coverage
 npm run format    # biome format --write

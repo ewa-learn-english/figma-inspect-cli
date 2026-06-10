@@ -1,0 +1,9 @@
+{
+  "variables": {
+    "fixture-color-primary": {
+      "name": "color/primary",
+      "id": "VariableID:fixture-color-primary",
+      "key": "fixture-color-primary-key"
+    }
+  }
+}

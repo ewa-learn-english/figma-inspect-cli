@@ -1,0 +1,95 @@
+version: 1
+component:
+  id: 4020:3574
+  key: ba81b96246030859409cbbb64ceb95875d1be92c
+  name: Cell
+  fileKey: O7aE7SeG2TRBCK5MsjkG7z
+  projectId: "583677607"
+props:
+  leadingIcon:
+    type: boolean
+    default: true
+  hasValue:
+    type: boolean
+    default: true
+  label:
+    type: text
+    default: Label
+  value:
+    type: text
+    default: Value
+  replaceIcon:
+    type: instance
+    default: replaceIcon
+  showSticker:
+    type: boolean
+    default: false
+  Type:
+    type: variant
+    default: Trailing Chevron
+    options:
+      - Action
+      - Button
+      - Button destructive
+      - Avatar
+      - Trailing Chevron
+      - Trailing Toggle
+      - Trailing Checkmark
+      - Trailing Value
+      - Trailing Button Avatar
+      - Trailing Button Icon
+  Writing:
+    type: variant
+    default: Default
+    options:
+      - Default
+      - RTL
+  State:
+    type: variant
+    default: Default
+    options:
+      - Default
+      - Hover
+      - Pressed
+slots:
+  replaceIcon:
+    kind: swap
+    component: replaceIcon
+  icon:
+    kind: nested
+    component: PlaceholderSIcon
+  toggle:
+    kind: nested
+    component: Toggle
+  iconButton:
+    kind: nested
+    component: IconButton
+  selection:
+    kind: nested
+    component: Selection
+dependencies:
+  - id: 3839:3037
+    key: bd3a2564c67da95d6ce11753c947ba58864cb503
+    name: IconButton
+    fileKey: O7aE7SeG2TRBCK5MsjkG7z
+    projectId: "583677607"
+  - id: 8671:609
+    key: cd81370214dd883c72d7b8ea2f10dc96f8ea3a6d
+    name: PlaceholderSIcon
+    fileKey: YYQVrmbhmRrraUvQQsT4Zo
+    projectId: "583677607"
+  - id: 3965:3686
+    key: 515413af15a8e0d6e44d5eccbce443a77c2ccf05
+    name: Selection
+    fileKey: O7aE7SeG2TRBCK5MsjkG7z
+    projectId: "583677607"
+  - id: 6596:2261
+    key: 064e87cc8d3d11e2b807d8d5bea954417791c0ac
+    name: StickerIcon
+    fileKey: YYQVrmbhmRrraUvQQsT4Zo
+    projectId: "583677607"
+  - id: 1080:180
+    key: 7c8fcf7613084bb1d81f68f92fb103dfad413d5c
+    name: Toggle
+    fileKey: O7aE7SeG2TRBCK5MsjkG7z
+    projectId: "583677607"

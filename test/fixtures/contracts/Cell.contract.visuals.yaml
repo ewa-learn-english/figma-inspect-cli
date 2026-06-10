@@ -1,0 +1,1467 @@
+Default:
+  Action:
+    Default:
+      root:
+        radius: Corners/rad2
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+    RTL:
+      root:
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+  Avatar:
+    Default:
+      root:
+        radius: Corners/rad2
+      icon:
+        borderWidth: 2
+      stickerIcon:
+        borderWidth: 1.0666667222976685
+      ellipse35:
+        background: background/main
+        borderWidth: 0.5333333611488342
+      ellipse36:
+        background: tokens/red/mainRed
+        borderWidth: 0.5714285969734192
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      chevronRightIcon:
+        background: "#ffffff"
+        iconSize: 24
+        iconColor: text/tertiary
+    RTL:
+      root:
+        radius: Corners/rad2
+      chevronLeftIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      icon:
+        borderWidth: 2
+      stickerIcon:
+        borderWidth: 1.0666667222976685
+      ellipse35:
+        background: background/main
+        borderWidth: 0.5333333611488342
+      ellipse36:
+        background: tokens/red/mainRed
+        borderWidth: 0.5714285969734192
+  Button destructive:
+    Default:
+      root:
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: tokens/red/mainRed
+    RTL:
+      root:
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: tokens/red/mainRed
+  Button:
+    Default:
+      root:
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: tokens/blue/mainBlue
+    RTL:
+      root:
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: tokens/blue/mainBlue
+  Trailing Button Avatar:
+    Default:
+      root:
+        radius: Corners/rad2
+      icon:
+        borderWidth: 2
+        iconSize: 24
+        iconColor: text/inverted
+      stickerIcon:
+        borderWidth: 1.0666667222976685
+      ellipse35:
+        background: background/main
+        borderWidth: 0.5333333611488342
+      ellipse36:
+        background: tokens/red/mainRed
+        borderWidth: 0.5714285969734192
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      button:
+        background: tokens/blue/mainBlue
+        borderWidth: 2
+        radius: Corners/rad3
+      shadow:
+        background: primitives/blue/70
+        radius: Corners/rad3
+    RTL:
+      root:
+        radius: Corners/rad2
+      button:
+        background: tokens/blue/mainBlue
+        borderWidth: 2
+        radius: Corners/rad3
+      icon:
+        iconSize: 24
+        iconColor: text/inverted
+        borderWidth: 2
+      shadow:
+        background: primitives/blue/70
+        radius: Corners/rad3
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      stickerIcon:
+        borderWidth: 1.0666667222976685
+      ellipse35:
+        background: background/main
+        borderWidth: 0.5333333611488342
+      ellipse36:
+        background: tokens/red/mainRed
+        borderWidth: 0.5714285969734192
+  Trailing Button Icon:
+    Default:
+      root:
+        radius: Corners/rad2
+      icon:
+        borderWidth: 1.3333333730697632
+        iconSize: 24
+        iconColor: text/inverted
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      button:
+        background: tokens/blue/mainBlue
+        borderWidth: 2
+        radius: Corners/rad3
+      shadow:
+        background: primitives/blue/70
+        radius: Corners/rad3
+    RTL:
+      root:
+        radius: Corners/rad2
+      button:
+        background: tokens/blue/mainBlue
+        borderWidth: 2
+        radius: Corners/rad3
+      icon:
+        iconSize: 32
+        iconColor: text/primary
+        borderWidth: 1.3333333730697632
+      shadow:
+        background: primitives/blue/70
+        radius: Corners/rad3
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+  Trailing Checkmark:
+    Default:
+      root:
+        radius: Corners/rad2
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      selection:
+        background: tokens/blue/mainBlue
+        radius: Corners/rad3
+      icon:
+        borderWidth: 1.1666667461395264
+      check:
+        border: text/static-white
+        borderWidth: 3
+    RTL:
+      root:
+        radius: Corners/rad2
+      selection:
+        background: tokens/blue/mainBlue
+        radius: Corners/rad3
+      icon:
+        borderWidth: 1.1666667461395264
+      check:
+        border: text/static-white
+        borderWidth: 3
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+  Trailing Chevron:
+    Default:
+      root:
+        radius: Corners/rad2
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      chevronRightIcon:
+        background: "#ffffff"
+        iconSize: 24
+        iconColor: text/tertiary
+    RTL:
+      root:
+        radius: Corners/rad2
+      chevronLeftIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+  Trailing Toggle:
+    Default:
+      root:
+        radius: Corners/rad2
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      toggle:
+        background: tokens/blue/mainBlue
+        radius: Corners/rad3
+      knob:
+        background: text/static-white
+        radius: 10
+    RTL:
+      root:
+        radius: Corners/rad2
+      toggle:
+        background: tokens/blue/mainBlue
+        radius: Corners/rad3
+      knob:
+        background: text/static-white
+        radius: 10
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+  Trailing Value:
+    Default:
+      root:
+        radius: Corners/rad2
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: WIDTH_AND_HEIGHT
+        color: text/primary
+    RTL:
+      root:
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+Hover:
+  Action:
+    Default:
+      root:
+        radius: Corners/rad2
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      style:
+        radius: Corners/rad2
+    RTL:
+      root:
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      style:
+        radius: Corners/rad2
+  Avatar:
+    Default:
+      root:
+        background: neutrals/subtle
+        radius: Corners/rad2
+      icon:
+        borderWidth: 2
+      stickerIcon:
+        borderWidth: 1.0666667222976685
+      ellipse35:
+        background: background/main
+        borderWidth: 0.5333333611488342
+      ellipse36:
+        background: tokens/red/mainRed
+        borderWidth: 0.5714285969734192
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      chevronRightIcon:
+        background: "#ffffff"
+        iconSize: 24
+        iconColor: text/tertiary
+      style:
+        style: neutrals/subtle
+    RTL:
+      root:
+        background: neutrals/subtle
+        radius: Corners/rad2
+      chevronLeftIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      icon:
+        borderWidth: 2
+      stickerIcon:
+        borderWidth: 1.0666667222976685
+      ellipse35:
+        background: background/main
+        borderWidth: 0.5333333611488342
+      ellipse36:
+        background: tokens/red/mainRed
+        borderWidth: 0.5714285969734192
+      style:
+        style: neutrals/subtle
+  Button destructive:
+    Default:
+      root:
+        background: neutrals/subtle
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: tokens/red/mainRed
+      style:
+        style: neutrals/subtle
+    RTL:
+      root:
+        background: neutrals/subtle
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: tokens/red/mainRed
+      style:
+        style: neutrals/subtle
+  Button:
+    Default:
+      root:
+        background: neutrals/subtle
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: tokens/blue/mainBlue
+      style:
+        style: neutrals/subtle
+    RTL:
+      root:
+        background: neutrals/subtle
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: tokens/blue/mainBlue
+      style:
+        style: neutrals/subtle
+  Trailing Button Avatar:
+    Default:
+      root:
+        radius: Corners/rad2
+      icon:
+        borderWidth: 2
+        iconSize: 24
+        iconColor: text/inverted
+      stickerIcon:
+        borderWidth: 1.0666667222976685
+      ellipse35:
+        background: background/main
+        borderWidth: 0.5333333611488342
+      ellipse36:
+        background: tokens/red/mainRed
+        borderWidth: 0.5714285969734192
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      button:
+        background: tokens/blue/mainBlue
+        borderWidth: 2
+        radius: Corners/rad3
+      shadow:
+        background: primitives/blue/70
+        radius: Corners/rad3
+      style:
+        radius: Corners/rad2
+    RTL:
+      root:
+        radius: Corners/rad2
+      button:
+        background: tokens/blue/mainBlue
+        borderWidth: 2
+        radius: Corners/rad3
+      icon:
+        iconSize: 24
+        iconColor: text/inverted
+        borderWidth: 2
+      shadow:
+        background: primitives/blue/70
+        radius: Corners/rad3
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      stickerIcon:
+        borderWidth: 1.0666667222976685
+      ellipse35:
+        background: background/main
+        borderWidth: 0.5333333611488342
+      ellipse36:
+        background: tokens/red/mainRed
+        borderWidth: 0.5714285969734192
+      style:
+        radius: Corners/rad2
+  Trailing Button Icon:
+    Default:
+      root:
+        radius: Corners/rad2
+      icon:
+        borderWidth: 1.3333333730697632
+        iconSize: 24
+        iconColor: text/inverted
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      button:
+        background: tokens/blue/mainBlue
+        borderWidth: 2
+        radius: Corners/rad3
+      shadow:
+        background: primitives/blue/70
+        radius: Corners/rad3
+      style:
+        radius: Corners/rad2
+    RTL:
+      root:
+        radius: Corners/rad2
+      button:
+        background: tokens/blue/mainBlue
+        borderWidth: 2
+        radius: Corners/rad3
+      icon:
+        iconSize: 32
+        iconColor: text/primary
+        borderWidth: 1.3333333730697632
+      shadow:
+        background: primitives/blue/70
+        radius: Corners/rad3
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      style:
+        radius: Corners/rad2
+  Trailing Checkmark:
+    Default:
+      root:
+        radius: Corners/rad2
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      selection:
+        background: tokens/blue/mainBlue
+        radius: Corners/rad3
+      icon:
+        borderWidth: 1.1666667461395264
+      check:
+        border: text/static-white
+        borderWidth: 3
+      style:
+        radius: Corners/rad2
+    RTL:
+      root:
+        radius: Corners/rad2
+      selection:
+        background: tokens/blue/mainBlue
+        radius: Corners/rad3
+      icon:
+        borderWidth: 1.1666667461395264
+      check:
+        border: text/static-white
+        borderWidth: 3
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      style:
+        radius: Corners/rad2
+  Trailing Chevron:
+    Default:
+      root:
+        background: neutrals/subtle
+        radius: Corners/rad2
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      chevronRightIcon:
+        background: "#ffffff"
+        iconSize: 24
+        iconColor: text/tertiary
+      style:
+        style: neutrals/subtle
+    RTL:
+      root:
+        background: neutrals/subtle
+        radius: Corners/rad2
+      chevronLeftIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      style:
+        style: neutrals/subtle
+  Trailing Toggle:
+    Default:
+      root:
+        radius: Corners/rad2
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      toggle:
+        background: tokens/blue/mainBlue
+        radius: Corners/rad3
+      knob:
+        background: text/static-white
+        radius: 10
+      style:
+        radius: Corners/rad2
+    RTL:
+      root:
+        radius: Corners/rad2
+      toggle:
+        background: tokens/blue/mainBlue
+        radius: Corners/rad3
+      knob:
+        background: text/static-white
+        radius: 10
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      style:
+        radius: Corners/rad2
+  Trailing Value:
+    Default:
+      root:
+        radius: Corners/rad2
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: WIDTH_AND_HEIGHT
+        color: text/primary
+      style:
+        radius: Corners/rad2
+    RTL:
+      root:
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      style:
+        radius: Corners/rad2
+Pressed:
+  Action:
+    Default:
+      root:
+        radius: Corners/rad2
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      style:
+        radius: Corners/rad2
+    RTL:
+      root:
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      style:
+        radius: Corners/rad2
+  Avatar:
+    Default:
+      root:
+        background: neutrals/subtle
+        radius: Corners/rad2
+      icon:
+        borderWidth: 2
+      stickerIcon:
+        borderWidth: 1.0666667222976685
+      ellipse35:
+        background: background/main
+        borderWidth: 0.5333333611488342
+      ellipse36:
+        background: tokens/red/mainRed
+        borderWidth: 0.5714285969734192
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      chevronRightIcon:
+        background: "#ffffff"
+        iconSize: 24
+        iconColor: text/tertiary
+      style:
+        style: neutrals/subtle
+    RTL:
+      root:
+        background: neutrals/subtle
+        radius: Corners/rad2
+      chevronLeftIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      icon:
+        borderWidth: 2
+      stickerIcon:
+        borderWidth: 1.0666667222976685
+      ellipse35:
+        background: background/main
+        borderWidth: 0.5333333611488342
+      ellipse36:
+        background: tokens/red/mainRed
+        borderWidth: 0.5714285969734192
+      style:
+        style: neutrals/subtle
+  Button destructive:
+    Default:
+      root:
+        background: neutrals/subtle
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: tokens/red/mainRed
+      style:
+        style: neutrals/subtle
+    RTL:
+      root:
+        background: neutrals/subtle
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: tokens/red/mainRed
+      style:
+        style: neutrals/subtle
+  Button:
+    Default:
+      root:
+        background: neutrals/subtle
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: tokens/blue/mainBlue
+      style:
+        style: neutrals/subtle
+    RTL:
+      root:
+        background: neutrals/subtle
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: tokens/blue/mainBlue
+      style:
+        style: neutrals/subtle
+  Trailing Button Avatar:
+    Default:
+      root:
+        radius: Corners/rad2
+      icon:
+        borderWidth: 2
+        iconSize: 24
+        iconColor: text/inverted
+      stickerIcon:
+        borderWidth: 1.0666667222976685
+      ellipse35:
+        background: background/main
+        borderWidth: 0.5333333611488342
+      ellipse36:
+        background: tokens/red/mainRed
+        borderWidth: 0.5714285969734192
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      button:
+        background: tokens/blue/mainBlue
+        borderWidth: 2
+        radius: Corners/rad3
+      shadow:
+        background: primitives/blue/70
+        radius: Corners/rad3
+      style:
+        radius: Corners/rad2
+    RTL:
+      root:
+        radius: Corners/rad2
+      button:
+        background: tokens/blue/mainBlue
+        borderWidth: 2
+        radius: Corners/rad3
+      icon:
+        iconSize: 24
+        iconColor: text/inverted
+        borderWidth: 2
+      shadow:
+        background: primitives/blue/70
+        radius: Corners/rad3
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      stickerIcon:
+        borderWidth: 1.0666667222976685
+      ellipse35:
+        background: background/main
+        borderWidth: 0.5333333611488342
+      ellipse36:
+        background: tokens/red/mainRed
+        borderWidth: 0.5714285969734192
+      style:
+        radius: Corners/rad2
+  Trailing Button Icon:
+    Default:
+      root:
+        radius: Corners/rad2
+      icon:
+        borderWidth: 1.3333333730697632
+        iconSize: 24
+        iconColor: text/inverted
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      button:
+        background: tokens/blue/mainBlue
+        borderWidth: 2
+        radius: Corners/rad3
+      shadow:
+        background: primitives/blue/70
+        radius: Corners/rad3
+      style:
+        radius: Corners/rad2
+    RTL:
+      root:
+        radius: Corners/rad2
+      button:
+        background: tokens/blue/mainBlue
+        borderWidth: 2
+        radius: Corners/rad3
+      icon:
+        iconSize: 32
+        iconColor: text/primary
+        borderWidth: 1.3333333730697632
+      shadow:
+        background: primitives/blue/70
+        radius: Corners/rad3
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      style:
+        radius: Corners/rad2
+  Trailing Checkmark:
+    Default:
+      root:
+        radius: Corners/rad2
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      selection:
+        background: tokens/blue/mainBlue
+        radius: Corners/rad3
+      icon:
+        borderWidth: 1.1666667461395264
+      check:
+        border: text/static-white
+        borderWidth: 3
+      style:
+        radius: Corners/rad2
+    RTL:
+      root:
+        radius: Corners/rad2
+      selection:
+        background: tokens/blue/mainBlue
+        radius: Corners/rad3
+      icon:
+        borderWidth: 1.1666667461395264
+      check:
+        border: text/static-white
+        borderWidth: 3
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      style:
+        radius: Corners/rad2
+  Trailing Chevron:
+    Default:
+      root:
+        background: neutrals/subtle
+        radius: Corners/rad2
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      chevronRightIcon:
+        background: "#ffffff"
+        iconSize: 24
+        iconColor: text/tertiary
+      style:
+        style: neutrals/subtle
+    RTL:
+      root:
+        background: neutrals/subtle
+        radius: Corners/rad2
+      chevronLeftIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      style:
+        style: neutrals/subtle
+  Trailing Toggle:
+    Default:
+      root:
+        radius: Corners/rad2
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      toggle:
+        background: tokens/blue/mainBlue
+        radius: Corners/rad3
+      knob:
+        background: text/static-white
+        radius: 10
+      style:
+        radius: Corners/rad2
+    RTL:
+      root:
+        radius: Corners/rad2
+      toggle:
+        background: tokens/blue/mainBlue
+        radius: Corners/rad3
+      knob:
+        background: text/static-white
+        radius: 10
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/subheadline
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      style:
+        radius: Corners/rad2
+  Trailing Value:
+    Default:
+      root:
+        radius: Corners/rad2
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        autoResize: WIDTH_AND_HEIGHT
+        color: text/primary
+      style:
+        radius: Corners/rad2
+    RTL:
+      root:
+        radius: Corners/rad2
+      label:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        autoResize: TRUNCATE
+        color: text/primary
+      placeholderSIcon:
+        borderWidth: 1.3333333730697632
+        iconSize: 32
+        iconColor: tokens/blue/mainBlue
+      style:
+        radius: Corners/rad2

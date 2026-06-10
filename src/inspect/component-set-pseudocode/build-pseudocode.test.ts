@@ -1,16 +1,11 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { contractFixturesDir } from "../../test/fixtures.js";
 import { readComponentContractArtifacts } from "../contract/contract-schema.js";
 import { buildAssetBackedLayoutBundle } from "./asset-backed-contract.js";
 import { hasAssetContractMap } from "./assets-contract.js";
 import { buildComponentSetPseudocodeFromRaw } from "./build-pseudocode.js";
-
-const tmpDir = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../../tmp",
-);
 
 function makeProfileStreakVariant(
   status: string,
@@ -99,7 +94,7 @@ describe("buildAssetBackedLayoutBundle", () => {
 });
 
 describe("buildComponentSetPseudocodeFromRaw", () => {
-  it("matches ProfileStreakIcon tmp contract shape for asset-backed export", async () => {
+  it("matches ProfileStreakIcon fixture contract shape for asset-backed export", async () => {
     const componentSet = {
       id: "5708:145",
       type: "COMPONENT_SET",
@@ -163,7 +158,7 @@ describe("buildComponentSetPseudocodeFromRaw", () => {
     });
 
     const expected = await readComponentContractArtifacts(
-      tmpDir,
+      contractFixturesDir,
       "ProfileStreakIcon",
       "yaml",
     );
@@ -176,12 +171,17 @@ describe("buildComponentSetPseudocodeFromRaw", () => {
     expect(result.structureDsl).toBe(expected.structureDsl);
   });
 
-  it("matches TextInput tmp structure DSL sections", async () => {
+  it("matches TextInput fixture structure DSL sections", async () => {
     const [expectedDsl, expectedMeta] = await Promise.all([
-      readFile(path.join(tmpDir, "TextInput.contract.structure.dsl"), "utf8"),
-      readComponentContractArtifacts(tmpDir, "TextInput", "yaml").then(
-        (artifacts) => artifacts.meta,
+      readFile(
+        path.join(contractFixturesDir, "TextInput.contract.structure.dsl"),
+        "utf8",
       ),
+      readComponentContractArtifacts(
+        contractFixturesDir,
+        "TextInput",
+        "yaml",
+      ).then((artifacts) => artifacts.meta),
     ]);
 
     expect(expectedMeta.props?.State?.options).toEqual([

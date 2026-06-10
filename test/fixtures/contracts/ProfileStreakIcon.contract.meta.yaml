@@ -1,0 +1,42 @@
+version: 1
+component:
+  id: 5708:145
+  key: 6f102b2085bb0646e3fbeb56862055e2e0678618
+  name: ProfileStreakIcon
+  fileKey: YYQVrmbhmRrraUvQQsT4Zo
+  projectId: "583677607"
+props:
+  Status:
+    type: variant
+    default: Missed
+    options:
+      - Active
+      - Missed
+      - Loading
+  Size:
+    type: variant
+    default: M
+    options:
+      - M
+      - XL
+assets:
+  M:
+    Active:
+      format: svg
+      path: ProfileStreakIcon.assets/active-m.svg
+    Loading:
+      format: svg
+      path: ProfileStreakIcon.assets/loading-m.svg
+    Missed:
+      format: svg
+      path: ProfileStreakIcon.assets/missed-m.svg
+  XL:
+    Active:
+      format: svg
+      path: ProfileStreakIcon.assets/active-xl.svg
+    Loading:
+      format: svg
+      path: ProfileStreakIcon.assets/loading-xl.svg
+    Missed:
+      format: svg
+      path: ProfileStreakIcon.assets/missed-xl.svg

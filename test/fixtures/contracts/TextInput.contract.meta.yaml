@@ -1,0 +1,58 @@
+version: 1
+component:
+  id: 3971:6465
+  key: 4b3d7fd0a56107702180b4c75763264ee9dcd1e5
+  name: TextInput
+  fileKey: O7aE7SeG2TRBCK5MsjkG7z
+  projectId: "583677607"
+props:
+  icon:
+    type: instance
+    default: icon
+  showName:
+    type: boolean
+    default: true
+  fieldName:
+    type: text
+    default: Field name
+  placeholderText:
+    type: text
+    default: Placeholder
+  text:
+    type: text
+    default: Text
+  footnote:
+    type: boolean
+    default: true
+  State:
+    type: variant
+    default: Disabled
+    options:
+      - Empty
+      - Filled
+      - Disabled
+  Active:
+    type: variant
+    default: Off
+    options:
+      - Off
+      - On
+  Writing:
+    type: variant
+    default: Default
+    options:
+      - Default
+      - RTL
+slots:
+  icon:
+    kind: swap
+    component: icon
+  textFootnote:
+    kind: nested
+    component: TextFootnote
+dependencies:
+  - id: 6116:8181
+    key: b50cab16200cb8707c491d8b3727c5291964c7dd
+    name: TextFootnote
+    fileKey: O7aE7SeG2TRBCK5MsjkG7z
+    projectId: "583677607"

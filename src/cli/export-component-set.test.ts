@@ -1,7 +1,6 @@
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { parse } from "yaml";
 
@@ -29,18 +28,17 @@ vi.mock("../figma-api/index.js", () => ({
     mocks.filterFileComponentsForComponentSet,
 }));
 
+import { contractFixturesDir, variablesFixturePath } from "../test/fixtures.js";
 import {
   exportComponentSet,
   writeExportResult,
 } from "./export-component-set.js";
 
-const fixtureDir = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../tmp",
-);
-
 async function loadFixture<T>(fileName: string): Promise<T> {
-  const content = await readFile(path.join(fixtureDir, fileName), "utf8");
+  const content = await readFile(
+    path.join(contractFixturesDir, fileName),
+    "utf8",
+  );
   if (fileName.endsWith(".yaml")) {
     return parse(content) as T;
   }
@@ -178,7 +176,7 @@ describe("exportComponentSet", () => {
       teamId: "team-id",
       outputDir,
       componentSet: { kind: "name", value: "TextInput" },
-      variablesPath: path.join(fixtureDir, "cp-ds-styles-variables-local.json"),
+      variablesPath: variablesFixturePath,
     });
 
     expect(result.metaContractPath).toBe(
@@ -206,10 +204,7 @@ describe("exportComponentSet", () => {
     expect(mocks.buildComponentSetPseudocodeFromRaw).toHaveBeenCalledWith(
       expect.objectContaining({ name: "TextInput", type: "COMPONENT_SET" }),
       expect.objectContaining({
-        variablesPath: path.join(
-          fixtureDir,
-          "cp-ds-styles-variables-local.json",
-        ),
+        variablesPath: variablesFixturePath,
         format: "yaml",
         metaContext: expect.objectContaining({
           component: expect.objectContaining({ name: "TextInput" }),
@@ -224,7 +219,7 @@ describe("exportComponentSet", () => {
       teamId: "team-id",
       outputDir,
       componentSet: { kind: "key", value: "component-set-key" },
-      variablesPath: path.join(fixtureDir, "cp-ds-styles-variables-local.json"),
+      variablesPath: variablesFixturePath,
       exportAssets: true,
       assetFormat: "svg",
     });

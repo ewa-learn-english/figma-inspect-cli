@@ -1,0 +1,978 @@
+Off:
+  Disabled:
+    Default:
+      root:
+        layoutMode: column
+        height: 92
+        width: 335
+        gap: Spacing/space1
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingCross: FIXED
+      fieldName:
+        layoutMode: row
+        height: 20
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingMain: FIXED
+        alignSelf: STRETCH
+        grow: 1
+      field:
+        layoutMode: row
+        height: 48
+        gap: Spacing/space2
+        paddingTop: Spacing/space3
+        paddingRight: Spacing/space4
+        paddingBottom: Spacing/space3
+        paddingLeft: Spacing/space4
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        alignSelf: STRETCH
+      iconContainer:
+        layoutMode: row
+        height: 24
+        width: 24
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      searchIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      placeholder:
+        height: 20
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+      xCircleIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      textFootnote:
+        layoutMode: row
+        height: 16
+        width: 335
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+      footnoteText:
+        height: 16
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+    RTL:
+      root:
+        layoutMode: column
+        height: 92
+        width: 335
+        gap: Spacing/space1
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingCross: FIXED
+      fieldName:
+        layoutMode: row
+        height: 20
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingMain: FIXED
+        alignSelf: STRETCH
+        grow: 1
+      field:
+        layoutMode: row
+        height: 48
+        gap: Spacing/space2
+        paddingTop: Spacing/space3
+        paddingRight: Spacing/space4
+        paddingBottom: Spacing/space3
+        paddingLeft: Spacing/space4
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        alignSelf: STRETCH
+      xCircleIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      placeholder:
+        height: 20
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+      iconContainer:
+        layoutMode: row
+        height: 24
+        width: 24
+        gap: 10
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      searchIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      textFootnote:
+        layoutMode: row
+        height: 16
+        width: 335
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+      footnoteText:
+        height: 16
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+  Empty:
+    Default:
+      root:
+        layoutMode: column
+        height: 92
+        width: 335
+        gap: Spacing/space1
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingCross: FIXED
+      fieldName:
+        layoutMode: row
+        height: 20
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingMain: FIXED
+        alignSelf: STRETCH
+        grow: 1
+      field:
+        layoutMode: row
+        height: 48
+        gap: Spacing/space2
+        paddingTop: Spacing/space3
+        paddingRight: Spacing/space4
+        paddingBottom: Spacing/space3
+        paddingLeft: Spacing/space4
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        alignSelf: STRETCH
+      iconContainer:
+        layoutMode: row
+        height: 24
+        width: 24
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      searchIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      placeholder:
+        height: 20
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+      xCircleIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      textFootnote:
+        layoutMode: row
+        height: 16
+        width: 335
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+      footnoteText:
+        height: 16
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+    RTL:
+      root:
+        layoutMode: column
+        height: 92
+        width: 335
+        gap: Spacing/space1
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingCross: FIXED
+      fieldName:
+        layoutMode: row
+        height: 20
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingMain: FIXED
+        alignSelf: STRETCH
+        grow: 1
+      field:
+        layoutMode: row
+        height: 48
+        gap: Spacing/space2
+        paddingTop: Spacing/space3
+        paddingRight: Spacing/space4
+        paddingBottom: Spacing/space3
+        paddingLeft: Spacing/space4
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        alignSelf: STRETCH
+      xCircleIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      placeholder:
+        height: 20
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+      iconContainer:
+        layoutMode: row
+        height: 24
+        width: 24
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      searchIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      textFootnote:
+        layoutMode: row
+        height: 16
+        width: 335
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+      footnoteText:
+        height: 16
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+  Filled:
+    Default:
+      root:
+        layoutMode: column
+        height: 92
+        width: 335
+        gap: Spacing/space1
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingCross: FIXED
+      fieldName:
+        layoutMode: row
+        height: 20
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingMain: FIXED
+        alignSelf: STRETCH
+        grow: 1
+      field:
+        layoutMode: row
+        height: 48
+        gap: Spacing/space2
+        paddingTop: Spacing/space3
+        paddingRight: Spacing/space4
+        paddingBottom: Spacing/space3
+        paddingLeft: Spacing/space4
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        alignSelf: STRETCH
+      iconContainer:
+        layoutMode: row
+        height: 24
+        width: 24
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      searchIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      text:
+        height: 20
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+      xCircleIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      textFootnote:
+        layoutMode: row
+        height: 16
+        width: 335
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+      footnoteText:
+        height: 16
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+    RTL:
+      root:
+        layoutMode: column
+        height: 92
+        width: 335
+        gap: Spacing/space1
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingCross: FIXED
+      fieldName:
+        layoutMode: row
+        height: 20
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingMain: FIXED
+        alignSelf: STRETCH
+        grow: 1
+      field:
+        layoutMode: row
+        height: 48
+        gap: Spacing/space2
+        paddingTop: Spacing/space3
+        paddingRight: Spacing/space4
+        paddingBottom: Spacing/space3
+        paddingLeft: Spacing/space4
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        alignSelf: STRETCH
+      xCircleIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      text:
+        height: 20
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+      iconContainer:
+        layoutMode: row
+        height: 24
+        width: 24
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      searchIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      textFootnote:
+        layoutMode: row
+        height: 16
+        width: 335
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+      footnoteText:
+        height: 16
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+On:
+  Disabled:
+    Default:
+      root:
+        layoutMode: column
+        height: 92
+        width: 335
+        gap: Spacing/space1
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingCross: FIXED
+      fieldName:
+        layoutMode: row
+        height: 20
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingMain: FIXED
+        alignSelf: STRETCH
+        grow: 1
+      field:
+        layoutMode: row
+        height: 48
+        gap: Spacing/space2
+        paddingTop: Spacing/space3
+        paddingRight: Spacing/space4
+        paddingBottom: Spacing/space3
+        paddingLeft: Spacing/space4
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        alignSelf: STRETCH
+      iconContainer:
+        layoutMode: row
+        height: 24
+        width: 24
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      searchIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      placeholder:
+        height: 20
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+      xCircleIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      textFootnote:
+        layoutMode: row
+        height: 16
+        width: 335
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+      footnoteText:
+        height: 16
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+    RTL:
+      root:
+        layoutMode: column
+        height: 92
+        width: 335
+        gap: Spacing/space1
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingCross: FIXED
+      fieldName:
+        layoutMode: row
+        height: 20
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingMain: FIXED
+        alignSelf: STRETCH
+        grow: 1
+      field:
+        layoutMode: row
+        height: 48
+        gap: Spacing/space2
+        paddingTop: Spacing/space3
+        paddingRight: Spacing/space4
+        paddingBottom: Spacing/space3
+        paddingLeft: Spacing/space4
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        alignSelf: STRETCH
+      xCircleIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      placeholder:
+        height: 20
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+      iconContainer:
+        layoutMode: row
+        height: 24
+        width: 24
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      searchIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      textFootnote:
+        layoutMode: row
+        height: 16
+        width: 335
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+      footnoteText:
+        height: 16
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+  Empty:
+    Default:
+      root:
+        layoutMode: column
+        height: 92
+        width: 335
+        gap: Spacing/space1
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingCross: FIXED
+      fieldName:
+        layoutMode: row
+        height: 20
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingMain: FIXED
+        alignSelf: STRETCH
+        grow: 1
+      field:
+        layoutMode: row
+        height: 48
+        gap: Spacing/space2
+        paddingTop: Spacing/space3
+        paddingRight: Spacing/space4
+        paddingBottom: Spacing/space3
+        paddingLeft: Spacing/space4
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        alignSelf: STRETCH
+      iconContainer:
+        layoutMode: row
+        height: 24
+        width: 24
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      searchIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      textContainer:
+        layoutMode: row
+        height: 23
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingMain: FIXED
+        grow: 1
+      type:
+        height: 23
+        width: 0.000001005362719297409
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      placeholder:
+        height: 20
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+      xCircleIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      textFootnote:
+        layoutMode: row
+        height: 16
+        width: 335
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+      footnoteText:
+        height: 16
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+    RTL:
+      root:
+        layoutMode: column
+        height: 92
+        width: 335
+        gap: Spacing/space1
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingCross: FIXED
+      fieldName:
+        layoutMode: row
+        height: 20
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingMain: FIXED
+        alignSelf: STRETCH
+        grow: 1
+      field:
+        layoutMode: row
+        height: 48
+        gap: Spacing/space2
+        paddingTop: Spacing/space3
+        paddingRight: Spacing/space4
+        paddingBottom: Spacing/space3
+        paddingLeft: Spacing/space4
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        alignSelf: STRETCH
+      xCircleIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      textContainer:
+        layoutMode: row
+        height: 23
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingMain: FIXED
+        grow: 1
+      placeholder:
+        height: 20
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+      type:
+        height: 23
+        width: 0.000001005362719297409
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      iconContainer:
+        layoutMode: row
+        height: 24
+        width: 24
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      searchIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      textFootnote:
+        layoutMode: row
+        height: 16
+        width: 335
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+      footnoteText:
+        height: 16
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+  Filled:
+    Default:
+      root:
+        layoutMode: column
+        height: 92
+        width: 335
+        gap: Spacing/space1
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingCross: FIXED
+      fieldName:
+        layoutMode: row
+        height: 20
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingMain: FIXED
+        alignSelf: STRETCH
+        grow: 1
+      field:
+        layoutMode: row
+        height: 48
+        gap: Spacing/space2
+        paddingTop: Spacing/space3
+        paddingRight: Spacing/space4
+        paddingBottom: Spacing/space3
+        paddingLeft: Spacing/space4
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        alignSelf: STRETCH
+      iconContainer:
+        layoutMode: row
+        height: 24
+        width: 24
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      searchIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      textContainer:
+        layoutMode: row
+        height: 23
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingMain: FIXED
+        grow: 1
+      text:
+        height: 20
+        width: 30
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      type:
+        height: 23
+        width: 0.000001005362719297409
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      xCircleIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      textFootnote:
+        layoutMode: row
+        height: 16
+        width: 335
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+      footnoteText:
+        height: 16
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1
+    RTL:
+      root:
+        layoutMode: column
+        height: 92
+        width: 335
+        gap: Spacing/space1
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingCross: FIXED
+      fieldName:
+        layoutMode: row
+        height: 20
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingMain: FIXED
+        alignSelf: STRETCH
+        grow: 1
+      field:
+        layoutMode: row
+        height: 48
+        gap: Spacing/space2
+        paddingTop: Spacing/space3
+        paddingRight: Spacing/space4
+        paddingBottom: Spacing/space3
+        paddingLeft: Spacing/space4
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        alignSelf: STRETCH
+      xCircleIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      textContainer:
+        layoutMode: row
+        height: 23
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingMain: FIXED
+        grow: 1
+      type:
+        height: 23
+        width: 0.000001005362719297409
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      text:
+        height: 20
+        width: 30
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      iconContainer:
+        layoutMode: row
+        height: 24
+        width: 24
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      searchIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      textFootnote:
+        layoutMode: row
+        height: 16
+        width: 335
+        gap: 10
+        paddingRight: Spacing/space4
+        paddingLeft: Spacing/space4
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+      footnoteText:
+        height: 16
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        grow: 1

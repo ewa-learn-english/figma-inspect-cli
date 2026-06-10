@@ -1,0 +1,3327 @@
+Default:
+  Action:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      height:
+        height: 58
+  Avatar:
+    Default:
+      root:
+        layoutMode: row
+        height: 64
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconContainer:
+        layoutMode: row
+        height: 48
+        width: 48
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      icon:
+        height: 48
+        width: 48
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      stickerIcon:
+        height: 16
+        width: 16
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      ellipse35:
+        height: 16
+        width: 16
+      ellipse36:
+        height: 8
+        width: 8
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      chevronRightIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      height:
+        height: 64
+    RTL:
+      root:
+        layoutMode: row
+        height: 64
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      chevronLeftIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconContainer:
+        layoutMode: row
+        height: 48
+        width: 48
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      icon:
+        height: 48
+        width: 48
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      stickerIcon:
+        height: 16
+        width: 16
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      ellipse35:
+        height: 16
+        width: 16
+      ellipse36:
+        height: 8
+        width: 8
+      height:
+        height: 64
+  Button destructive:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 58
+  Button:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 58
+  Trailing Button Avatar:
+    Default:
+      root:
+        layoutMode: row
+        height: 66
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconContainer:
+        layoutMode: row
+        height: 48
+        width: 48
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      icon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      stickerIcon:
+        height: 16
+        width: 16
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      ellipse35:
+        height: 16
+        width: 16
+      ellipse36:
+        height: 8
+        width: 8
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconButton:
+        layoutMode: column
+        height: 50
+        width: 46
+        gap: -42
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+      button:
+        layoutMode: row
+        height: 46
+        width: 46
+        gap: Spacing/space1
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space2
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space2
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        clip: true
+      shadow:
+        height: 46
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 66
+    RTL:
+      root:
+        layoutMode: row
+        height: 66
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconButton:
+        layoutMode: column
+        height: 50
+        width: 46
+        gap: -42
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+      button:
+        layoutMode: row
+        height: 46
+        width: 46
+        gap: Spacing/space1
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space2
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space2
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        clip: true
+      icon:
+        height: 48
+        width: 48
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      shadow:
+        height: 46
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconContainer:
+        layoutMode: row
+        height: 48
+        width: 48
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      stickerIcon:
+        height: 16
+        width: 16
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      ellipse35:
+        height: 16
+        width: 16
+      ellipse36:
+        height: 8
+        width: 8
+      height:
+        height: 66
+  Trailing Button Icon:
+    Default:
+      root:
+        layoutMode: row
+        height: 66
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      icon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconButton:
+        layoutMode: column
+        height: 50
+        width: 46
+        gap: -42
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+      button:
+        layoutMode: row
+        height: 46
+        width: 46
+        gap: Spacing/space1
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space2
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space2
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        clip: true
+      shadow:
+        height: 46
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 66
+    RTL:
+      root:
+        layoutMode: row
+        height: 66
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconButton:
+        layoutMode: column
+        height: 50
+        width: 46
+        gap: -42
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+      button:
+        layoutMode: row
+        height: 46
+        width: 46
+        gap: Spacing/space1
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space2
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space2
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        clip: true
+      icon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      shadow:
+        height: 46
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      height:
+        height: 66
+  Trailing Checkmark:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      selection:
+        layoutMode: row
+        height: 32
+        width: 32
+        paddingTop: Spacing/space1
+        paddingRight: Spacing/space1
+        paddingBottom: Spacing/space1
+        paddingLeft: Spacing/space1
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      icon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      check:
+        height: 7
+        width: 10.5
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      selection:
+        layoutMode: row
+        height: 32
+        width: 32
+        paddingTop: Spacing/space1
+        paddingRight: Spacing/space1
+        paddingBottom: Spacing/space1
+        paddingLeft: Spacing/space1
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      icon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      check:
+        height: 7
+        width: 10.5
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      height:
+        height: 58
+  Trailing Chevron:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      chevronRightIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      chevronLeftIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      height:
+        height: 58
+  Trailing Toggle:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      toggle:
+        height: 32
+        width: 50
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      knob:
+        height: 26
+        width: 26
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      toggle:
+        height: 32
+        width: 50
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      knob:
+        height: 26
+        width: 26
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      height:
+        height: 58
+  Trailing Value:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 20
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+        alignSelf: STRETCH
+        width: 42
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      label:
+        height: 22
+        width: 42
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      height:
+        height: 58
+Hover:
+  Action:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      height:
+        height: 58
+  Avatar:
+    Default:
+      root:
+        layoutMode: row
+        height: 64
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconContainer:
+        layoutMode: row
+        height: 48
+        width: 48
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      icon:
+        height: 48
+        width: 48
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      stickerIcon:
+        height: 16
+        width: 16
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      ellipse35:
+        height: 16
+        width: 16
+      ellipse36:
+        height: 8
+        width: 8
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      chevronRightIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      height:
+        height: 64
+    RTL:
+      root:
+        layoutMode: row
+        height: 64
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      chevronLeftIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconContainer:
+        layoutMode: row
+        height: 48
+        width: 48
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      icon:
+        height: 48
+        width: 48
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      stickerIcon:
+        height: 16
+        width: 16
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      ellipse35:
+        height: 16
+        width: 16
+      ellipse36:
+        height: 8
+        width: 8
+      height:
+        height: 64
+  Button destructive:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 58
+  Button:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 58
+  Trailing Button Avatar:
+    Default:
+      root:
+        layoutMode: row
+        height: 66
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconContainer:
+        layoutMode: row
+        height: 48
+        width: 48
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      icon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      stickerIcon:
+        height: 16
+        width: 16
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      ellipse35:
+        height: 16
+        width: 16
+      ellipse36:
+        height: 8
+        width: 8
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconButton:
+        layoutMode: column
+        height: 50
+        width: 46
+        gap: -42
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+      button:
+        layoutMode: row
+        height: 46
+        width: 46
+        gap: Spacing/space1
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space2
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space2
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        clip: true
+      shadow:
+        height: 46
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 66
+    RTL:
+      root:
+        layoutMode: row
+        height: 66
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconButton:
+        layoutMode: column
+        height: 50
+        width: 46
+        gap: -42
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+      button:
+        layoutMode: row
+        height: 46
+        width: 46
+        gap: Spacing/space1
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space2
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space2
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        clip: true
+      icon:
+        height: 48
+        width: 48
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      shadow:
+        height: 46
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconContainer:
+        layoutMode: row
+        height: 48
+        width: 48
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      stickerIcon:
+        height: 16
+        width: 16
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      ellipse35:
+        height: 16
+        width: 16
+      ellipse36:
+        height: 8
+        width: 8
+      height:
+        height: 66
+  Trailing Button Icon:
+    Default:
+      root:
+        layoutMode: row
+        height: 66
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      icon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconButton:
+        layoutMode: column
+        height: 50
+        width: 46
+        gap: -42
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+      button:
+        layoutMode: row
+        height: 46
+        width: 46
+        gap: Spacing/space1
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space2
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space2
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        clip: true
+      shadow:
+        height: 46
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 66
+    RTL:
+      root:
+        layoutMode: row
+        height: 66
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconButton:
+        layoutMode: column
+        height: 50
+        width: 46
+        gap: -42
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+      button:
+        layoutMode: row
+        height: 46
+        width: 46
+        gap: Spacing/space1
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space2
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space2
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        clip: true
+      icon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      shadow:
+        height: 46
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      height:
+        height: 66
+  Trailing Checkmark:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      selection:
+        layoutMode: row
+        height: 32
+        width: 32
+        paddingTop: Spacing/space1
+        paddingRight: Spacing/space1
+        paddingBottom: Spacing/space1
+        paddingLeft: Spacing/space1
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      icon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      check:
+        height: 7
+        width: 10.5
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      selection:
+        layoutMode: row
+        height: 32
+        width: 32
+        paddingTop: Spacing/space1
+        paddingRight: Spacing/space1
+        paddingBottom: Spacing/space1
+        paddingLeft: Spacing/space1
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      icon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      check:
+        height: 7
+        width: 10.5
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      height:
+        height: 58
+  Trailing Chevron:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      chevronRightIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      chevronLeftIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      height:
+        height: 58
+  Trailing Toggle:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      toggle:
+        height: 32
+        width: 50
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      knob:
+        height: 26
+        width: 26
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      toggle:
+        height: 32
+        width: 50
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      knob:
+        height: 26
+        width: 26
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      height:
+        height: 58
+  Trailing Value:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 20
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+        alignSelf: STRETCH
+        width: 42
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      label:
+        height: 22
+        width: 42
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      height:
+        height: 58
+Pressed:
+  Action:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      height:
+        height: 58
+  Avatar:
+    Default:
+      root:
+        layoutMode: row
+        height: 64
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconContainer:
+        layoutMode: row
+        height: 48
+        width: 48
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      icon:
+        height: 48
+        width: 48
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      stickerIcon:
+        height: 16
+        width: 16
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      ellipse35:
+        height: 16
+        width: 16
+      ellipse36:
+        height: 8
+        width: 8
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      chevronRightIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      height:
+        height: 64
+    RTL:
+      root:
+        layoutMode: row
+        height: 64
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      chevronLeftIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconContainer:
+        layoutMode: row
+        height: 48
+        width: 48
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      icon:
+        height: 48
+        width: 48
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      stickerIcon:
+        height: 16
+        width: 16
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      ellipse35:
+        height: 16
+        width: 16
+      ellipse36:
+        height: 8
+        width: 8
+      height:
+        height: 64
+  Button destructive:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 58
+  Button:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 58
+  Trailing Button Avatar:
+    Default:
+      root:
+        layoutMode: row
+        height: 66
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconContainer:
+        layoutMode: row
+        height: 48
+        width: 48
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      icon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      stickerIcon:
+        height: 16
+        width: 16
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      ellipse35:
+        height: 16
+        width: 16
+      ellipse36:
+        height: 8
+        width: 8
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconButton:
+        layoutMode: column
+        height: 50
+        width: 46
+        gap: -42
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+      button:
+        layoutMode: row
+        height: 46
+        width: 46
+        gap: Spacing/space1
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space2
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space2
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        clip: true
+      shadow:
+        height: 46
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 66
+    RTL:
+      root:
+        layoutMode: row
+        height: 66
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconButton:
+        layoutMode: column
+        height: 50
+        width: 46
+        gap: -42
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+      button:
+        layoutMode: row
+        height: 46
+        width: 46
+        gap: Spacing/space1
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space2
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space2
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        clip: true
+      icon:
+        height: 48
+        width: 48
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      shadow:
+        height: 46
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconContainer:
+        layoutMode: row
+        height: 48
+        width: 48
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      stickerIcon:
+        height: 16
+        width: 16
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      ellipse35:
+        height: 16
+        width: 16
+      ellipse36:
+        height: 8
+        width: 8
+      height:
+        height: 66
+  Trailing Button Icon:
+    Default:
+      root:
+        layoutMode: row
+        height: 66
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      icon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconButton:
+        layoutMode: column
+        height: 50
+        width: 46
+        gap: -42
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+      button:
+        layoutMode: row
+        height: 46
+        width: 46
+        gap: Spacing/space1
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space2
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space2
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        clip: true
+      shadow:
+        height: 46
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      height:
+        height: 66
+    RTL:
+      root:
+        layoutMode: row
+        height: 66
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconButton:
+        layoutMode: column
+        height: 50
+        width: 46
+        gap: -42
+        alignMain: MAX
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+      button:
+        layoutMode: row
+        height: 46
+        width: 46
+        gap: Spacing/space1
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space2
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space2
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        sizingMain: FIXED
+        sizingCross: FIXED
+        clip: true
+      icon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      shadow:
+        height: 46
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      height:
+        height: 66
+  Trailing Checkmark:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      selection:
+        layoutMode: row
+        height: 32
+        width: 32
+        paddingTop: Spacing/space1
+        paddingRight: Spacing/space1
+        paddingBottom: Spacing/space1
+        paddingLeft: Spacing/space1
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      icon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      check:
+        height: 7
+        width: 10.5
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      selection:
+        layoutMode: row
+        height: 32
+        width: 32
+        paddingTop: Spacing/space1
+        paddingRight: Spacing/space1
+        paddingBottom: Spacing/space1
+        paddingLeft: Spacing/space1
+        alignMain: CENTER
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      icon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      check:
+        height: 7
+        width: 10.5
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      height:
+        height: 58
+  Trailing Chevron:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      chevronRightIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      chevronLeftIcon:
+        height: 24
+        width: 24
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      height:
+        height: 58
+  Trailing Toggle:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      toggle:
+        height: 32
+        width: 50
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      knob:
+        height: 26
+        width: 26
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      toggle:
+        height: 32
+        width: 50
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+        clip: true
+      knob:
+        height: 26
+        width: 26
+      content:
+        layoutMode: column
+        height: 40
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      text:
+        height: 18
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        alignSelf: STRETCH
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      height:
+        height: 58
+  Trailing Value:
+    Default:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      label:
+        height: 20
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+        alignSelf: STRETCH
+        width: 42
+      height:
+        height: 58
+    RTL:
+      root:
+        layoutMode: row
+        height: 58
+        width: 335
+        gap: Spacing/space3
+        paddingTop: Spacing/space2
+        paddingRight: Spacing/space5
+        paddingBottom: Spacing/space2
+        paddingLeft: Spacing/space5
+        alignCross: CENTER
+        sizingHorizontal: FIXED
+        sizingVertical: HUG
+        sizingMain: FIXED
+        minHeight: 58
+      label:
+        height: 22
+        width: 42
+        sizingHorizontal: FILL
+        sizingVertical: FIXED
+        alignSelf: STRETCH
+      content:
+        layoutMode: column
+        height: 22
+        sizingHorizontal: FILL
+        sizingVertical: HUG
+        sizingCross: FIXED
+        grow: 1
+      iconWrapper:
+        layoutMode: row
+        height: 32
+        width: 32
+        gap: 10
+        alignCross: CENTER
+        sizingHorizontal: HUG
+        sizingVertical: HUG
+      placeholderSIcon:
+        height: 32
+        width: 32
+        sizingHorizontal: FIXED
+        sizingVertical: FIXED
+      height:
+        height: 58

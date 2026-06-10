@@ -1,15 +1,9 @@
 import { access, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FigmaInspectError } from "../errors.js";
 import { exportVariantAssets } from "./export-variant-assets.js";
-
-const tmpFixtures = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../../tmp",
-);
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -271,8 +265,8 @@ describe("exportVariantAssets", () => {
     ).rejects.toThrow(FigmaInspectError);
   });
 
-  it("matches tmp ProfileStreakIcon asset paths", async () => {
-    const outputDir = await mkdtemp(path.join(tmpdir(), "figma-export-tmp-"));
+  it("builds the full ProfileStreakIcon asset path map", async () => {
+    const outputDir = await mkdtemp(path.join(tmpdir(), "figma-export-map-"));
     const componentSet = profileStreakComponentSet();
     const nodeIds = (componentSet.children as Array<{ id: string }>).map(
       (child) => child.id,
@@ -318,11 +312,5 @@ describe("exportVariantAssets", () => {
         },
       },
     });
-
-    const tmpAsset = path.join(
-      tmpFixtures,
-      "ProfileStreakIcon.assets/active-m.svg",
-    );
-    await expect(access(tmpAsset)).resolves.toBeUndefined();
   });
 });

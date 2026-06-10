@@ -1,8 +1,8 @@
 import { cp, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { contractFixturesDir } from "../../test/fixtures.js";
 import { FigmaInspectError } from "../errors.js";
 import type { DocumentNode } from "../schemas.js";
 import { serializeContractData } from "./contract-format.js";
@@ -15,10 +15,7 @@ import {
 import { fingerprintTree } from "./fingerprint.js";
 import { verifyComponentContracts } from "./verify-component-contract.js";
 
-const tmpFixtures = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../../tmp",
-);
+const contractFixtures = contractFixturesDir;
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -179,13 +176,13 @@ async function copyProfileStreakContracts(targetDir: string): Promise<void> {
 
   await Promise.all(
     files.map((fileName) =>
-      cp(path.join(tmpFixtures, fileName), path.join(targetDir, fileName)),
+      cp(path.join(contractFixtures, fileName), path.join(targetDir, fileName)),
     ),
   );
 }
 
 async function loadProfileStreakLock(
-  contractDir = tmpFixtures,
+  contractDir = contractFixtures,
 ): Promise<ContractLock> {
   const lock = await readContractLock(
     resolveContractLockPath(contractDir, "ProfileStreakIcon"),
@@ -226,7 +223,7 @@ describe("verifyComponentContracts", () => {
   it("returns error when a named component lock file is missing", async () => {
     const results = await verifyComponentContracts({
       token: "token",
-      contractDir: tmpFixtures,
+      contractDir: contractFixtures,
       componentName: "MissingComponent",
       fetchImpl: createFigmaFetchMock({}),
     });
@@ -236,7 +233,7 @@ describe("verifyComponentContracts", () => {
         componentName: "MissingComponent",
         status: "error",
         errors: [
-          `Missing lock file: ${resolveContractLockPath(tmpFixtures, "MissingComponent")}`,
+          `Missing lock file: ${resolveContractLockPath(contractFixtures, "MissingComponent")}`,
         ],
         changed: {
           source: false,
@@ -301,7 +298,7 @@ describe("verifyComponentContracts", () => {
 
     const results = await verifyComponentContracts({
       token: "token",
-      contractDir: tmpFixtures,
+      contractDir: contractFixtures,
       componentName: "ProfileStreakIcon",
       fetchImpl: createFigmaFetchMock(liveResponses),
     });
@@ -322,7 +319,7 @@ describe("verifyComponentContracts", () => {
 
     const results = await verifyComponentContracts({
       token: "token",
-      contractDir: tmpFixtures,
+      contractDir: contractFixtures,
       fetchImpl,
     });
 
@@ -344,7 +341,7 @@ describe("verifyComponentContracts", () => {
 
     const results = await verifyComponentContracts({
       token: "token",
-      contractDir: tmpFixtures,
+      contractDir: contractFixtures,
       componentName: "ProfileStreakIcon",
       fetchImpl,
     });
@@ -358,7 +355,7 @@ describe("verifyComponentContracts", () => {
 
     const results = await verifyComponentContracts({
       token: "token",
-      contractDir: tmpFixtures,
+      contractDir: contractFixtures,
       componentName: "ProfileStreakIcon",
       fetchImpl: createFigmaFetchMock({
         componentSet: buildLiveMockResponses(
@@ -396,7 +393,7 @@ describe("verifyComponentContracts", () => {
     );
     await copyProfileStreakContracts(contractDir);
     await cp(
-      resolveContractLockPath(tmpFixtures, "ProfileStreakIcon"),
+      resolveContractLockPath(contractFixtures, "ProfileStreakIcon"),
       resolveContractLockPath(contractDir, "ProfileStreakIcon"),
     );
     await writeFile(

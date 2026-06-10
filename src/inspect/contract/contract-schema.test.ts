@@ -1,19 +1,16 @@
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { contractFixturesDir } from "../../test/fixtures.js";
 import { FigmaInspectError } from "../errors.js";
 import {
   readComponentContractArtifacts,
   validateComponentContractArtifacts,
 } from "./contract-schema.js";
 
-const contractDir = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../../tmp",
-);
+const contractDir = contractFixturesDir;
 
 describe("readComponentContractArtifacts", () => {
-  it("loads and validates TextInput contract files from tmp", async () => {
+  it("loads and validates TextInput contract files from fixtures", async () => {
     const artifacts = await readComponentContractArtifacts(
       contractDir,
       "TextInput",
@@ -28,7 +25,7 @@ describe("readComponentContractArtifacts", () => {
     expect(artifacts.assetsDir).toBeUndefined();
   });
 
-  it("loads asset-backed ProfileStreakIcon contracts from tmp", async () => {
+  it("loads asset-backed ProfileStreakIcon contracts from fixtures", async () => {
     const artifacts = await readComponentContractArtifacts(
       contractDir,
       "ProfileStreakIcon",
@@ -45,7 +42,7 @@ describe("readComponentContractArtifacts", () => {
 });
 
 describe("validateComponentContractArtifacts", () => {
-  it("accepts artifacts loaded from tmp fixtures", async () => {
+  it("accepts artifacts loaded from fixtures", async () => {
     const artifacts = await readComponentContractArtifacts(
       contractDir,
       "TextInput",

@@ -1,0 +1,44 @@
+M:
+  Active:
+    root:
+      height: 48
+      width: 48
+      sizingHorizontal: FIXED
+      sizingVertical: FIXED
+      clip: true
+  Loading:
+    root:
+      height: 48
+      width: 48
+      sizingHorizontal: FIXED
+      sizingVertical: FIXED
+      clip: true
+  Missed:
+    root:
+      height: 48
+      width: 48
+      sizingHorizontal: FIXED
+      sizingVertical: FIXED
+      clip: true
+XL:
+  Active:
+    root:
+      height: 160
+      width: 160
+      sizingHorizontal: FIXED
+      sizingVertical: FIXED
+      clip: true
+  Loading:
+    root:
+      height: 160
+      width: 160
+      sizingHorizontal: FIXED
+      sizingVertical: FIXED
+      clip: true
+  Missed:
+    root:
+      height: 160
+      width: 160
+      sizingHorizontal: FIXED
+      sizingVertical: FIXED
+      clip: true

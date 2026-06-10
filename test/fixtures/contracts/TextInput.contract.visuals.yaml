@@ -1,0 +1,416 @@
+Off:
+  Disabled:
+    Default:
+      fieldName:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        color: text/tertiary
+      field:
+        background: neutrals/subtle
+        border: neutrals/soft
+        borderWidth: 2
+        radius: Corners/rad3
+      iconContainer:
+        opacity: 0.5
+      searchIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      placeholder:
+        opacity: 0.5
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      xCircleIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      footnoteText:
+        fontFamily: font-family/fontName
+        fontSize: font-size/footnote
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+    RTL:
+      fieldName:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        color: text/tertiary
+      field:
+        background: neutrals/subtle
+        border: neutrals/soft
+        borderWidth: 2
+        radius: Corners/rad3
+        fieldBorder: neutrals/soft
+      xCircleIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      placeholder:
+        opacity: 0.5
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      iconContainer:
+        opacity: 0.5
+      searchIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      footnoteText:
+        fontFamily: font-family/fontName
+        fontSize: font-size/footnote
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      fieldAlign:
+        main: MAX
+        cross: CENTER
+  Empty:
+    Default:
+      fieldName:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        color: text/primary
+      field:
+        background: neutrals/subtle
+        border: neutrals/soft
+        borderWidth: 2
+        radius: Corners/rad3
+      searchIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      placeholder:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      xCircleIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      footnoteText:
+        fontFamily: font-family/fontName
+        fontSize: font-size/footnote
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+    RTL:
+      fieldName:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        color: text/primary
+      field:
+        background: neutrals/subtle
+        border: neutrals/soft
+        borderWidth: 2
+        radius: Corners/rad3
+        fieldBorder: neutrals/soft
+      xCircleIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      placeholder:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      searchIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      footnoteText:
+        fontFamily: font-family/fontName
+        fontSize: font-size/footnote
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      fieldAlign:
+        main: MAX
+        cross: CENTER
+  Filled:
+    Default:
+      fieldName:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        color: text/primary
+      field:
+        background: neutrals/subtle
+        border: neutrals/soft
+        borderWidth: 2
+        radius: Corners/rad3
+      searchIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/primary
+      xCircleIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      footnoteText:
+        fontFamily: font-family/fontName
+        fontSize: font-size/footnote
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+    RTL:
+      fieldName:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        color: text/primary
+      field:
+        background: neutrals/subtle
+        border: neutrals/soft
+        borderWidth: 2
+        radius: Corners/rad3
+        fieldBorder: neutrals/soft
+      xCircleIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/primary
+      searchIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      footnoteText:
+        fontFamily: font-family/fontName
+        fontSize: font-size/footnote
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      fieldAlign:
+        cross: CENTER
+On:
+  Disabled:
+    Default:
+      fieldName:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        color: text/tertiary
+      field:
+        background: neutrals/subtle
+        border: neutrals/soft
+        borderWidth: 2
+        radius: Corners/rad3
+      iconContainer:
+        opacity: 0.5
+      searchIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      placeholder:
+        opacity: 0.5
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      xCircleIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      footnoteText:
+        fontFamily: font-family/fontName
+        fontSize: font-size/footnote
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+    RTL:
+      fieldName:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        color: text/tertiary
+      field:
+        background: neutrals/subtle
+        border: neutrals/soft
+        borderWidth: 2
+        radius: Corners/rad3
+        fieldBorder: neutrals/soft
+      xCircleIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      placeholder:
+        opacity: 0.5
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      iconContainer:
+        opacity: 0.5
+      searchIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      footnoteText:
+        fontFamily: font-family/fontName
+        fontSize: font-size/footnote
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      fieldAlign:
+        main: MAX
+        cross: CENTER
+  Empty:
+    Default:
+      fieldName:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        color: text/primary
+      field:
+        background: neutrals/subtle
+        border: tokens/blue/mainBlue
+        borderWidth: 2
+        radius: Corners/rad3
+      searchIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      type:
+        border: tokens/blue/mainBlue
+        borderWidth: 2
+      placeholder:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+      xCircleIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      footnoteText:
+        fontFamily: font-family/fontName
+        fontSize: font-size/footnote
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+    RTL:
+      fieldName:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        color: text/primary
+      field:
+        background: neutrals/subtle
+        border: tokens/blue/mainBlue
+        borderWidth: 2
+        radius: Corners/rad3
+        fieldBorder: tokens/blue/mainBlue
+      xCircleIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      placeholder:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      type:
+        border: tokens/blue/mainBlue
+        borderWidth: 2
+      searchIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      footnoteText:
+        fontFamily: font-family/fontName
+        fontSize: font-size/footnote
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      fieldAlign:
+        main: MAX
+        cross: CENTER
+  Filled:
+    Default:
+      fieldName:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: LEFT
+        color: text/primary
+      field:
+        background: neutrals/subtle
+        border: tokens/blue/mainBlue
+        borderWidth: 2
+        radius: Corners/rad3
+      searchIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/regular
+        align: CENTER
+        autoResize: WIDTH_AND_HEIGHT
+        color: text/primary
+      type:
+        border: tokens/blue/mainBlue
+        borderWidth: 2
+      xCircleIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      footnoteText:
+        fontFamily: font-family/fontName
+        fontSize: font-size/footnote
+        fontStyle: font-weight/regular
+        align: LEFT
+        color: text/tertiary
+    RTL:
+      fieldName:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/semibold
+        align: RIGHT
+        color: text/primary
+      field:
+        background: neutrals/subtle
+        border: tokens/blue/mainBlue
+        borderWidth: 2
+        radius: Corners/rad3
+        fieldBorder: tokens/blue/mainBlue
+      xCircleIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      type:
+        border: tokens/blue/mainBlue
+        borderWidth: 2
+      text:
+        fontFamily: font-family/fontName
+        fontSize: font-size/body
+        fontStyle: font-weight/regular
+        align: CENTER
+        autoResize: WIDTH_AND_HEIGHT
+        color: text/primary
+      searchIcon:
+        iconSize: 24
+        iconColor: text/tertiary
+      footnoteText:
+        fontFamily: font-family/fontName
+        fontSize: font-size/footnote
+        fontStyle: font-weight/regular
+        align: RIGHT
+        color: text/tertiary
+      fieldAlign:
+        cross: CENTER

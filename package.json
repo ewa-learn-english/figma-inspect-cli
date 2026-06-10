@@ -15,7 +15,7 @@
     "dev": "tsx ./src/bin/figma-inspect.ts",
     "lint": "biome lint .",
     "format": "biome format --write .",
-    "check": "biome check . && knip",
+    "check": "biome check . && knip && npm run test",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage --pool=forks --maxWorkers=1",
     "knip": "knip",
