@@ -13,8 +13,12 @@ export interface ParsedComponentSetProps {
   baseVariant: Record<string, string>;
 }
 
+function rawPropKey(rawKey: string): string {
+  return rawKey.split("#")[0] ?? rawKey;
+}
+
 function toPropName(rawKey: string): string {
-  const baseName = rawKey.split("#")[0] ?? rawKey;
+  const baseName = rawPropKey(rawKey);
   if (baseName.length === 0) {
     return rawKey;
   }
@@ -103,12 +107,13 @@ export function parseComponentSetProps(
       continue;
     }
 
-    const propName = toPropName(rawKey);
+    const propName =
+      parsed.type === "variant" ? rawPropKey(rawKey) : toPropName(rawKey);
     props[propName] = parsed;
     propIdToName.set(rawKey, propName);
 
     if (parsed.type === "variant" && typeof parsed.default === "string") {
-      baseVariant[toPropName(rawKey.split("#")[0] ?? rawKey)] = parsed.default;
+      baseVariant[rawPropKey(rawKey)] = parsed.default;
     }
   }
 
@@ -131,7 +136,7 @@ export function parseVariantName(name: string): Record<string, string> {
       continue;
     }
 
-    variants[key.charAt(0).toLowerCase() + key.slice(1)] = value;
+    variants[key] = value;
   }
 
   return variants;

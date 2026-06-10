@@ -38,6 +38,13 @@ export type CliCommand =
       teamComponentsPath?: string;
     }
   | {
+      kind: "build-component-set-pseudocode";
+      inputPath: string;
+      outputDir?: string;
+      variablesPath?: string;
+      teamComponentsPath?: string;
+    }
+  | {
       kind: "export-component-set";
       outputDir: string;
       componentSet: ComponentSetLookup;

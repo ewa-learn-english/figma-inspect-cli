@@ -1,3 +1,9 @@
+export {
+  buildComponentSetPseudocodeFromFile,
+  resolveGeometryContractPath,
+  resolveStructureDslPath,
+  resolveVisualsContractPath,
+} from "./component-set-pseudocode/index.js";
 export { buildComponentSetSpecFromFile } from "./component-set-spec/index.js";
 export { FigmaInspectError } from "./errors.js";
 export { getNodeComponentSet } from "./get-node-component-set.js";

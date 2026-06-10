@@ -16,9 +16,11 @@ interface ParsedFlags {
   inspectTeamComponentSet: boolean;
   inspectFileNode: boolean;
   buildComponentSetSpec: boolean;
+  buildComponentSetPseudocode: boolean;
   exportComponentSet: boolean;
   projectId: string | undefined;
   inputPath: string | undefined;
+  outputPath: string | undefined;
   outputDir: string | undefined;
   variablesPath: string | undefined;
   teamComponentsPath: string | undefined;
@@ -43,9 +45,11 @@ function emptyFlags(): ParsedFlags {
     inspectTeamComponentSet: false,
     inspectFileNode: false,
     buildComponentSetSpec: false,
+    buildComponentSetPseudocode: false,
     exportComponentSet: false,
     projectId: undefined,
     inputPath: undefined,
+    outputPath: undefined,
     outputDir: undefined,
     variablesPath: undefined,
     teamComponentsPath: undefined,
@@ -154,12 +158,15 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
     flags.buildComponentSetSpec
       ? ("build-component-set-spec" as const)
       : undefined,
+    flags.buildComponentSetPseudocode
+      ? ("build-component-set-pseudocode" as const)
+      : undefined,
     flags.exportComponentSet ? ("export-component-set" as const) : undefined,
   ].filter((command) => command !== undefined);
 
   if (selected.length === 0) {
     throw new CliError(
-      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --list-team-component-sets, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, --build-component-set-spec, or --export-component-set.\n\n" +
+      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --list-team-component-sets, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, --build-component-set-spec, --build-component-set-pseudocode, or --export-component-set.\n\n" +
         usage,
     );
   }
@@ -237,6 +244,21 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
       return {
         kind: "build-component-set-spec",
         inputPath: flags.inputPath,
+        variablesPath: flags.variablesPath,
+        teamComponentsPath: flags.teamComponentsPath,
+      };
+    }
+    case "build-component-set-pseudocode": {
+      if (!flags.inputPath) {
+        throw new CliError(
+          "Missing --input for --build-component-set-pseudocode.",
+        );
+      }
+
+      return {
+        kind: "build-component-set-pseudocode",
+        inputPath: flags.inputPath,
+        outputDir: flags.outputDir ?? flags.outputPath,
         variablesPath: flags.variablesPath,
         teamComponentsPath: flags.teamComponentsPath,
       };
@@ -331,6 +353,11 @@ export function parseCommand(argv: string[]): CliCommand {
       continue;
     }
 
+    if (arg === "--build-component-set-pseudocode") {
+      flags.buildComponentSetPseudocode = true;
+      continue;
+    }
+
     if (arg === "--export-component-set") {
       flags.exportComponentSet = true;
       continue;
@@ -353,6 +380,13 @@ export function parseCommand(argv: string[]): CliCommand {
     if (arg === "--team-components") {
       const { value, nextIndex } = readFlagValue(argv, index, arg);
       flags.teamComponentsPath = value;
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--output") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.outputPath = value;
       index = nextIndex;
       continue;
     }

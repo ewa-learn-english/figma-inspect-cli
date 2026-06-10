@@ -10,6 +10,7 @@ export const usage = `Usage:
   figma-inspect --inspect-team-component-set (--component-set-key <key> | --component-set-name <name>)
   figma-inspect --inspect-file-node --file-key <key> --node-id <id>
   figma-inspect --build-component-set-spec --input <path> [--variables <path>] [--team-components <path>]
+  figma-inspect --build-component-set-pseudocode --input <path> [--output-dir <dir>] [--variables <path>] [--team-components <path>]
   figma-inspect --export-component-set --output-dir <dir> (--component-set-key <key> | --component-set-name <name>) [--variables <path>] [--team-components <path>]
 
 Environment:
@@ -29,8 +30,10 @@ Options:
   --inspect-team-component-set    Find a published component set by name or key and print its raw JSON
   --inspect-file-node             Print raw JSON for a file node
   --build-component-set-spec      Build an AI-friendly spec from a local COMPONENT_SET JSON file
-  --export-component-set          Export raw and build JSON for a published team component set
-  --input <path>                  Input JSON file path (required with --build-component-set-spec)
+  --build-component-set-pseudocode Build component contracts from a local COMPONENT_SET JSON file; writes <ComponentName>.contract.{visuals,geometry}.json and <ComponentName>.contract.structure.dsl
+  --export-component-set          Export raw JSON and component contract files for a published team component set
+  --input <path>                  Input JSON file path (required with --build-component-set-spec and --build-component-set-pseudocode)
+  --output-dir <dir>              Output directory (optional with --build-component-set-pseudocode; defaults to the input file directory)
   --output-dir <dir>              Output directory (required with --export-component-set)
   --variables <path>              Variables export JSON (optional with --build-component-set-spec and --export-component-set)
   --team-components <path>        Team component sets JSON (optional with --build-component-set-spec and --export-component-set)

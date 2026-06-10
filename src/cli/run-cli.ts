@@ -1,3 +1,5 @@
+import { writeFile } from "node:fs/promises";
+import path from "node:path";
 import {
   FigmaApiError,
   getFileNode,
@@ -8,12 +10,16 @@ import {
   listTeamProjects,
 } from "../figma-api/index.js";
 import {
+  buildComponentSetPseudocodeFromFile,
   buildComponentSetSpecFromFile,
   FigmaInspectError,
   getNodeComponentSet,
   listAllComponentSets,
   listComponentSetProperties,
+  resolveGeometryContractPath,
+  resolveStructureDslPath,
   resolveTeamComponentSetScope,
+  resolveVisualsContractPath,
 } from "../inspect/index.js";
 import { CliError } from "./errors.js";
 import {
@@ -49,6 +55,55 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         teamComponentsPath: command.teamComponentsPath,
       });
       writeJson(spec, io.stdout);
+    } catch (error) {
+      if (error instanceof FigmaInspectError) {
+        throw new CliError(error.message);
+      }
+
+      throw error;
+    }
+
+    return;
+  }
+
+  if (command.kind === "build-component-set-pseudocode") {
+    try {
+      const result = await buildComponentSetPseudocodeFromFile(
+        command.inputPath,
+        {
+          variablesPath: command.variablesPath,
+          teamComponentsPath: command.teamComponentsPath,
+        },
+      );
+      const contractDirectory =
+        command.outputDir ?? path.dirname(command.inputPath);
+      const visualsContractPath = resolveVisualsContractPath(
+        contractDirectory,
+        result.componentName,
+      );
+      const geometryContractPath = resolveGeometryContractPath(
+        contractDirectory,
+        result.componentName,
+      );
+      const structureDslPath = resolveStructureDslPath(
+        contractDirectory,
+        result.componentName,
+      );
+      await writeFile(
+        visualsContractPath,
+        `${JSON.stringify(result.visuals, null, 2)}\n`,
+        "utf8",
+      );
+      await writeFile(
+        geometryContractPath,
+        `${JSON.stringify(result.geometry, null, 2)}\n`,
+        "utf8",
+      );
+      await writeFile(structureDslPath, result.structureDsl, "utf8");
+
+      io.stdout.write(
+        `${visualsContractPath}\n${geometryContractPath}\n${structureDslPath}\n`,
+      );
     } catch (error) {
       if (error instanceof FigmaInspectError) {
         throw new CliError(error.message);

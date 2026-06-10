@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
-  buildComponentSetSpecFromFile,
+  buildComponentSetPseudocodeFromFile,
   getNodeComponentSet,
   resolveTeamComponentSetScope,
 } from "../inspect/index.js";
@@ -18,7 +18,9 @@ export interface ExportComponentSetOptions {
 
 export interface ExportComponentSetResult {
   rawPath: string;
-  buildPath: string;
+  visualsContractPath: string;
+  geometryContractPath: string;
+  structureDslPath: string;
 }
 
 function sanitizeFileName(name: string): string {
@@ -62,21 +64,42 @@ export async function exportComponentSet(
   await mkdir(options.outputDir, { recursive: true });
 
   const rawPath = path.join(options.outputDir, `${baseName}.json`);
-  const buildPath = path.join(options.outputDir, `${baseName}.build.json`);
+  const visualsContractPath = path.join(
+    options.outputDir,
+    `${baseName}.contract.visuals.json`,
+  );
+  const geometryContractPath = path.join(
+    options.outputDir,
+    `${baseName}.contract.geometry.json`,
+  );
+  const structureDslPath = path.join(
+    options.outputDir,
+    `${baseName}.contract.structure.dsl`,
+  );
 
   await writeJsonFile(rawPath, raw);
-  const spec = await buildComponentSetSpecFromFile(rawPath, {
+
+  const contractResult = await buildComponentSetPseudocodeFromFile(rawPath, {
     variablesPath: options.variablesPath,
     teamComponentsPath: options.teamComponentsPath,
   });
-  await writeJsonFile(buildPath, spec);
+  await writeJsonFile(visualsContractPath, contractResult.visuals);
+  await writeJsonFile(geometryContractPath, contractResult.geometry);
+  await writeFile(structureDslPath, contractResult.structureDsl, "utf8");
 
-  return { rawPath, buildPath };
+  return {
+    rawPath,
+    visualsContractPath,
+    geometryContractPath,
+    structureDslPath,
+  };
 }
 
 export function writeExportResult(
   result: ExportComponentSetResult,
   stdout: NodeJS.WriteStream,
 ): void {
-  stdout.write(`${result.rawPath}\n${result.buildPath}\n`);
+  stdout.write(
+    `${result.rawPath}\n${result.visualsContractPath}\n${result.geometryContractPath}\n${result.structureDslPath}\n`,
+  );
 }
