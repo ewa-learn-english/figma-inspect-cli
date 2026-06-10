@@ -32,7 +32,7 @@ Options:
   --build-component-set-spec      Build an AI-friendly spec from a local COMPONENT_SET JSON file; prints YAML by default
   --build-component-set-pseudocode Build component contracts from a local COMPONENT_SET JSON file; writes <ComponentName>.contract.{visuals,geometry,meta,assets?}.yaml and <ComponentName>.contract.structure.dsl
   --export-component-set          Export component contract files for a published team component set as YAML; writes <ComponentName>.contract.lock.yaml; with --export-assets also writes <ComponentName>.contract.assets.yaml and SVG files
-  --export-assets                 Export one SVG asset per component variant via the Figma Images API (with --export-component-set)
+  --export-assets                 Export one SVG asset per component variant via the Figma Images API (with --export-component-set; variant props only, no TEXT layers)
   --asset-format <format>         Asset export format; currently supports svg (default when --export-assets is set)
   --input <path>                  Input JSON file path (required with --build-component-set-spec and --build-component-set-pseudocode)
   --output-dir <dir>              Output directory (optional with --build-component-set-pseudocode; defaults to the input file directory)

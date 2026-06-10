@@ -4,6 +4,10 @@ import {
   downloadRenderedImage,
   getFileImageUrls,
 } from "../figma-api/get-file-images.js";
+import {
+  assertComponentSetSupportsAssetExport,
+  assertExportedSvgBytes,
+} from "./assert-asset-exportable.js";
 import type {
   AssetContractEntry,
   AssetContractMap,
@@ -140,6 +144,7 @@ function buildNestedAssetMap(
 export async function exportVariantAssets(
   options: ExportVariantAssetsOptions,
 ): Promise<ExportVariantAssetsResult> {
+  assertComponentSetSupportsAssetExport(options.componentSet);
   const variantRefs = collectVariantNodeRefs(options.componentSet);
   const variantAxes = collectVariantAxes(variantRefs.map((ref) => ref.when));
   const assetsDir = path.join(options.outputDir, `${options.baseName}.assets`);
@@ -181,9 +186,12 @@ export async function exportVariantAssets(
     const absolutePath = path.join(options.outputDir, relativePath);
 
     if (nodeIdsToExport.includes(ref.nodeId)) {
-      const bytes = normalizeExportedSvgBytes(
-        await downloadRenderedImage(imageUrls[ref.nodeId], options.fetchImpl),
+      const rawBytes = await downloadRenderedImage(
+        imageUrls[ref.nodeId],
+        options.fetchImpl,
       );
+      assertExportedSvgBytes(rawBytes, ref.nodeId);
+      const bytes = normalizeExportedSvgBytes(rawBytes);
       await writeFile(absolutePath, bytes);
     }
 
