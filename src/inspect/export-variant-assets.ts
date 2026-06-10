@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { access, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
   downloadRenderedImage,
@@ -12,6 +12,7 @@ import { readChildren, readString } from "./component-set-spec/figma-node.js";
 import { parseVariantName } from "./component-set-spec/parse-props.js";
 import { collectVariantAxes } from "./component-set-spec/variant-axes.js";
 import { FigmaInspectError } from "./errors.js";
+import { variantAssetSlug } from "./fingerprint.js";
 import { normalizeExportedSvgBytes } from "./normalize-exported-svg.js";
 
 interface VariantNodeRef {
@@ -30,6 +31,7 @@ export interface ExportVariantAssetsOptions {
   baseName: string;
   outputDir: string;
   format: "svg";
+  skipNodeIds?: ReadonlySet<string>;
   fetchImpl?: typeof fetch;
 }
 
@@ -42,25 +44,21 @@ function assetFileName(
   when: Record<string, string>,
   variantAxes: Record<string, string[]>,
 ): string {
-  const orderedAxes = Object.keys(variantAxes).sort((left, right) => {
-    if (left === "Size") {
-      return 1;
-    }
-    if (right === "Size") {
-      return -1;
-    }
-    return left.localeCompare(right);
-  });
-  const parts = orderedAxes
-    .map((axis) => when[axis])
-    .filter((value): value is string => typeof value === "string")
-    .map((value) => value.toLowerCase());
-
-  if (parts.length === 0) {
+  const slug = variantAssetSlug(when, variantAxes);
+  if (slug.length === 0) {
     throw new FigmaInspectError("Variant asset name has no axis values.");
   }
 
-  return `${parts.join("-")}.svg`;
+  return `${slug}.svg`;
+}
+
+async function assetFileExists(absolutePath: string): Promise<boolean> {
+  try {
+    await access(absolutePath);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function collectVariantNodeRefs(
@@ -147,13 +145,30 @@ export async function exportVariantAssets(
   const assetsDir = path.join(options.outputDir, `${options.baseName}.assets`);
   await mkdir(assetsDir, { recursive: true });
 
-  const imageUrls = await getFileImageUrls({
-    token: options.token,
-    fileKey: options.fileKey,
-    nodeIds: variantRefs.map((ref) => ref.nodeId),
-    format: options.format,
-    fetchImpl: options.fetchImpl,
-  });
+  const nodeIdsToExport: string[] = [];
+  for (const ref of variantRefs) {
+    if (!options.skipNodeIds?.has(ref.nodeId)) {
+      nodeIdsToExport.push(ref.nodeId);
+      continue;
+    }
+
+    const fileName = assetFileName(ref.when, variantAxes);
+    const absolutePath = path.join(assetsDir, fileName);
+    if (!(await assetFileExists(absolutePath))) {
+      nodeIdsToExport.push(ref.nodeId);
+    }
+  }
+
+  const imageUrls =
+    nodeIdsToExport.length === 0
+      ? {}
+      : await getFileImageUrls({
+          token: options.token,
+          fileKey: options.fileKey,
+          nodeIds: nodeIdsToExport,
+          format: options.format,
+          fetchImpl: options.fetchImpl,
+        });
 
   const entries: AssetBuildEntry[] = [];
 
@@ -164,11 +179,13 @@ export async function exportVariantAssets(
       fileName,
     );
     const absolutePath = path.join(options.outputDir, relativePath);
-    const bytes = normalizeExportedSvgBytes(
-      await downloadRenderedImage(imageUrls[ref.nodeId], options.fetchImpl),
-    );
 
-    await writeFile(absolutePath, bytes);
+    if (nodeIdsToExport.includes(ref.nodeId)) {
+      const bytes = normalizeExportedSvgBytes(
+        await downloadRenderedImage(imageUrls[ref.nodeId], options.fetchImpl),
+      );
+      await writeFile(absolutePath, bytes);
+    }
 
     entries.push({
       when: ref.when,

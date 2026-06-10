@@ -1,6 +1,11 @@
 export { FigmaApiError } from "./figma-api-error.js";
+export { getComponentSetByKey } from "./get-component-set.js";
 export { getFileNode } from "./get-file-node.js";
 export { listFileComponentSets } from "./list-file-component-sets.js";
+export {
+  filterFileComponentsForComponentSet,
+  listFileComponents,
+} from "./list-file-components.js";
 export { listFilePages } from "./list-file-pages.js";
 export { listProjectFiles } from "./list-project-files.js";
 export { listTeamComponentSets } from "./list-team-component-sets.js";

@@ -48,11 +48,71 @@ const publishedComponentSetSchema = z.object({
   file_key: z.string(),
   node_id: z.string(),
   name: z.string(),
+  updated_at: z.string().optional(),
+  created_at: z.string().optional(),
 });
 
 export type FigmaPublishedComponentSet = z.infer<
   typeof publishedComponentSetSchema
 >;
+
+const componentSetMetadataSchema = z.object({
+  key: z.string(),
+  file_key: z.string(),
+  node_id: z.string(),
+  name: z.string(),
+  updated_at: z.string(),
+  created_at: z.string().optional(),
+});
+
+export type FigmaComponentSetMetadata = z.infer<
+  typeof componentSetMetadataSchema
+>;
+
+const componentSetMetadataResponseSchema = z
+  .object({
+    meta: componentSetMetadataSchema,
+  })
+  .transform(({ meta }) => meta);
+
+const fileComponentSchema = z
+  .object({
+    key: z.string(),
+    file_key: z.string(),
+    node_id: z.string(),
+    name: z.string(),
+    updated_at: z.string(),
+    containing_frame: z
+      .object({
+        containingComponentSet: z
+          .object({
+            nodeId: z.string(),
+          })
+          .optional(),
+      })
+      .optional(),
+  })
+  .transform((component) => ({
+    key: component.key,
+    file_key: component.file_key,
+    node_id: component.node_id,
+    name: component.name,
+    updated_at: component.updated_at,
+    containing_component_set_node_id:
+      component.containing_frame?.containingComponentSet?.nodeId,
+  }));
+
+export type FigmaFileComponent = z.infer<typeof fileComponentSchema>;
+
+const fileComponentsResponseSchema = z
+  .object({
+    meta: z.object({
+      components: z.array(z.unknown()),
+    }),
+  })
+  .transform(({ meta }) =>
+    parseValidEntries(fileComponentSchema, meta.components),
+  );
 
 const teamProjectsResponseSchema = z
   .object({
@@ -164,5 +224,25 @@ export function parseFileImagesResponse(payload: unknown): {
     fileImagesResponseSchema,
     payload,
     "Invalid Figma file images response.",
+  );
+}
+
+export function parseComponentSetMetadataResponse(
+  payload: unknown,
+): FigmaComponentSetMetadata {
+  return parseFigmaResponse(
+    componentSetMetadataResponseSchema,
+    payload,
+    "Invalid Figma component set response.",
+  );
+}
+
+export function parseFileComponentsResponse(
+  payload: unknown,
+): FigmaFileComponent[] {
+  return parseFigmaResponse(
+    fileComponentsResponseSchema,
+    payload,
+    "Invalid Figma file components response.",
   );
 }

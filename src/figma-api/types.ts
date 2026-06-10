@@ -49,3 +49,15 @@ export interface GetFileImagesOptions {
   scale?: number;
   fetchImpl?: typeof fetch;
 }
+
+export interface GetComponentSetOptions {
+  token: string;
+  componentSetKey: string;
+  fetchImpl?: typeof fetch;
+}
+
+export interface ListFileComponentsOptions {
+  token: string;
+  fileKey: string;
+  fetchImpl?: typeof fetch;
+}
