@@ -6,6 +6,7 @@ import type {
 } from "../component-set-spec/types.js";
 import type { ContractFormat } from "../contract/contract-format.js";
 import { contractArtifactFileName } from "../contract/contract-format.js";
+import { isNode, isRef, isVar, nodeKey } from "./slim-node-guards.js";
 import type { PseudocodeModel } from "./types.js";
 
 export interface StructureContract {
@@ -83,22 +84,6 @@ interface StructureElementNode {
   children?: StructureNode[];
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function isRef(value: unknown): value is { $ref: string } {
-  return isRecord(value) && typeof value.$ref === "string";
-}
-
-function isVar(value: unknown): value is { $var: string } {
-  return isRecord(value) && typeof value.$var === "string";
-}
-
-function isNode(value: unknown): value is SlimNode {
-  return isRecord(value) && typeof value.type === "string";
-}
-
 function toTagName(raw: string | undefined, fallback: string): string {
   if (!raw) {
     return fallback;
@@ -168,22 +153,6 @@ function visibleWhen(visible: unknown): StructureWhen[] | undefined {
     return undefined;
   }
   return [{ prop: normalizePropName(visible) }];
-}
-
-function nodeKey(node: SlimNode, options: { root?: boolean } = {}): string {
-  if (options.root) {
-    return "root";
-  }
-  if (typeof node.name === "string" && node.name.length > 0) {
-    return normalizePropName(node.name);
-  }
-  if (typeof node.prop === "string" && node.prop.length > 0) {
-    return normalizePropName(node.prop);
-  }
-  if (node.component && typeof node.component !== "string") {
-    return normalizePropName(node.component.name ?? "instance");
-  }
-  return node.type;
 }
 
 function schemeRef(key: string): StructureBinding {

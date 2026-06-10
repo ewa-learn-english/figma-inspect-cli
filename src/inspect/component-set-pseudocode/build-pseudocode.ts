@@ -9,12 +9,11 @@ import {
   type ContractFormat,
   contractArtifactFileName,
 } from "../contract/contract-format.js";
+import { buildAssetBackedLayoutBundle } from "./asset-backed-contract.js";
 import {
-  buildAssetBackedGeometry,
-  buildAssetBackedVisuals,
-  hasAssetMapAssets,
-} from "./asset-backed-contract.js";
-import type { AssetContractMap } from "./assets-contract.js";
+  type AssetContractMap,
+  hasAssetContractMap,
+} from "./assets-contract.js";
 import {
   buildBaselineContracts,
   mergeBaselineWithVariantContracts,
@@ -99,7 +98,7 @@ function buildComponentSetContracts(
   > = {},
 ): ComponentSetContractResult {
   const assetBacked =
-    options.assetBacked === true && hasAssetMapAssets(options.assets);
+    options.assetBacked === true && hasAssetContractMap(options.assets);
   const model = buildPseudocodeModelFromSpec(spec);
   const format = options.format ?? "yaml";
   const structureDsl = renderStructureDsl(
@@ -111,10 +110,11 @@ function buildComponentSetContracts(
   }
 
   if (assetBacked) {
+    const layout = buildAssetBackedLayoutBundle(spec);
     return {
       componentName: model.name,
-      visuals: buildAssetBackedVisuals(spec),
-      geometry: buildAssetBackedGeometry(spec),
+      visuals: layout,
+      geometry: layout,
       meta,
       structureDsl,
     };

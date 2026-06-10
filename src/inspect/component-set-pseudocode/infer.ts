@@ -2,6 +2,8 @@ import type {
   ComponentSetSpec,
   SlimNode,
 } from "../component-set-spec/types.js";
+import { stableStringify } from "../contract/stable-stringify.js";
+import { isNode, isRecord, isRef } from "./slim-node-guards.js";
 import type {
   PseudocodeDefinitionTemplate,
   PseudocodeModel,
@@ -22,33 +24,8 @@ const NODE_TYPES = new Set([
   "vector",
 ]);
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function isRef(value: unknown): value is { $ref: string } {
-  return isRecord(value) && typeof value.$ref === "string";
-}
-
-function isNode(value: unknown): value is SlimNode {
-  return isRecord(value) && typeof value.type === "string";
-}
-
 function isDedupeNode(value: unknown): value is SlimNode {
   return isNode(value) && NODE_TYPES.has(value.type);
-}
-
-function stableStringify(value: unknown): string {
-  if (Array.isArray(value)) {
-    return `[${value.map((entry) => stableStringify(entry)).join(",")}]`;
-  }
-  if (isRecord(value)) {
-    return `{${Object.keys(value)
-      .sort()
-      .map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`)
-      .join(",")}}`;
-  }
-  return JSON.stringify(value) ?? "undefined";
 }
 
 function collectNodeCounts(

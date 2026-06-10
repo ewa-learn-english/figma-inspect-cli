@@ -1,6 +1,4 @@
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
+import { isRecord } from "../component-set-spec/figma-node.js";
 
 export function stableStringify(value: unknown): string {
   if (Array.isArray(value)) {

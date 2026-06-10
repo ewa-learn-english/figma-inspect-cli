@@ -1,6 +1,5 @@
+import { isRecord } from "../component-set-spec/figma-node.js";
 import type { ComponentSetSpec } from "../component-set-spec/types.js";
-import type { AssetContractMap } from "./assets-contract.js";
-import { hasAssetContractMap } from "./assets-contract.js";
 import { extractGeometryFromNode } from "./universal.js";
 
 function setNestedValue(
@@ -25,27 +24,21 @@ function setNestedValue(
   }
 
   const current = root[axisValue];
-  if (
-    typeof current !== "object" ||
-    current === null ||
-    Array.isArray(current)
-  ) {
+  if (!isRecord(current)) {
     root[axisValue] = {};
   }
 
   setNestedValue(root[axisValue] as Record<string, unknown>, rest, when, value);
 }
 
-function buildAssetBackedRootBundle(
+export function buildAssetBackedLayoutBundle(
   spec: ComponentSetSpec,
 ): Record<string, unknown> {
   const axes = Object.keys(spec.variantAxes);
   const root: Record<string, unknown> = {};
 
   for (const variant of spec.variants) {
-    const geometry = extractGeometryFromNode(
-      variant.layout as unknown as Record<string, unknown>,
-    );
+    const geometry = extractGeometryFromNode(variant.layout);
     if (Object.keys(geometry).length === 0) {
       continue;
     }
@@ -54,22 +47,4 @@ function buildAssetBackedRootBundle(
   }
 
   return root;
-}
-
-export function buildAssetBackedVisuals(
-  spec: ComponentSetSpec,
-): Record<string, unknown> {
-  return buildAssetBackedRootBundle(spec);
-}
-
-export function buildAssetBackedGeometry(
-  spec: ComponentSetSpec,
-): Record<string, unknown> {
-  return buildAssetBackedRootBundle(spec);
-}
-
-export function hasAssetMapAssets(
-  assets: AssetContractMap | undefined,
-): boolean {
-  return hasAssetContractMap(assets);
 }

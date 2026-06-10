@@ -1,7 +1,21 @@
+import type { SlimNode } from "./types.js";
+
 export type FigmaNode = Record<string, unknown>;
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function isRef(value: unknown): value is { $ref: string } {
+  return isRecord(value) && typeof value.$ref === "string";
+}
+
+export function isVar(value: unknown): value is { $var: string } {
+  return isRecord(value) && typeof value.$var === "string";
+}
+
+export function isSlimNode(value: unknown): value is SlimNode {
+  return isRecord(value) && typeof value.type === "string";
 }
 
 export function readString(

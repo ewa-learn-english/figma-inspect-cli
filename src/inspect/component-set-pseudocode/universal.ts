@@ -3,16 +3,9 @@ import {
   extractBoundToken,
   extractTextVisuals,
 } from "../component-set-spec/slim-text-export.js";
-import type { SlimText } from "../component-set-spec/types.js";
+import type { SlimNode, SlimText } from "../component-set-spec/types.js";
+import { isNode, isRecord, isRef } from "./slim-node-guards.js";
 import type { PseudocodeModel } from "./types.js";
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function isRef(value: unknown): value is { $ref: string } {
-  return isRecord(value) && typeof value.$ref === "string";
-}
 
 type FragmentRowIndex = Map<string, Record<string, unknown>>;
 export type NodeBundle = Record<string, Record<string, unknown>>;
@@ -150,7 +143,7 @@ function rowToStyleProps(
 }
 
 export function extractVisualsFromNode(
-  node: Record<string, unknown>,
+  node: SlimNode,
 ): Record<string, unknown> {
   const props: Record<string, unknown> = {};
   const style = isRecord(node.style) ? node.style : undefined;
@@ -203,7 +196,7 @@ export function extractVisualsFromNode(
 }
 
 export function extractGeometryFromNode(
-  node: Record<string, unknown>,
+  node: SlimNode,
 ): Record<string, unknown> {
   const props: Record<string, unknown> = {};
   const layout = isRecord(node.layout) ? node.layout : undefined;
@@ -337,7 +330,7 @@ function absorbValue(
     return;
   }
 
-  if (isRecord(value) && typeof value.type === "string") {
+  if (isNode(value)) {
     const nodeName =
       typeof value.name === "string"
         ? normalizePropName(value.name)

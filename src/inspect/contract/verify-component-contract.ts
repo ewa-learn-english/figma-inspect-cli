@@ -106,9 +106,7 @@ async function fetchLiveLockSnapshot(
     variants: toLockVariants(
       filterFileComponentsForComponentSet(fileComponents, lock.source.nodeId),
     ),
-    treeFingerprint: fingerprintTree(
-      context.tree as unknown as Record<string, unknown>,
-    ),
+    treeFingerprint: fingerprintTree(context.tree),
   };
 }
 

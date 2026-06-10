@@ -1,13 +1,14 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import type { DocumentNode } from "../schemas.js";
 import { stableStringify } from "./stable-stringify.js";
 
 function sha256Hex(value: string | Uint8Array): string {
   return createHash("sha256").update(value).digest("hex");
 }
 
-export function fingerprintTree(tree: Record<string, unknown>): string {
+export function fingerprintTree(tree: DocumentNode): string {
   return sha256Hex(stableStringify(tree));
 }
 

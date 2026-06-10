@@ -1,8 +1,8 @@
-import { normalizePropName } from "../component-set-spec/prop-name.js";
 import type {
   ComponentSetSpec,
   SlimNode,
 } from "../component-set-spec/types.js";
+import { isNode, isRef, isVar, nodeKey } from "./slim-node-guards.js";
 import type { PseudocodeModel } from "./types.js";
 import {
   extractGeometryFromNode,
@@ -13,38 +13,6 @@ import {
   orderedAxes,
   setNestedBundle,
 } from "./universal.js";
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function isRef(value: unknown): value is { $ref: string } {
-  return isRecord(value) && typeof value.$ref === "string";
-}
-
-function isVar(value: unknown): value is { $var: string } {
-  return isRecord(value) && typeof value.$var === "string";
-}
-
-function isNode(value: unknown): value is SlimNode {
-  return isRecord(value) && typeof value.type === "string";
-}
-
-function nodeKey(node: SlimNode, options: { root?: boolean } = {}): string {
-  if (options.root) {
-    return "root";
-  }
-  if (typeof node.name === "string" && node.name.length > 0) {
-    return normalizePropName(node.name);
-  }
-  if (typeof node.prop === "string" && node.prop.length > 0) {
-    return normalizePropName(node.prop);
-  }
-  if (node.component && typeof node.component !== "string") {
-    return normalizePropName(node.component.name ?? "instance");
-  }
-  return node.type;
-}
 
 function unwrapRoot(node: SlimNode): SlimNode {
   if (node.type === "component") {
@@ -115,18 +83,8 @@ export function buildBaselineContracts(
       definitions,
       { root: true },
       (key, node) => {
-        mergeNodeBundle(
-          visualBundle,
-          key,
-          extractVisualsFromNode(node as unknown as Record<string, unknown>),
-          {},
-        );
-        mergeNodeBundle(
-          geometryBundle,
-          key,
-          {},
-          extractGeometryFromNode(node as unknown as Record<string, unknown>),
-        );
+        mergeNodeBundle(visualBundle, key, extractVisualsFromNode(node), {});
+        mergeNodeBundle(geometryBundle, key, {}, extractGeometryFromNode(node));
       },
     );
 

@@ -1,8 +1,5 @@
+import { isRecord } from "./figma-node.js";
 import type { SlimDimension, SlimText } from "./types.js";
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
 
 const LITERAL_TEXT_FIELDS = new Set<string>([
   "align",
