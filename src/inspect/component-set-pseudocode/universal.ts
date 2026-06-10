@@ -1,3 +1,4 @@
+import { normalizePropName } from "../component-set-spec/prop-name.js";
 import {
   extractBoundToken,
   extractTextVisuals,
@@ -11,22 +12,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isRef(value: unknown): value is { $ref: string } {
   return isRecord(value) && typeof value.$ref === "string";
-}
-
-function propName(raw: string): string {
-  const words = raw
-    .replace(/[^A-Za-z0-9_$]+/g, " ")
-    .trim()
-    .split(/\s+/)
-    .filter((word) => word.length > 0);
-  if (words.length === 0) {
-    return "value";
-  }
-  const [first = "value", ...rest] = words;
-  return [
-    first.charAt(0).toLowerCase() + first.slice(1),
-    ...rest.map((word) => word.charAt(0).toUpperCase() + word.slice(1)),
-  ].join("");
 }
 
 type FragmentRowIndex = Map<string, Record<string, unknown>>;
@@ -355,7 +340,7 @@ function absorbValue(
   if (isRecord(value) && typeof value.type === "string") {
     const nodeName =
       typeof value.name === "string"
-        ? propName(value.name)
+        ? normalizePropName(value.name)
         : nodeNameFromValueKey(key);
     mergeNodeBundle(visualBundle, nodeName, extractVisualsFromNode(value), {});
     mergeNodeBundle(
@@ -370,7 +355,7 @@ function absorbValue(
         absorbValue(
           visualBundle,
           geometryBundle,
-          propName(String(child.name ?? "child")),
+          normalizePropName(String(child.name ?? "child")),
           child,
           fragmentRows,
         );

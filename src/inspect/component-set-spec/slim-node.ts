@@ -16,6 +16,7 @@ import {
   readRecord,
   readString,
 } from "./figma-node.js";
+import { normalizePropName } from "./prop-name.js";
 import type { SlimContext } from "./slim-context.js";
 import type {
   SlimAlign,
@@ -465,16 +466,7 @@ function resolvePropReference(
     return undefined;
   }
 
-  return propIdToName.get(raw) ?? toPropName(raw);
-}
-
-function toPropName(rawKey: string): string {
-  const baseName = rawKey.split("#")[0] ?? rawKey;
-  if (baseName.length === 0) {
-    return rawKey;
-  }
-
-  return baseName.charAt(0).toLowerCase() + baseName.slice(1);
+  return propIdToName.get(raw) ?? normalizePropName(raw);
 }
 
 function slimComponentRef(

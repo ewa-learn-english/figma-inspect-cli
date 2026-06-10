@@ -5,25 +5,13 @@ import {
   readRecord,
   readString,
 } from "./figma-node.js";
+import { rawPropKey, resolvePropName } from "./prop-name.js";
 import type { ComponentSetPropDefinition } from "./types.js";
 
 export interface ParsedComponentSetProps {
   props: Record<string, ComponentSetPropDefinition>;
   propIdToName: Map<string, string>;
   baseVariant: Record<string, string>;
-}
-
-function rawPropKey(rawKey: string): string {
-  return rawKey.split("#")[0] ?? rawKey;
-}
-
-function toPropName(rawKey: string): string {
-  const baseName = rawPropKey(rawKey);
-  if (baseName.length === 0) {
-    return rawKey;
-  }
-
-  return baseName.charAt(0).toLowerCase() + baseName.slice(1);
 }
 
 function readSwapSet(definition: Record<string, unknown>): string | undefined {
@@ -107,8 +95,7 @@ export function parseComponentSetProps(
       continue;
     }
 
-    const propName =
-      parsed.type === "variant" ? rawPropKey(rawKey) : toPropName(rawKey);
+    const propName = resolvePropName(rawKey, parsed.type);
     props[propName] = parsed;
     propIdToName.set(rawKey, propName);
 

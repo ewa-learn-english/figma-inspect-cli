@@ -43,10 +43,7 @@ function formatPropDefinition(
     return `${name} variant = ${JSON.stringify(defaultValue)} // ${definition.options.map((option) => JSON.stringify(option)).join(" | ")}`;
   }
   if (definition.type === "instance") {
-    const swap = definition.swapSet
-      ? ` swapSet=${JSON.stringify(definition.swapSet)}`
-      : "";
-    return `${name} instance = ${JSON.stringify(definition.default ?? null)}${swap}`;
+    return `${name} instance = ${JSON.stringify(name)}`;
   }
   if (definition.type === "boolean") {
     return `${name} boolean = ${JSON.stringify(definition.default ?? false)}`;

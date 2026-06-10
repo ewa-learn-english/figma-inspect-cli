@@ -1,3 +1,4 @@
+import { normalizePropName } from "../component-set-spec/prop-name.js";
 import type {
   ComponentSetPropDefinition,
   ComponentSetSpec,
@@ -99,22 +100,6 @@ function isNode(value: unknown): value is SlimNode {
   return isRecord(value) && typeof value.type === "string";
 }
 
-function propName(raw: string): string {
-  const words = raw
-    .replace(/[^A-Za-z0-9_$]+/g, " ")
-    .trim()
-    .split(/\s+/)
-    .filter((word) => word.length > 0);
-  if (words.length === 0) {
-    return "value";
-  }
-  const [first = "value", ...rest] = words;
-  return [
-    first.charAt(0).toLowerCase() + first.slice(1),
-    ...rest.map((word) => word.charAt(0).toUpperCase() + word.slice(1)),
-  ].join("");
-}
-
 function toTagName(raw: string | undefined, fallback: string): string {
   if (!raw) {
     return fallback;
@@ -183,7 +168,7 @@ function visibleWhen(visible: unknown): StructureWhen[] | undefined {
   if (typeof visible !== "string" || visible.length === 0) {
     return undefined;
   }
-  return [{ prop: propName(visible) }];
+  return [{ prop: normalizePropName(visible) }];
 }
 
 function nodeKey(node: SlimNode, options: { root?: boolean } = {}): string {
@@ -191,13 +176,13 @@ function nodeKey(node: SlimNode, options: { root?: boolean } = {}): string {
     return "root";
   }
   if (typeof node.name === "string" && node.name.length > 0) {
-    return propName(node.name);
+    return normalizePropName(node.name);
   }
   if (typeof node.prop === "string" && node.prop.length > 0) {
-    return propName(node.prop);
+    return normalizePropName(node.prop);
   }
   if (node.component && typeof node.component !== "string") {
-    return propName(node.component.name ?? "instance");
+    return normalizePropName(node.component.name ?? "instance");
   }
   return node.type;
 }
@@ -212,7 +197,7 @@ function geometryRef(key: string): StructureBinding {
 
 function contentRef(node: SlimNode): StructurePropRef | string | undefined {
   if (typeof node.prop === "string" && node.prop.length > 0) {
-    return { $prop: propName(node.prop) };
+    return { $prop: normalizePropName(node.prop) };
   }
   if (node.text && typeof node.text.content === "string") {
     return node.text.content;
@@ -222,7 +207,7 @@ function contentRef(node: SlimNode): StructurePropRef | string | undefined {
 
 function instanceRef(node: SlimNode): StructurePropRef | string | undefined {
   if (typeof node.prop === "string" && node.prop.length > 0) {
-    return { $prop: propName(node.prop) };
+    return { $prop: normalizePropName(node.prop) };
   }
   if (node.component && typeof node.component !== "string") {
     return node.component.name;
@@ -344,7 +329,7 @@ function collectInstances(
     if (definition.type !== "instance") {
       continue;
     }
-    instances[propName(name)] = {
+    instances[normalizePropName(name)] = {
       default:
         typeof definition.default === "string" ? definition.default : undefined,
       swapSet: definition.swapSet,

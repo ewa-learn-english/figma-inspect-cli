@@ -1,3 +1,4 @@
+import { instanceSlotKey } from "../component-set-spec/extract-slots.js";
 import {
   isRecord,
   readArray,
@@ -9,7 +10,10 @@ import type {
   TeamComponentEntry,
   TeamComponentRegistry,
 } from "../component-set-spec/team-component-registry.js";
-import type { ComponentSetSpec } from "../component-set-spec/types.js";
+import type {
+  ComponentSetPropDefinition,
+  ComponentSetSpec,
+} from "../component-set-spec/types.js";
 import { FigmaInspectError } from "../errors.js";
 
 export interface MetaContractContext {
@@ -17,21 +21,35 @@ export interface MetaContractContext {
   component?: TeamComponentEntry;
 }
 
+interface MetaContractProp {
+  type: ComponentSetPropDefinition["type"];
+  default?: boolean | string;
+  options?: string[];
+}
+
+interface MetaContractSlot {
+  kind: "swap" | "nested";
+  component: string;
+}
+
 export interface MetaContract {
   version: 1;
   component?: TeamComponentEntry;
+  props?: Record<string, MetaContractProp>;
+  slots?: Record<string, MetaContractSlot>;
   dependencies?: TeamComponentEntry[];
 }
 
-function readSwapSet(definition: Record<string, unknown>): string | undefined {
+function readPublishedComponentSetKey(
+  definition: Record<string, unknown>,
+): string | undefined {
   const preferredValues = readArray(definition, "preferredValues");
   const first = preferredValues?.find(isRecord);
   if (!first) {
     return undefined;
   }
 
-  const type = readString(first, "type");
-  if (type !== "COMPONENT_SET" && type !== "COMPONENT") {
+  if (readString(first, "type") !== "COMPONENT_SET") {
     return undefined;
   }
 
@@ -49,7 +67,7 @@ function addTeamDependency(
   seen.set(entry.id, entry);
 }
 
-function collectInstanceDependencies(
+function collectPublishedComponentSetDependencies(
   node: Record<string, unknown>,
   teamComponents: TeamComponentRegistry,
   seen: Map<string, TeamComponentEntry>,
@@ -62,7 +80,7 @@ function collectInstanceDependencies(
   }
 
   for (const child of readChildren(node)) {
-    collectInstanceDependencies(child, teamComponents, seen);
+    collectPublishedComponentSetDependencies(child, teamComponents, seen);
   }
 }
 
@@ -81,9 +99,83 @@ function resolveComponentEntry(
   );
 }
 
-function buildDependencies(
+function buildProps(
+  spec: ComponentSetSpec,
+): Record<string, MetaContractProp> | undefined {
+  const props: Record<string, MetaContractProp> = {};
+
+  for (const [name, definition] of Object.entries(spec.props)) {
+    const entry: MetaContractProp = { type: definition.type };
+
+    if (definition.type === "instance") {
+      entry.default = name;
+    } else if (definition.default !== undefined) {
+      entry.default = definition.default;
+    }
+
+    if (definition.type === "variant" && definition.options) {
+      entry.options = [...definition.options];
+    }
+
+    props[name] = entry;
+  }
+
+  return Object.keys(props).length > 0 ? props : undefined;
+}
+
+function collectNestedInstanceSlots(
+  node: Record<string, unknown>,
+  slots: Record<string, MetaContractSlot>,
+  swapSlotKeys: ReadonlySet<string>,
+): void {
+  if (readString(node, "type") === "INSTANCE") {
+    const name = readString(node, "name");
+    if (name) {
+      const slotKey = instanceSlotKey(name);
+      if (!swapSlotKeys.has(slotKey) && !slots[slotKey]) {
+        slots[slotKey] = {
+          kind: "nested",
+          component: name,
+        };
+      }
+    }
+  }
+
+  for (const child of readChildren(node)) {
+    collectNestedInstanceSlots(child, slots, swapSlotKeys);
+  }
+}
+
+function buildSlots(
   componentSet: Record<string, unknown>,
   spec: ComponentSetSpec,
+): Record<string, MetaContractSlot> | undefined {
+  const slots: Record<string, MetaContractSlot> = {};
+
+  for (const [name, definition] of Object.entries(spec.props)) {
+    if (definition.type === "instance") {
+      slots[name] = {
+        kind: "swap",
+        component: name,
+      };
+    }
+  }
+
+  const swapSlotKeys = new Set(Object.keys(slots));
+
+  for (const variant of readChildren(componentSet)) {
+    if (readString(variant, "type") !== "COMPONENT") {
+      continue;
+    }
+
+    collectNestedInstanceSlots(variant, slots, swapSlotKeys);
+  }
+
+  return Object.keys(slots).length > 0 ? slots : undefined;
+}
+
+function buildDependencies(
+  componentSet: Record<string, unknown>,
   teamComponents: TeamComponentRegistry | undefined,
   componentEntry: TeamComponentEntry | undefined,
 ): TeamComponentEntry[] | undefined {
@@ -100,20 +192,14 @@ function buildDependencies(
         continue;
       }
 
-      const swapSet = readSwapSet(rawDefinition);
-      if (swapSet) {
-        addTeamDependency(seen, teamComponents.findByKey(swapSet));
+      const componentSetKey = readPublishedComponentSetKey(rawDefinition);
+      if (componentSetKey) {
+        addTeamDependency(seen, teamComponents.findByKey(componentSetKey));
       }
     }
   }
 
-  for (const definition of Object.values(spec.props)) {
-    if (definition.type === "instance" && definition.swapSet) {
-      addTeamDependency(seen, teamComponents.findByKey(definition.swapSet));
-    }
-  }
-
-  collectInstanceDependencies(componentSet, teamComponents, seen);
+  collectPublishedComponentSetDependencies(componentSet, teamComponents, seen);
 
   if (componentEntry) {
     seen.delete(componentEntry.id);
@@ -141,9 +227,10 @@ export function buildMetaContract(
   const component =
     context?.component ??
     resolveComponentEntry(spec, componentSetId, context?.teamComponents);
+  const props = buildProps(spec);
+  const slots = buildSlots(componentSet, spec);
   const dependencies = buildDependencies(
     componentSet,
-    spec,
     context?.teamComponents,
     component,
   );
@@ -151,6 +238,8 @@ export function buildMetaContract(
   return {
     version: 1,
     ...(component ? { component } : {}),
+    ...(props ? { props } : {}),
+    ...(slots ? { slots } : {}),
     ...(dependencies ? { dependencies } : {}),
   };
 }

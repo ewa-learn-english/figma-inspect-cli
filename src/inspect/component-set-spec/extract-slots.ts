@@ -7,7 +7,7 @@ import {
 } from "./figma-node.js";
 import type { TeamComponentRegistry } from "./team-component-registry.js";
 
-function toSlotKey(rawName: string): string {
+export function instanceSlotKey(rawName: string): string {
   if (rawName.endsWith("Icon")) {
     return "icon";
   }
@@ -31,7 +31,7 @@ function readComponentProperties(
 
     const propValue = readString(value, "value");
     if (propValue) {
-      props[toSlotKey(key)] = propValue;
+      props[instanceSlotKey(key)] = propValue;
     }
   }
 
@@ -56,7 +56,7 @@ function collectNestedInstanceSlots(
       continue;
     }
 
-    const slotKey = toSlotKey(instanceName);
+    const slotKey = instanceSlotKey(instanceName);
     if (!slots[slotKey]) {
       slots[slotKey] = instanceName;
     }
