@@ -16,6 +16,7 @@ import {
   getNodeComponentSet,
   listAllComponentSets,
   listComponentSetProperties,
+  resolveAssetsContractPath,
   resolveGeometryContractPath,
   resolveMetaContractPath,
   resolveStructureDslPath,
@@ -109,11 +110,33 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         `${JSON.stringify(result.meta, null, 2)}\n`,
         "utf8",
       );
+      if (result.assets) {
+        const assetsContractPath = resolveAssetsContractPath(
+          contractDirectory,
+          result.componentName,
+        );
+        await writeFile(
+          assetsContractPath,
+          `${JSON.stringify(result.assets, null, 2)}\n`,
+          "utf8",
+        );
+      }
       await writeFile(structureDslPath, result.structureDsl, "utf8");
 
-      io.stdout.write(
-        `${visualsContractPath}\n${geometryContractPath}\n${metaContractPath}\n${structureDslPath}\n`,
-      );
+      const outputLines = [
+        visualsContractPath,
+        geometryContractPath,
+        metaContractPath,
+        structureDslPath,
+      ];
+      if (result.assets) {
+        outputLines.splice(
+          3,
+          0,
+          resolveAssetsContractPath(contractDirectory, result.componentName),
+        );
+      }
+      io.stdout.write(`${outputLines.join("\n")}\n`);
     } catch (error) {
       if (error instanceof FigmaInspectError) {
         throw new CliError(error.message);
@@ -143,7 +166,8 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         outputDir: command.outputDir,
         componentSet: command.componentSet,
         variablesPath: command.variablesPath,
-        teamComponentsPath: command.teamComponentsPath,
+        exportAssets: command.exportAssets,
+        assetFormat: command.assetFormat,
       });
       writeExportResult(result, io.stdout);
     } catch (error) {

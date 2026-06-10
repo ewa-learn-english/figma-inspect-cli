@@ -14,6 +14,7 @@ import { FigmaInspectError } from "../errors.js";
 
 export interface MetaContractContext {
   teamComponents?: TeamComponentRegistry;
+  component?: TeamComponentEntry;
 }
 
 export interface MetaContract {
@@ -137,11 +138,9 @@ export function buildMetaContract(
     throw new FigmaInspectError("COMPONENT_SET is missing id.");
   }
 
-  const component = resolveComponentEntry(
-    spec,
-    componentSetId,
-    context?.teamComponents,
-  );
+  const component =
+    context?.component ??
+    resolveComponentEntry(spec, componentSetId, context?.teamComponents);
   const dependencies = buildDependencies(
     componentSet,
     spec,

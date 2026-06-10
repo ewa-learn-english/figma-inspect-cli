@@ -63,6 +63,7 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 15 | `--build-component-set-pseudocode` | `--input tmp/component-set.json` | writes `<ComponentName>.contract.{visuals,geometry,meta}.json` and `<ComponentName>.contract.structure.dsl` next to `--input` |
 | 16 | `--build-component-set-pseudocode` | `--input tmp/component-set.json --output-dir tmp --variables tmp/variables.json --team-components tmp/ComponentSets.json` | writes contract files to `tmp/` with token resolution |
 | 17 | `--export-component-set` | `--output-dir tmp --component-set-name $COMPONENT_SET_NAME` | writes `<name>.json`, `<name>.contract.{visuals,geometry,meta}.json`, and `<name>.contract.structure.dsl`; needs `FIGMA_TEAM_ID` |
+| 18 | `--export-component-set` | `--output-dir tmp --component-set-name ProfileStreakIcon --export-assets` | also writes `<name>.contract.assets.json`, `<name>.assets/*.svg`, and asset-backed contracts; needs `FIGMA_API_TOKEN` + `FIGMA_TEAM_ID` |
 
 Example:
 

@@ -18,6 +18,8 @@ interface ParsedFlags {
   buildComponentSetSpec: boolean;
   buildComponentSetPseudocode: boolean;
   exportComponentSet: boolean;
+  exportAssets: boolean;
+  assetFormat: "svg" | undefined;
   projectId: string | undefined;
   inputPath: string | undefined;
   outputPath: string | undefined;
@@ -47,6 +49,8 @@ function emptyFlags(): ParsedFlags {
     buildComponentSetSpec: false,
     buildComponentSetPseudocode: false,
     exportComponentSet: false,
+    exportAssets: false,
+    assetFormat: undefined,
     projectId: undefined,
     inputPath: undefined,
     outputPath: undefined,
@@ -277,7 +281,8 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
           "--export-component-set",
         ),
         variablesPath: flags.variablesPath,
-        teamComponentsPath: flags.teamComponentsPath,
+        exportAssets: flags.exportAssets,
+        assetFormat: flags.assetFormat,
       };
     }
     default: {
@@ -360,6 +365,23 @@ export function parseCommand(argv: string[]): CliCommand {
 
     if (arg === "--export-component-set") {
       flags.exportComponentSet = true;
+      continue;
+    }
+
+    if (arg === "--export-assets") {
+      flags.exportAssets = true;
+      continue;
+    }
+
+    if (arg === "--asset-format") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      if (value !== "svg") {
+        throw new CliError(
+          `Unsupported --asset-format ${JSON.stringify(value)}. Expected svg.`,
+        );
+      }
+      flags.assetFormat = value;
+      index = nextIndex;
       continue;
     }
 

@@ -12,6 +12,7 @@ export interface StructureContract {
     visuals: string;
     geometry: string;
     meta: string;
+    assets?: string;
   };
   props?: Record<string, ComponentSetPropDefinition>;
   variantAxes: Record<string, string[]>;
@@ -24,6 +25,7 @@ export interface StructureContract {
   templates: Record<string, StructureTemplate>;
   dispatch: StructureDispatchEntry[];
   fallback: string | null;
+  assetBacked?: boolean;
 }
 
 interface StructureFragment {
@@ -73,6 +75,7 @@ interface StructureElementNode {
   when?: StructureWhen[];
   content?: StructurePropRef | string;
   instance?: StructurePropRef | string;
+  asset?: StructureBinding;
   style?: StructureBinding;
   layout?: StructureBinding;
   children?: StructureNode[];
@@ -360,10 +363,50 @@ function convertFragment(
   };
 }
 
+function buildAssetBackedStructureContract(
+  model: PseudocodeModel,
+): StructureContract {
+  const templateName = "allVariants";
+  const root: StructureElementNode = {
+    type: "Asset",
+    key: "root",
+    asset: { $ref: "asset" },
+    layout: geometryRef("root"),
+  };
+
+  return {
+    version: 1,
+    component: model.name,
+    contracts: {
+      visuals: `${model.name}.contract.visuals.json`,
+      geometry: `${model.name}.contract.geometry.json`,
+      meta: `${model.name}.contract.meta.json`,
+      assets: `${model.name}.contract.assets.json`,
+    },
+    props: model.props,
+    variantAxes: model.variantAxes,
+    baseVariant: model.baseVariant,
+    instances: collectInstances(model),
+    fragments: {},
+    templates: {
+      [templateName]: {
+        root,
+      },
+    },
+    dispatch: [],
+    fallback: templateName,
+    assetBacked: true,
+  };
+}
+
 export function buildStructureContract(
   model: PseudocodeModel,
   spec: ComponentSetSpec,
+  options: { assetBacked?: boolean } = {},
 ): StructureContract {
+  if (options.assetBacked) {
+    return buildAssetBackedStructureContract(model);
+  }
   const definitions: Record<string, SlimNode> = {
     ...(model.definitions as Record<string, SlimNode>),
     ...Object.fromEntries(

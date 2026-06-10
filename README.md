@@ -83,7 +83,7 @@ npx . --build-component-set-spec --input tmp/Toast.json --variables tmp/cp-ds-st
 Export raw and build JSON for a published component set:
 
 ```sh
-npx . --export-component-set --output-dir tmp --component-set-name RoadmapHeader --variables tmp/cp-ds-styles-variables-local.json --team-components tmp/ComponentSets.json
+npx . --export-component-set --output-dir tmp --component-set-name RoadmapHeader --variables tmp/cp-ds-styles-variables-local.json
 ```
 
 For script-friendly output:

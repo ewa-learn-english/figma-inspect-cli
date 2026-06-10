@@ -105,6 +105,9 @@ function renderNode(lines: string[], node: StructureNode, level: number): void {
         : `instance \${${node.instance.$prop}}`,
     );
   }
+  if (node.asset !== undefined) {
+    extras.push(`asset ${node.asset.$ref}`);
+  }
 
   const styleRef = node.style?.$ref;
   const layoutRef = node.layout?.$ref;
@@ -132,20 +135,28 @@ function renderNode(lines: string[], node: StructureNode, level: number): void {
 function renderResolve(contract: StructureContract): string[] {
   const axes = Object.keys(contract.variantAxes);
   if (axes.length === 0) {
-    return [
+    const lines = [
       "resolve {",
       `${INDENT}scheme = visuals`,
       `${INDENT}geometry = geometry`,
-      "}",
     ];
+    if (contract.assetBacked) {
+      lines.push(`${INDENT}asset = assets`);
+    }
+    lines.push("}");
+    return lines;
   }
   const path = axes.join("][");
-  return [
+  const lines = [
     "resolve {",
     `${INDENT}scheme = visuals[${path}]`,
     `${INDENT}geometry = geometry[${path}]`,
-    "}",
   ];
+  if (contract.assetBacked) {
+    lines.push(`${INDENT}asset = assets[${path}]`);
+  }
+  lines.push("}");
+  return lines;
 }
 
 export function renderStructureDsl(contract: StructureContract): string {
@@ -164,9 +175,11 @@ export function renderStructureDsl(contract: StructureContract): string {
     `${INDENT}visuals ${contract.contracts.visuals}`,
     `${INDENT}geometry ${contract.contracts.geometry}`,
     `${INDENT}meta ${contract.contracts.meta}`,
-    "}",
-    "",
   );
+  if (contract.contracts.assets) {
+    lines.push(`${INDENT}assets ${contract.contracts.assets}`);
+  }
+  lines.push("}", "");
 
   if (Object.keys(contract.variantAxes).length > 0) {
     lines.push("variantAxes {");
@@ -207,11 +220,15 @@ export function renderStructureDsl(contract: StructureContract): string {
   const templateNames = Object.keys(contract.templates).sort();
   if (templateNames.length > 0) {
     lines.push("templates {");
-    for (const name of templateNames) {
+    for (let index = 0; index < templateNames.length; index += 1) {
+      const name = templateNames[index];
       const template = contract.templates[name];
       lines.push(`${INDENT}template ${name}${formatWhenAxes(template.when)} {`);
       renderNode(lines, template.root, 2);
-      lines.push(`${INDENT}}`, "");
+      lines.push(`${INDENT}}`);
+      if (index < templateNames.length - 1) {
+        lines.push("");
+      }
     }
     lines.push("}");
   }

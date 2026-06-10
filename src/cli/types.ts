@@ -49,5 +49,6 @@ export type CliCommand =
       outputDir: string;
       componentSet: ComponentSetLookup;
       variablesPath?: string;
-      teamComponentsPath?: string;
+      exportAssets?: boolean;
+      assetFormat?: "svg";
     };

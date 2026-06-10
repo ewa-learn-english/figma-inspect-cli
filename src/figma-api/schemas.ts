@@ -136,3 +136,33 @@ export function parseFileComponentSetsResponse(
 ): FigmaPublishedComponentSet[] {
   return parseTeamComponentSetsResponse(payload).componentSets;
 }
+
+const fileImagesResponseSchema = z
+  .object({
+    images: z.record(z.string(), z.string().nullable()),
+    err: z.union([z.string(), z.null()]).optional(),
+  })
+  .transform(({ images, err }) => {
+    const normalized: Record<string, string> = {};
+    for (const [nodeId, imageUrl] of Object.entries(images)) {
+      if (imageUrl) {
+        normalized[nodeId] = imageUrl;
+      }
+    }
+
+    return {
+      images: normalized,
+      ...(err ? { err } : {}),
+    };
+  });
+
+export function parseFileImagesResponse(payload: unknown): {
+  images: Record<string, string>;
+  err?: string;
+} {
+  return parseFigmaResponse(
+    fileImagesResponseSchema,
+    payload,
+    "Invalid Figma file images response.",
+  );
+}

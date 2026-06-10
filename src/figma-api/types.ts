@@ -40,3 +40,12 @@ export interface GetFileNodeOptions {
   nodeId: string;
   fetchImpl?: typeof fetch;
 }
+
+export interface GetFileImagesOptions {
+  token: string;
+  fileKey: string;
+  nodeIds: string[];
+  format: "svg" | "png";
+  scale?: number;
+  fetchImpl?: typeof fetch;
+}

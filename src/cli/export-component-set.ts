@@ -1,11 +1,16 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import type { TeamComponentEntry } from "../inspect/component-set-spec/team-component-registry.js";
 import {
   buildComponentSetPseudocodeFromRaw,
+  exportVariantAssets,
   loadComponentSetContext,
   resolveTeamComponentSetScope,
 } from "../inspect/index.js";
-import type { ComponentSetLookup } from "../inspect/types.js";
+import type {
+  ComponentSetLookup,
+  FigmaTeamComponentSet,
+} from "../inspect/types.js";
 
 export interface ExportComponentSetOptions {
   token: string;
@@ -13,7 +18,8 @@ export interface ExportComponentSetOptions {
   outputDir: string;
   componentSet: ComponentSetLookup;
   variablesPath?: string;
-  teamComponentsPath?: string;
+  exportAssets?: boolean;
+  assetFormat?: "svg";
 }
 
 export interface ExportComponentSetResult {
@@ -22,6 +28,8 @@ export interface ExportComponentSetResult {
   geometryContractPath: string;
   metaContractPath: string;
   structureDslPath: string;
+  assetsContractPath?: string;
+  assetsDir?: string;
 }
 
 function sanitizeFileName(name: string): string {
@@ -37,6 +45,18 @@ function resolveExportBaseName(
   }
 
   return rawName ?? componentSet.value;
+}
+
+function teamComponentEntryFromPublishedSet(
+  publishedSet: FigmaTeamComponentSet,
+): TeamComponentEntry {
+  return {
+    id: publishedSet.id,
+    key: publishedSet.key,
+    name: publishedSet.name,
+    file_key: publishedSet.file_key,
+    project_id: publishedSet.project_id,
+  };
 }
 
 async function writeJsonFile(filePath: string, value: unknown): Promise<void> {
@@ -78,6 +98,10 @@ export async function exportComponentSet(
     options.outputDir,
     `${baseName}.contract.meta.json`,
   );
+  const assetsContractPath = path.join(
+    options.outputDir,
+    `${baseName}.contract.assets.json`,
+  );
   const structureDslPath = path.join(
     options.outputDir,
     `${baseName}.contract.structure.dsl`,
@@ -85,13 +109,37 @@ export async function exportComponentSet(
 
   await writeJsonFile(rawPath, raw);
 
+  let assetsDir: string | undefined;
+  let exportedAssets:
+    | Awaited<ReturnType<typeof exportVariantAssets>>
+    | undefined;
+
+  if (options.exportAssets) {
+    exportedAssets = await exportVariantAssets({
+      token: options.token,
+      fileKey: scope.fileKey,
+      componentSet: raw,
+      baseName,
+      outputDir: options.outputDir,
+      format: options.assetFormat ?? "svg",
+    });
+    assetsDir = exportedAssets.assetsDir;
+  }
+
   const contractResult = await buildComponentSetPseudocodeFromRaw(raw, {
     variablesPath: options.variablesPath,
-    teamComponentsPath: options.teamComponentsPath,
+    assetBacked: options.exportAssets,
+    assets: exportedAssets?.assets,
+    metaContext: {
+      component: teamComponentEntryFromPublishedSet(scope.publishedSet),
+    },
   });
   await writeJsonFile(visualsContractPath, contractResult.visuals);
   await writeJsonFile(geometryContractPath, contractResult.geometry);
   await writeJsonFile(metaContractPath, contractResult.meta);
+  if (contractResult.assets) {
+    await writeJsonFile(assetsContractPath, contractResult.assets);
+  }
   await writeFile(structureDslPath, contractResult.structureDsl, "utf8");
 
   return {
@@ -100,6 +148,8 @@ export async function exportComponentSet(
     geometryContractPath,
     metaContractPath,
     structureDslPath,
+    ...(contractResult.assets ? { assetsContractPath } : {}),
+    assetsDir,
   };
 }
 
@@ -107,7 +157,18 @@ export function writeExportResult(
   result: ExportComponentSetResult,
   stdout: NodeJS.WriteStream,
 ): void {
-  stdout.write(
-    `${result.rawPath}\n${result.visualsContractPath}\n${result.geometryContractPath}\n${result.metaContractPath}\n${result.structureDslPath}\n`,
-  );
+  const lines = [
+    result.rawPath,
+    result.visualsContractPath,
+    result.geometryContractPath,
+    result.metaContractPath,
+    result.structureDslPath,
+  ];
+  if (result.assetsContractPath) {
+    lines.push(result.assetsContractPath);
+  }
+  if (result.assetsDir) {
+    lines.push(result.assetsDir);
+  }
+  stdout.write(`${lines.join("\n")}\n`);
 }

@@ -6,6 +6,14 @@ import type {
   FigmaTeamComponentSet,
 } from "./types.js";
 
+export interface ResolveTeamComponentSetScopeResult
+  extends Pick<
+    ComponentSetScopeOptions,
+    "fileKey" | "nodeId" | "componentSet"
+  > {
+  publishedSet: FigmaTeamComponentSet;
+}
+
 export interface ResolveTeamComponentSetOptions {
   token: string;
   teamId: string;
@@ -33,9 +41,7 @@ export async function resolveTeamComponentSetScope({
   teamId,
   componentSet,
   fetchImpl,
-}: ResolveTeamComponentSetOptions): Promise<
-  Pick<ComponentSetScopeOptions, "fileKey" | "nodeId" | "componentSet">
-> {
+}: ResolveTeamComponentSetOptions): Promise<ResolveTeamComponentSetScopeResult> {
   const publishedSets = await listAllComponentSets({
     token,
     teamId,
@@ -68,5 +74,6 @@ export async function resolveTeamComponentSetScope({
     fileKey: match.file_key,
     nodeId: match.id,
     componentSet,
+    publishedSet: match,
   };
 }

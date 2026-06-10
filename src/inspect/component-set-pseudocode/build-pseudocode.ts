@@ -6,6 +6,12 @@ import {
 } from "../component-set-spec/build-spec.js";
 import { loadTeamComponentRegistry } from "../component-set-spec/team-component-registry.js";
 import {
+  buildAssetBackedGeometry,
+  buildAssetBackedVisuals,
+  hasAssetMapAssets,
+} from "./asset-backed-contract.js";
+import type { AssetContractMap } from "./assets-contract.js";
+import {
   buildBaselineContracts,
   mergeBaselineWithVariantContracts,
 } from "./baseline-contract.js";
@@ -20,7 +26,11 @@ import { renderStructureDsl } from "./structure-dsl.js";
 import { buildUniversalContracts } from "./universal.js";
 
 export interface BuildComponentSetPseudocodeOptions
-  extends BuildComponentSetSpecOptions {}
+  extends BuildComponentSetSpecOptions {
+  assetBacked?: boolean;
+  assets?: AssetContractMap;
+  metaContext?: MetaContractContext;
+}
 
 export interface ComponentSetContractResult {
   componentName: string;
@@ -28,6 +38,7 @@ export interface ComponentSetContractResult {
   geometry: Record<string, unknown>;
   meta: MetaContract;
   structureDsl: string;
+  assets?: AssetContractMap;
 }
 
 function visualsContractFileName(componentName: string): string {
@@ -36,6 +47,10 @@ function visualsContractFileName(componentName: string): string {
 
 function geometryContractFileName(componentName: string): string {
   return `${componentName}.contract.geometry.json`;
+}
+
+function assetsContractFileName(componentName: string): string {
+  return `${componentName}.contract.assets.json`;
 }
 
 function structureDslFileName(componentName: string): string {
@@ -60,6 +75,13 @@ export function resolveGeometryContractPath(
   return path.join(directory, geometryContractFileName(componentName));
 }
 
+export function resolveAssetsContractPath(
+  directory: string,
+  componentName: string,
+): string {
+  return path.join(directory, assetsContractFileName(componentName));
+}
+
 export function resolveStructureDslPath(
   directory: string,
   componentName: string,
@@ -78,8 +100,30 @@ function buildComponentSetContracts(
   spec: Awaited<ReturnType<typeof buildComponentSetSpecFromRaw>>,
   componentSet: Record<string, unknown>,
   metaContext?: MetaContractContext,
+  options: Pick<
+    BuildComponentSetPseudocodeOptions,
+    "assetBacked" | "assets"
+  > = {},
 ): ComponentSetContractResult {
+  const assetBacked =
+    options.assetBacked === true && hasAssetMapAssets(options.assets);
   const model = buildPseudocodeModelFromSpec(spec);
+  const structureDsl = renderStructureDsl(
+    buildStructureContract(model, spec, { assetBacked }),
+  );
+  const meta = buildMetaContract(componentSet, spec, metaContext);
+
+  if (assetBacked) {
+    return {
+      componentName: model.name,
+      visuals: buildAssetBackedVisuals(spec),
+      geometry: buildAssetBackedGeometry(spec),
+      meta,
+      structureDsl,
+      assets: options.assets,
+    };
+  }
+
   const variantContracts = buildUniversalContracts(model);
   const baseline = buildBaselineContracts(spec, model);
   const axesDepth = Object.keys(model.variantAxes).length;
@@ -88,8 +132,6 @@ function buildComponentSetContracts(
     variantContracts,
     axesDepth,
   );
-  const structureDsl = renderStructureDsl(buildStructureContract(model, spec));
-  const meta = buildMetaContract(componentSet, spec, metaContext);
 
   return {
     componentName: model.name,
@@ -103,6 +145,10 @@ function buildComponentSetContracts(
 async function resolveMetaContext(
   options: BuildComponentSetPseudocodeOptions,
 ): Promise<MetaContractContext | undefined> {
+  if (options.metaContext) {
+    return options.metaContext;
+  }
+
   if (!options.teamComponentsPath) {
     return undefined;
   }
@@ -119,7 +165,7 @@ export async function buildComponentSetPseudocodeFromFile(
   const componentSet = await readComponentSetFile(inputPath);
   const spec = await buildComponentSetSpecFromRaw(componentSet, options);
   const metaContext = await resolveMetaContext(options);
-  return buildComponentSetContracts(spec, componentSet, metaContext);
+  return buildComponentSetContracts(spec, componentSet, metaContext, options);
 }
 
 export async function buildComponentSetPseudocodeFromRaw(
@@ -128,5 +174,5 @@ export async function buildComponentSetPseudocodeFromRaw(
 ): Promise<ComponentSetContractResult> {
   const spec = await buildComponentSetSpecFromRaw(componentSet, options);
   const metaContext = await resolveMetaContext(options);
-  return buildComponentSetContracts(spec, componentSet, metaContext);
+  return buildComponentSetContracts(spec, componentSet, metaContext, options);
 }
