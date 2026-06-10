@@ -37,6 +37,7 @@ npm run format           # apply Biome formatting
 - Required env vars: `FIGMA_API_TOKEN`, `FIGMA_TEAM_ID`.
 - API responses are cached on disk under the system temp directory (`figma-inspect-cli-cache/`). Set `FIGMA_CACHE=0` to disable.
 - Run `npm run check` before finishing; fix new issues you introduce.
+- After code changes, always run `npm run build` so the user has an up-to-date `dist/`.
 
 ## Skills
 
