@@ -171,7 +171,6 @@ describe("parseCommand", () => {
       kind: "verify-component-contract",
       contractDir: "tmp",
       componentName: "Cell",
-      contractFormat: "yaml",
       outputFormat: "yaml",
     });
   });
@@ -185,7 +184,6 @@ describe("parseCommand", () => {
     ]);
     expect(command.kind).toBe("verify-component-contract");
     if (command.kind === "verify-component-contract") {
-      expect(command.contractFormat).toBe("yaml");
       expect(command.outputFormat).toBe("json");
     }
   });

@@ -320,7 +320,6 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         kind: "verify-component-contract",
         contractDir: flags.contractDir,
         componentName: flags.componentName,
-        contractFormat: "yaml",
         outputFormat: resolveOutputFormat(flags),
       };
     }

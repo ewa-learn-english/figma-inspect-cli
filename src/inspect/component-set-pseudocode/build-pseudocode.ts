@@ -101,8 +101,11 @@ function buildComponentSetContracts(
     options.assetBacked === true && hasAssetContractMap(options.assets);
   const model = buildPseudocodeModelFromSpec(spec);
   const format = options.format ?? "yaml";
+  const contractName = metaContext?.component?.name ?? model.name;
+  const outputModel =
+    contractName === model.name ? model : { ...model, name: contractName };
   const structureDsl = renderStructureDsl(
-    buildStructureContract(model, spec, { assetBacked, format }),
+    buildStructureContract(outputModel, spec, { assetBacked, format }),
   );
   const meta = buildMetaContract(componentSet, spec, metaContext);
   if (assetBacked && options.assets) {
@@ -112,7 +115,7 @@ function buildComponentSetContracts(
   if (assetBacked) {
     const layout = buildAssetBackedLayoutBundle(spec);
     return {
-      componentName: model.name,
+      componentName: contractName,
       visuals: layout,
       geometry: layout,
       meta,
@@ -130,7 +133,7 @@ function buildComponentSetContracts(
   );
 
   return {
-    componentName: model.name,
+    componentName: contractName,
     visuals,
     geometry,
     meta,

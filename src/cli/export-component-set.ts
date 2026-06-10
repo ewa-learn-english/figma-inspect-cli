@@ -64,17 +64,6 @@ function sanitizeFileName(name: string): string {
   return name.replace(/[/\\?%*:|"<>]/g, "_");
 }
 
-function resolveExportBaseName(
-  componentSet: ComponentSetLookup,
-  rawName: string | undefined,
-): string {
-  if (componentSet.kind === "name") {
-    return componentSet.value;
-  }
-
-  return rawName ?? componentSet.value;
-}
-
 function teamComponentEntryFromPublishedSet(
   publishedSet: FigmaTeamComponentSet,
 ): TeamComponentEntry {
@@ -120,12 +109,7 @@ export async function exportComponentSet(
   ]);
 
   const raw = context.tree;
-  const baseName = sanitizeFileName(
-    resolveExportBaseName(
-      options.componentSet,
-      typeof raw.name === "string" ? raw.name : undefined,
-    ),
-  );
+  const baseName = sanitizeFileName(scope.publishedSet.name);
   const componentSetNodeId = readString(raw, "id") ?? componentSetMeta.node_id;
 
   await mkdir(options.outputDir, { recursive: true });

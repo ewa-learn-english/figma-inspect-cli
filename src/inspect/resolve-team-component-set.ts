@@ -89,7 +89,7 @@ export async function resolveTeamComponentSetScope({
   return {
     fileKey: match.fileKey,
     nodeId: match.id,
-    componentSet,
+    componentSet: { kind: "key", value: match.key },
     publishedSet: match,
     teamComponents: teamComponentRegistryFromPublishedSets(publishedSets),
   };

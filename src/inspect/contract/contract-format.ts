@@ -1,3 +1,5 @@
+import { access } from "node:fs/promises";
+import path from "node:path";
 import { stringify } from "yaml";
 
 export type ContractFormat = "json" | "yaml";
@@ -24,4 +26,21 @@ export function serializeContractData(
   }
 
   return `${JSON.stringify(value, null, 2)}\n`;
+}
+
+export async function detectContractFormat(
+  contractDir: string,
+  componentName: string,
+): Promise<ContractFormat> {
+  try {
+    await access(
+      path.join(
+        contractDir,
+        contractArtifactFileName(componentName, "meta", "json"),
+      ),
+    );
+    return "json";
+  } catch {
+    return "yaml";
+  }
 }

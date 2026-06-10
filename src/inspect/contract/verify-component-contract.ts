@@ -6,7 +6,10 @@ import {
 } from "../../figma-api/index.js";
 import { loadComponentSetContext } from "../component-set-context.js";
 import { FigmaInspectError } from "../errors.js";
-import type { ContractFormat } from "./contract-format.js";
+import {
+  type ContractFormat,
+  detectContractFormat,
+} from "./contract-format.js";
 import {
   type ContractLock,
   type ContractLockDiff,
@@ -114,7 +117,6 @@ async function verifySingleComponentContract(
   options: VerifyComponentContractsOptions,
   componentName: string,
 ): Promise<ComponentContractVerifyResult> {
-  const contractFormat = options.contractFormat ?? "yaml";
   const fetchImpl = options.fetchImpl ?? fetch;
   const errors: string[] = [];
   const emptyDiff: ContractLockDiff = {
@@ -139,6 +141,10 @@ async function verifySingleComponentContract(
         changed: emptyDiff,
       };
     }
+
+    const contractFormat =
+      options.contractFormat ??
+      (await detectContractFormat(options.contractDir, componentName));
 
     const artifacts = await readComponentContractArtifacts(
       options.contractDir,

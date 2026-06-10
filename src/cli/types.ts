@@ -65,7 +65,7 @@ export type CliCommand =
       kind: "verify-component-contract";
       contractDir: string;
       componentName?: string;
-      contractFormat: ContractFormat;
+      contractFormat?: ContractFormat;
       outputFormat: ContractFormat;
     }
   | {

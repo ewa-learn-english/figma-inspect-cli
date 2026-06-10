@@ -78,6 +78,33 @@ function formatSchemaIssues(error: z.ZodError): string[] {
   });
 }
 
+function parseRecord(
+  raw: string,
+  label: string,
+  format: ContractFormat,
+): Record<string, unknown> {
+  if (format === "json") {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      throw new FigmaInspectError(`Invalid JSON in ${label}.`);
+    }
+
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      Array.isArray(parsed)
+    ) {
+      throw new FigmaInspectError(`${label} must be a JSON object.`);
+    }
+
+    return parsed as Record<string, unknown>;
+  }
+
+  return parseYamlRecord(raw, label);
+}
+
 function parseYamlRecord(raw: string, label: string): Record<string, unknown> {
   const parsed = parse(raw);
   if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
@@ -168,17 +195,17 @@ export async function readComponentContractArtifacts(
 
   const meta = validateRecord(
     metaContractSchema,
-    parseYamlRecord(metaRaw, "meta contract"),
+    parseRecord(metaRaw, "meta contract", format),
     "meta contract",
   );
   const geometry = validateRecord(
     geometryContractSchema,
-    parseYamlRecord(geometryRaw, "geometry contract"),
+    parseRecord(geometryRaw, "geometry contract", format),
     "geometry contract",
   );
   const visuals = validateRecord(
     visualsContractSchema,
-    parseYamlRecord(visualsRaw, "visuals contract"),
+    parseRecord(visualsRaw, "visuals contract", format),
     "visuals contract",
   );
   validateStructureDsl(structureDsl, componentName, format);

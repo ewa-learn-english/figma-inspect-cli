@@ -1,5 +1,5 @@
 import {
-  indexComponentSetsByName,
+  buildLenientNameIndex,
   resolveComponentSetId,
 } from "./component-set-lookup.js";
 import { FigmaInspectError } from "./errors.js";
@@ -63,12 +63,11 @@ export async function loadComponentSetContext({
     throw new FigmaInspectError(`No component sets found for node ${nodeId}.`);
   }
 
-  const nameIndex = indexComponentSetsByName(nodeEntry.componentSets);
+  const nameIndex = buildLenientNameIndex(nodeEntry.componentSets);
   const componentSetId = resolveComponentSetId(
     nodeEntry.componentSets,
     componentSet,
     nodeId,
-    nameIndex,
   );
 
   const documentNode = findDocumentNode(

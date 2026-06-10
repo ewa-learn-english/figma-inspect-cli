@@ -34,15 +34,12 @@ describe("indexComponentSetsByName", () => {
 });
 
 describe("resolveComponentSetId", () => {
-  const nameIndex = indexComponentSetsByName(componentSets);
-
   it("resolves by published key", () => {
     expect(
       resolveComponentSetId(
         componentSets,
         { kind: "key", value: "key-b" },
         "0:1",
-        nameIndex,
       ),
     ).toBe("1:20");
   });
@@ -53,7 +50,6 @@ describe("resolveComponentSetId", () => {
         componentSets,
         { kind: "name", value: "Button" },
         "0:1",
-        nameIndex,
       ),
     ).toBe("1:10");
   });
@@ -64,7 +60,6 @@ describe("resolveComponentSetId", () => {
         componentSets,
         { kind: "key", value: "missing-key" },
         "99:1",
-        nameIndex,
       ),
     ).toThrow(/No component set with key missing-key found in node 99:1/);
   });
@@ -75,8 +70,22 @@ describe("resolveComponentSetId", () => {
         componentSets,
         { kind: "name", value: "Missing" },
         "99:1",
-        nameIndex,
       ),
     ).toThrow(/No component set with name "Missing" found in node 99:1/);
+  });
+
+  it("throws when name lookup matches multiple component sets", () => {
+    const duplicateName: Record<string, FigmaComponentSet> = {
+      "1:1": { id: "1:1", key: "k1", name: "Toast" },
+      "1:2": { id: "1:2", key: "k2", name: "Toast" },
+    };
+
+    expect(() =>
+      resolveComponentSetId(
+        duplicateName,
+        { kind: "name", value: "Toast" },
+        "0:1",
+      ),
+    ).toThrow(/Multiple component sets named "Toast"/);
   });
 });
