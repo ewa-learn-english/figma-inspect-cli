@@ -1,3 +1,4 @@
+import { TeamComponentRegistry } from "./component-set-spec/team-component-registry.js";
 import { FigmaInspectError } from "./errors.js";
 import { listAllComponentSets } from "./list-all-component-sets.js";
 import type {
@@ -12,6 +13,21 @@ export interface ResolveTeamComponentSetScopeResult
     "fileKey" | "nodeId" | "componentSet"
   > {
   publishedSet: FigmaTeamComponentSet;
+  teamComponents: TeamComponentRegistry;
+}
+
+function teamComponentRegistryFromPublishedSets(
+  publishedSets: FigmaTeamComponentSet[],
+): TeamComponentRegistry {
+  return TeamComponentRegistry.fromEntries(
+    publishedSets.map((set) => ({
+      id: set.id,
+      key: set.key,
+      name: set.name,
+      fileKey: set.fileKey,
+      projectId: set.projectId,
+    })),
+  );
 }
 
 export interface ResolveTeamComponentSetOptions {
@@ -75,5 +91,6 @@ export async function resolveTeamComponentSetScope({
     nodeId: match.id,
     componentSet,
     publishedSet: match,
+    teamComponents: teamComponentRegistryFromPublishedSets(publishedSets),
   };
 }

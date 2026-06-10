@@ -195,6 +195,7 @@ export async function exportComponentSet(
     format,
     metaContext: {
       component: teamComponentEntryFromPublishedSet(scope.publishedSet),
+      teamComponents: scope.teamComponents,
     },
   });
   await writeDataFile(visualsContractPath, contractResult.visuals, format);
