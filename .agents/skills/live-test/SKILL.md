@@ -37,8 +37,8 @@ Use these defaults unless the user provides overrides in the chat:
 
 Derive at runtime when needed:
 
-- `PROJECT_ID` — from `--list-team-projects --json`; pick the project whose files include `FILE_KEY`, or the first project if user did not specify.
-- `COMPONENT_SET_KEY` — from `--list-file-component-sets --file-key $FILE_KEY --json`; pick the entry whose `name` equals `COMPONENT_SET_NAME`.
+- `PROJECT_ID` — from `--list-team-projects`; pick the project whose files include `FILE_KEY`, or the first project if user did not specify.
+- `COMPONENT_SET_KEY` — from `--list-file-component-sets --file-key $FILE_KEY`; pick the entry whose `name` equals `COMPONENT_SET_NAME`.
 
 ## Commands to test
 
@@ -46,37 +46,38 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 
 | # | Command | Required args | Notes |
 |---|---|---|---|
-| 1 | `--list-team-projects` | `--json` | needs `FIGMA_TEAM_ID` |
-| 2 | `--list-project-files` | `--project-id $PROJECT_ID --json` | |
-| 3 | `--list-team-project-files` | `--json` | needs `FIGMA_TEAM_ID` |
-| 4 | `--list-team-component-sets` | `--json` | needs `FIGMA_TEAM_ID`; published sets only |
-| 5 | `--list-file-pages` | `--file-key $FILE_KEY --json` | |
-| 6 | `--list-file-component-sets` | `--file-key $FILE_KEY --json` | |
-| 7 | `--inspect-component-set-properties` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME --json` | |
-| 8 | `--inspect-component-set-properties` | same + `--component-set-key $COMPONENT_SET_KEY --json` | key lookup variant |
-| 9 | `--inspect-component-set` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME` | no `--json` |
+| 1 | `--list-team-projects` | | needs `FIGMA_TEAM_ID` |
+| 2 | `--list-project-files` | `--project-id $PROJECT_ID` | |
+| 3 | `--list-team-project-files` | | needs `FIGMA_TEAM_ID` |
+| 4 | `--list-team-component-sets` | | needs `FIGMA_TEAM_ID`; published sets only |
+| 5 | `--list-file-pages` | `--file-key $FILE_KEY` | |
+| 6 | `--list-file-component-sets` | `--file-key $FILE_KEY` | |
+| 7 | `--inspect-component-set-properties` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME` | |
+| 8 | `--inspect-component-set-properties` | same + `--component-set-key $COMPONENT_SET_KEY` | key lookup variant |
+| 9 | `--inspect-component-set` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME` | |
 | 10 | `--inspect-team-component-set` | `--component-set-name $COMPONENT_SET_NAME` | resolves file/node from team; needs `FIGMA_TEAM_ID` |
 | 11 | `--inspect-file-node` | `--file-key $FILE_KEY --node-id $NODE_ID` | raw API payload |
 | 12 | `--build-component-set-spec` | `--input tmp/component-set.json` | local file only; no Figma token |
 | 13 | `--build-component-set-spec` | `--input tmp/component-set.json --variables tmp/variables.json` | resolves Figma variable ids to token names |
 | 14 | `--build-component-set-spec` | `--input tmp/component-set.json --team-components tmp/ComponentSets.json` | collapses known team components to slots |
-| 15 | `--build-component-set-pseudocode` | `--input tmp/component-set.json` | writes `<ComponentName>.contract.{visuals,geometry,meta}.json` and `<ComponentName>.contract.structure.dsl` next to `--input` |
+| 15 | `--build-component-set-pseudocode` | `--input tmp/component-set.json` | writes `<ComponentName>.contract.{visuals,geometry,meta}.yaml` and `<ComponentName>.contract.structure.dsl` next to `--input` |
 | 16 | `--build-component-set-pseudocode` | `--input tmp/component-set.json --output-dir tmp --variables tmp/variables.json --team-components tmp/ComponentSets.json` | writes contract files to `tmp/` with token resolution |
-| 17 | `--export-component-set` | `--output-dir tmp --component-set-name $COMPONENT_SET_NAME` | writes `<name>.json`, `<name>.contract.{visuals,geometry,meta}.json`, and `<name>.contract.structure.dsl`; needs `FIGMA_TEAM_ID` |
-| 18 | `--export-component-set` | `--output-dir tmp --component-set-name ProfileStreakIcon --export-assets` | also writes `<name>.contract.assets.json`, `<name>.assets/*.svg`, and asset-backed contracts; needs `FIGMA_API_TOKEN` + `FIGMA_TEAM_ID` |
+| 17 | `--export-component-set` | `--output-dir tmp --component-set-name $COMPONENT_SET_NAME` | writes `<name>.yaml`, `<name>.contract.{visuals,geometry,meta}.yaml`, and `<name>.contract.structure.dsl`; needs `FIGMA_TEAM_ID` |
+| 18 | `--export-component-set` | `--output-dir tmp --component-set-name ProfileStreakIcon --export-assets` | also writes `<name>.contract.assets.yaml`, `<name>.assets/*.svg`, and asset-backed contracts; needs `FIGMA_API_TOKEN` + `FIGMA_TEAM_ID` |
+| 19 | `--export-component-set` | `--output-dir tmp --component-set-name $COMPONENT_SET_NAME --json` | same as row 17 but writes `.json` files instead of `.yaml` |
 
 Example:
 
 ```sh
 npm run build
 
-npx . --list-team-projects --json
-npx . --list-project-files --project-id "$PROJECT_ID" --json
-npx . --list-team-project-files --json
-npx . --list-team-component-sets --json
-npx . --list-file-pages --file-key O7aE7SeG2TRBCK5MsjkG7z --json
-npx . --list-file-component-sets --file-key O7aE7SeG2TRBCK5MsjkG7z --json
-npx . --inspect-component-set-properties --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2 --component-set-name Cell --json
+npx . --list-team-projects
+npx . --list-project-files --project-id "$PROJECT_ID"
+npx . --list-team-project-files
+npx . --list-team-component-sets
+npx . --list-file-pages --file-key O7aE7SeG2TRBCK5MsjkG7z
+npx . --list-file-component-sets --file-key O7aE7SeG2TRBCK5MsjkG7z
+npx . --inspect-component-set-properties --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2 --component-set-name Cell
 npx . --inspect-component-set --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2 --component-set-name Cell
 npx . --inspect-team-component-set --component-set-name Cell
 npx . --inspect-file-node --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2
@@ -86,14 +87,15 @@ npx . --build-component-set-spec --input tmp/component-set.json --team-component
 npx . --build-component-set-pseudocode --input tmp/component-set.json
 npx . --build-component-set-pseudocode --input tmp/component-set.json --output-dir tmp --variables tmp/variables.json --team-components tmp/ComponentSets.json
 npx . --export-component-set --output-dir tmp --component-set-name "$COMPONENT_SET_NAME"
+npx . --export-component-set --output-dir tmp --component-set-name "$COMPONENT_SET_NAME" --json
 ```
 
 ## Execution rules
 
 1. Run commands in the shell; do not assume success from code inspection alone.
 2. Capture exit code for each command. Exit code must be `0`.
-3. For JSON commands, confirm output is valid JSON (array or object), not an error string.
-4. For table commands, confirm non-empty meaningful output or an explicit empty-state message from the CLI.
+3. For structured commands, confirm output is valid YAML or JSON (array or object), not an error string.
+4. For list commands without `--json`, confirm YAML output (array), not an error string.
 5. When piping to `head`, re-check exit code without `head` — SIGPIPE can mask success.
 6. If a command fails, diagnose (including Zod/API parsing), fix the code, rebuild, and re-run **all** commands.
 7. After fixes, run `npm run check`.

@@ -1,3 +1,4 @@
+import type { ContractFormat } from "../inspect/contract-format.js";
 import type { ComponentSetLookup } from "../inspect/types.js";
 
 export interface CliIo {
@@ -14,28 +15,43 @@ export interface ComponentSetCommandScope {
 
 export type CliCommand =
   | { kind: "help" }
-  | { kind: "list-team-projects"; json: boolean }
-  | { kind: "list-project-files"; projectId: string; json: boolean }
-  | { kind: "list-team-project-files"; json: boolean }
-  | { kind: "list-team-component-sets"; json: boolean }
-  | { kind: "list-file-pages"; fileKey: string; json: boolean }
-  | { kind: "list-file-component-sets"; fileKey: string; json: boolean }
+  | { kind: "list-team-projects"; format: ContractFormat }
+  | { kind: "list-project-files"; projectId: string; format: ContractFormat }
+  | { kind: "list-team-project-files"; format: ContractFormat }
+  | { kind: "list-team-component-sets"; format: ContractFormat }
+  | { kind: "list-file-pages"; fileKey: string; format: ContractFormat }
+  | {
+      kind: "list-file-component-sets";
+      fileKey: string;
+      format: ContractFormat;
+    }
   | {
       kind: "inspect-component-set-properties";
       scope: ComponentSetCommandScope;
-      json: boolean;
+      format: ContractFormat;
     }
-  | { kind: "inspect-component-set"; scope: ComponentSetCommandScope }
+  | {
+      kind: "inspect-component-set";
+      scope: ComponentSetCommandScope;
+      format: ContractFormat;
+    }
   | {
       kind: "inspect-team-component-set";
       componentSet: ComponentSetLookup;
+      format: ContractFormat;
     }
-  | { kind: "inspect-file-node"; fileKey: string; nodeId: string }
+  | {
+      kind: "inspect-file-node";
+      fileKey: string;
+      nodeId: string;
+      format: ContractFormat;
+    }
   | {
       kind: "build-component-set-spec";
       inputPath: string;
       variablesPath?: string;
       teamComponentsPath?: string;
+      format: ContractFormat;
     }
   | {
       kind: "build-component-set-pseudocode";
@@ -43,6 +59,7 @@ export type CliCommand =
       outputDir?: string;
       variablesPath?: string;
       teamComponentsPath?: string;
+      format: ContractFormat;
     }
   | {
       kind: "export-component-set";
@@ -51,4 +68,5 @@ export type CliCommand =
       variablesPath?: string;
       exportAssets?: boolean;
       assetFormat?: "svg";
+      format: ContractFormat;
     };

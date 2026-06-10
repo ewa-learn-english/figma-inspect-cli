@@ -6,6 +6,10 @@ import {
 } from "../component-set-spec/build-spec.js";
 import { loadTeamComponentRegistry } from "../component-set-spec/team-component-registry.js";
 import {
+  type ContractFormat,
+  contractArtifactFileName,
+} from "../contract-format.js";
+import {
   buildAssetBackedGeometry,
   buildAssetBackedVisuals,
   hasAssetMapAssets,
@@ -30,6 +34,7 @@ export interface BuildComponentSetPseudocodeOptions
   assetBacked?: boolean;
   assets?: AssetContractMap;
   metaContext?: MetaContractContext;
+  format?: ContractFormat;
 }
 
 export interface ComponentSetContractResult {
@@ -41,45 +46,41 @@ export interface ComponentSetContractResult {
   assets?: AssetContractMap;
 }
 
-function visualsContractFileName(componentName: string): string {
-  return `${componentName}.contract.visuals.json`;
-}
-
-function geometryContractFileName(componentName: string): string {
-  return `${componentName}.contract.geometry.json`;
-}
-
-function assetsContractFileName(componentName: string): string {
-  return `${componentName}.contract.assets.json`;
-}
-
 function structureDslFileName(componentName: string): string {
   return `${componentName}.contract.structure.dsl`;
-}
-
-function metaContractFileName(componentName: string): string {
-  return `${componentName}.contract.meta.json`;
 }
 
 export function resolveVisualsContractPath(
   directory: string,
   componentName: string,
+  format: ContractFormat = "yaml",
 ): string {
-  return path.join(directory, visualsContractFileName(componentName));
+  return path.join(
+    directory,
+    contractArtifactFileName(componentName, "visuals", format),
+  );
 }
 
 export function resolveGeometryContractPath(
   directory: string,
   componentName: string,
+  format: ContractFormat = "yaml",
 ): string {
-  return path.join(directory, geometryContractFileName(componentName));
+  return path.join(
+    directory,
+    contractArtifactFileName(componentName, "geometry", format),
+  );
 }
 
 export function resolveAssetsContractPath(
   directory: string,
   componentName: string,
+  format: ContractFormat = "yaml",
 ): string {
-  return path.join(directory, assetsContractFileName(componentName));
+  return path.join(
+    directory,
+    contractArtifactFileName(componentName, "assets", format),
+  );
 }
 
 export function resolveStructureDslPath(
@@ -92,8 +93,12 @@ export function resolveStructureDslPath(
 export function resolveMetaContractPath(
   directory: string,
   componentName: string,
+  format: ContractFormat = "yaml",
 ): string {
-  return path.join(directory, metaContractFileName(componentName));
+  return path.join(
+    directory,
+    contractArtifactFileName(componentName, "meta", format),
+  );
 }
 
 function buildComponentSetContracts(
@@ -102,14 +107,15 @@ function buildComponentSetContracts(
   metaContext?: MetaContractContext,
   options: Pick<
     BuildComponentSetPseudocodeOptions,
-    "assetBacked" | "assets"
+    "assetBacked" | "assets" | "format"
   > = {},
 ): ComponentSetContractResult {
   const assetBacked =
     options.assetBacked === true && hasAssetMapAssets(options.assets);
   const model = buildPseudocodeModelFromSpec(spec);
+  const format = options.format ?? "yaml";
   const structureDsl = renderStructureDsl(
-    buildStructureContract(model, spec, { assetBacked }),
+    buildStructureContract(model, spec, { assetBacked, format }),
   );
   const meta = buildMetaContract(componentSet, spec, metaContext);
 

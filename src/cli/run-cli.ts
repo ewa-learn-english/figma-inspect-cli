@@ -9,6 +9,7 @@ import {
   listTeamProjectFiles,
   listTeamProjects,
 } from "../figma-api/index.js";
+import { serializeContractData } from "../inspect/contract-format.js";
 import {
   buildComponentSetPseudocodeFromFile,
   buildComponentSetSpecFromFile,
@@ -31,8 +32,8 @@ import {
 import {
   writeComponentSetProperties,
   writeComponentSets,
+  writeData,
   writeFiles,
-  writeJson,
   writePages,
   writeProjects,
   writeTeamComponentSets,
@@ -56,7 +57,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         variablesPath: command.variablesPath,
         teamComponentsPath: command.teamComponentsPath,
       });
-      writeJson(spec, io.stdout);
+      writeData(spec, command.format, io.stdout);
     } catch (error) {
       if (error instanceof FigmaInspectError) {
         throw new CliError(error.message);
@@ -75,6 +76,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         {
           variablesPath: command.variablesPath,
           teamComponentsPath: command.teamComponentsPath,
+          format: command.format,
         },
       );
       const contractDirectory =
@@ -82,10 +84,12 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
       const visualsContractPath = resolveVisualsContractPath(
         contractDirectory,
         result.componentName,
+        command.format,
       );
       const geometryContractPath = resolveGeometryContractPath(
         contractDirectory,
         result.componentName,
+        command.format,
       );
       const structureDslPath = resolveStructureDslPath(
         contractDirectory,
@@ -94,30 +98,32 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
       const metaContractPath = resolveMetaContractPath(
         contractDirectory,
         result.componentName,
+        command.format,
       );
       await writeFile(
         visualsContractPath,
-        `${JSON.stringify(result.visuals, null, 2)}\n`,
+        serializeContractData(result.visuals, command.format),
         "utf8",
       );
       await writeFile(
         geometryContractPath,
-        `${JSON.stringify(result.geometry, null, 2)}\n`,
+        serializeContractData(result.geometry, command.format),
         "utf8",
       );
       await writeFile(
         metaContractPath,
-        `${JSON.stringify(result.meta, null, 2)}\n`,
+        serializeContractData(result.meta, command.format),
         "utf8",
       );
       if (result.assets) {
         const assetsContractPath = resolveAssetsContractPath(
           contractDirectory,
           result.componentName,
+          command.format,
         );
         await writeFile(
           assetsContractPath,
-          `${JSON.stringify(result.assets, null, 2)}\n`,
+          serializeContractData(result.assets, command.format),
           "utf8",
         );
       }
@@ -133,7 +139,11 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         outputLines.splice(
           3,
           0,
-          resolveAssetsContractPath(contractDirectory, result.componentName),
+          resolveAssetsContractPath(
+            contractDirectory,
+            result.componentName,
+            command.format,
+          ),
         );
       }
       io.stdout.write(`${outputLines.join("\n")}\n`);
@@ -168,6 +178,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         variablesPath: command.variablesPath,
         exportAssets: command.exportAssets,
         assetFormat: command.assetFormat,
+        format: command.format,
       });
       writeExportResult(result, io.stdout);
     } catch (error) {
@@ -193,7 +204,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         }
 
         const projects = await listTeamProjects({ token, teamId });
-        writeProjects(projects, command.json, io.stdout);
+        writeProjects(projects, command.format, io.stdout);
         break;
       }
       case "list-team-project-files": {
@@ -203,7 +214,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         }
 
         const files = await listTeamProjectFiles({ token, teamId });
-        writeTeamProjectFiles(files, command.json, io.stdout);
+        writeTeamProjectFiles(files, command.format, io.stdout);
         break;
       }
       case "list-team-component-sets": {
@@ -213,7 +224,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         }
 
         const componentSets = await listAllComponentSets({ token, teamId });
-        writeTeamComponentSets(componentSets, command.json, io.stdout);
+        writeTeamComponentSets(componentSets, command.format, io.stdout);
         break;
       }
       case "list-project-files": {
@@ -221,7 +232,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
           token,
           projectId: command.projectId,
         });
-        writeFiles(files, command.json, io.stdout);
+        writeFiles(files, command.format, io.stdout);
         break;
       }
       case "list-file-pages": {
@@ -229,7 +240,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
           token,
           fileKey: command.fileKey,
         });
-        writePages(pages, command.json, io.stdout);
+        writePages(pages, command.format, io.stdout);
         break;
       }
       case "list-file-component-sets": {
@@ -245,7 +256,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
               name: componentSet.name,
             }))
             .sort((left, right) => left.name.localeCompare(right.name)),
-          command.json,
+          command.format,
           io.stdout,
         );
         break;
@@ -255,7 +266,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
           token,
           ...command.scope,
         });
-        writeComponentSetProperties(properties, command.json, io.stdout);
+        writeComponentSetProperties(properties, command.format, io.stdout);
         break;
       }
       case "inspect-component-set": {
@@ -263,7 +274,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
           token,
           ...command.scope,
         });
-        writeJson(componentSet, io.stdout);
+        writeData(componentSet, command.format, io.stdout);
         break;
       }
       case "inspect-team-component-set": {
@@ -281,7 +292,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
           token,
           ...scope,
         });
-        writeJson(componentSet, io.stdout);
+        writeData(componentSet, command.format, io.stdout);
         break;
       }
       case "inspect-file-node": {
@@ -290,7 +301,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
           fileKey: command.fileKey,
           nodeId: command.nodeId,
         });
-        writeJson(node, io.stdout);
+        writeData(node, command.format, io.stdout);
         break;
       }
       default: {

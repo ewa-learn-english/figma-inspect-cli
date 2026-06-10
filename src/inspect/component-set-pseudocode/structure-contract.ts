@@ -3,6 +3,8 @@ import type {
   ComponentSetSpec,
   SlimNode,
 } from "../component-set-spec/types.js";
+import type { ContractFormat } from "../contract-format.js";
+import { contractArtifactFileName } from "../contract-format.js";
 import type { PseudocodeModel } from "./types.js";
 
 export interface StructureContract {
@@ -365,6 +367,7 @@ function convertFragment(
 
 function buildAssetBackedStructureContract(
   model: PseudocodeModel,
+  format: ContractFormat,
 ): StructureContract {
   const templateName = "allVariants";
   const root: StructureElementNode = {
@@ -378,10 +381,10 @@ function buildAssetBackedStructureContract(
     version: 1,
     component: model.name,
     contracts: {
-      visuals: `${model.name}.contract.visuals.json`,
-      geometry: `${model.name}.contract.geometry.json`,
-      meta: `${model.name}.contract.meta.json`,
-      assets: `${model.name}.contract.assets.json`,
+      visuals: contractArtifactFileName(model.name, "visuals", format),
+      geometry: contractArtifactFileName(model.name, "geometry", format),
+      meta: contractArtifactFileName(model.name, "meta", format),
+      assets: contractArtifactFileName(model.name, "assets", format),
     },
     props: model.props,
     variantAxes: model.variantAxes,
@@ -402,10 +405,11 @@ function buildAssetBackedStructureContract(
 export function buildStructureContract(
   model: PseudocodeModel,
   spec: ComponentSetSpec,
-  options: { assetBacked?: boolean } = {},
+  options: { assetBacked?: boolean; format?: ContractFormat } = {},
 ): StructureContract {
+  const format = options.format ?? "yaml";
   if (options.assetBacked) {
-    return buildAssetBackedStructureContract(model);
+    return buildAssetBackedStructureContract(model, format);
   }
   const definitions: Record<string, SlimNode> = {
     ...(model.definitions as Record<string, SlimNode>),
@@ -458,9 +462,9 @@ export function buildStructureContract(
     version: 1,
     component: model.name,
     contracts: {
-      visuals: `${model.name}.contract.visuals.json`,
-      geometry: `${model.name}.contract.geometry.json`,
-      meta: `${model.name}.contract.meta.json`,
+      visuals: contractArtifactFileName(model.name, "visuals", format),
+      geometry: contractArtifactFileName(model.name, "geometry", format),
+      meta: contractArtifactFileName(model.name, "meta", format),
     },
     props: model.props,
     variantAxes: model.variantAxes,

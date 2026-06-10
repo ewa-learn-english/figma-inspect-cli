@@ -2,6 +2,11 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { TeamComponentEntry } from "../inspect/component-set-spec/team-component-registry.js";
 import {
+  type ContractFormat,
+  contractArtifactFileName,
+  serializeContractData,
+} from "../inspect/contract-format.js";
+import {
   buildComponentSetPseudocodeFromRaw,
   exportVariantAssets,
   loadComponentSetContext,
@@ -20,6 +25,7 @@ export interface ExportComponentSetOptions {
   variablesPath?: string;
   exportAssets?: boolean;
   assetFormat?: "svg";
+  format?: ContractFormat;
 }
 
 export interface ExportComponentSetResult {
@@ -59,8 +65,12 @@ function teamComponentEntryFromPublishedSet(
   };
 }
 
-async function writeJsonFile(filePath: string, value: unknown): Promise<void> {
-  await writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+async function writeDataFile(
+  filePath: string,
+  value: unknown,
+  format: ContractFormat,
+): Promise<void> {
+  await writeFile(filePath, serializeContractData(value, format), "utf8");
 }
 
 export async function exportComponentSet(
@@ -85,29 +95,33 @@ export async function exportComponentSet(
 
   await mkdir(options.outputDir, { recursive: true });
 
-  const rawPath = path.join(options.outputDir, `${baseName}.json`);
+  const format = options.format ?? "yaml";
+  const rawPath = path.join(
+    options.outputDir,
+    contractArtifactFileName(baseName, "raw", format),
+  );
   const visualsContractPath = path.join(
     options.outputDir,
-    `${baseName}.contract.visuals.json`,
+    contractArtifactFileName(baseName, "visuals", format),
   );
   const geometryContractPath = path.join(
     options.outputDir,
-    `${baseName}.contract.geometry.json`,
+    contractArtifactFileName(baseName, "geometry", format),
   );
   const metaContractPath = path.join(
     options.outputDir,
-    `${baseName}.contract.meta.json`,
+    contractArtifactFileName(baseName, "meta", format),
   );
   const assetsContractPath = path.join(
     options.outputDir,
-    `${baseName}.contract.assets.json`,
+    contractArtifactFileName(baseName, "assets", format),
   );
   const structureDslPath = path.join(
     options.outputDir,
     `${baseName}.contract.structure.dsl`,
   );
 
-  await writeJsonFile(rawPath, raw);
+  await writeDataFile(rawPath, raw, format);
 
   let assetsDir: string | undefined;
   let exportedAssets:
@@ -130,15 +144,16 @@ export async function exportComponentSet(
     variablesPath: options.variablesPath,
     assetBacked: options.exportAssets,
     assets: exportedAssets?.assets,
+    format,
     metaContext: {
       component: teamComponentEntryFromPublishedSet(scope.publishedSet),
     },
   });
-  await writeJsonFile(visualsContractPath, contractResult.visuals);
-  await writeJsonFile(geometryContractPath, contractResult.geometry);
-  await writeJsonFile(metaContractPath, contractResult.meta);
+  await writeDataFile(visualsContractPath, contractResult.visuals, format);
+  await writeDataFile(geometryContractPath, contractResult.geometry, format);
+  await writeDataFile(metaContractPath, contractResult.meta, format);
   if (contractResult.assets) {
-    await writeJsonFile(assetsContractPath, contractResult.assets);
+    await writeDataFile(assetsContractPath, contractResult.assets, format);
   }
   await writeFile(structureDslPath, contractResult.structureDsl, "utf8");
 

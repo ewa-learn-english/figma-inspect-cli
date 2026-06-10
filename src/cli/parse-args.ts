@@ -1,3 +1,4 @@
+import type { ContractFormat } from "../inspect/contract-format.js";
 import type { ComponentSetLookup } from "../inspect/types.js";
 import { CliError } from "./errors.js";
 import type { CliCommand, ComponentSetCommandScope } from "./types.js";
@@ -31,6 +32,10 @@ interface ParsedFlags {
   componentSetKey: string | undefined;
   componentSetName: string | undefined;
   json: boolean;
+}
+
+function resolveOutputFormat(flags: ParsedFlags): ContractFormat {
+  return flags.json ? "json" : "yaml";
 }
 
 function emptyFlags(): ParsedFlags {
@@ -183,11 +188,17 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
 
   switch (command) {
     case "list-team-projects":
-      return { kind: "list-team-projects", json: flags.json };
+      return { kind: "list-team-projects", format: resolveOutputFormat(flags) };
     case "list-team-project-files":
-      return { kind: "list-team-project-files", json: flags.json };
+      return {
+        kind: "list-team-project-files",
+        format: resolveOutputFormat(flags),
+      };
     case "list-team-component-sets":
-      return { kind: "list-team-component-sets", json: flags.json };
+      return {
+        kind: "list-team-component-sets",
+        format: resolveOutputFormat(flags),
+      };
     case "list-project-files": {
       if (!flags.projectId) {
         throw new CliError("Missing --project-id for --list-project-files.");
@@ -196,20 +207,20 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
       return {
         kind: "list-project-files",
         projectId: flags.projectId,
-        json: flags.json,
+        format: resolveOutputFormat(flags),
       };
     }
     case "list-file-pages":
       return {
         kind: "list-file-pages",
         fileKey: requireFileKey(flags.fileKey, "--list-file-pages"),
-        json: flags.json,
+        format: resolveOutputFormat(flags),
       };
     case "list-file-component-sets":
       return {
         kind: "list-file-component-sets",
         fileKey: requireFileKey(flags.fileKey, "--list-file-component-sets"),
-        json: flags.json,
+        format: resolveOutputFormat(flags),
       };
     case "inspect-component-set-properties":
       return {
@@ -218,12 +229,13 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
           flags,
           "--inspect-component-set-properties",
         ),
-        json: flags.json,
+        format: resolveOutputFormat(flags),
       };
     case "inspect-component-set":
       return {
         kind: "inspect-component-set",
         scope: requireComponentSetScope(flags, "--inspect-component-set"),
+        format: resolveOutputFormat(flags),
       };
     case "inspect-team-component-set":
       return {
@@ -233,12 +245,14 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
           flags.componentSetName,
           "--inspect-team-component-set",
         ),
+        format: resolveOutputFormat(flags),
       };
     case "inspect-file-node":
       return {
         kind: "inspect-file-node",
         fileKey: requireFileKey(flags.fileKey, "--inspect-file-node"),
         nodeId: requireNodeId(flags.nodeId, "--inspect-file-node"),
+        format: resolveOutputFormat(flags),
       };
     case "build-component-set-spec": {
       if (!flags.inputPath) {
@@ -250,6 +264,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         inputPath: flags.inputPath,
         variablesPath: flags.variablesPath,
         teamComponentsPath: flags.teamComponentsPath,
+        format: resolveOutputFormat(flags),
       };
     }
     case "build-component-set-pseudocode": {
@@ -265,6 +280,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         outputDir: flags.outputDir ?? flags.outputPath,
         variablesPath: flags.variablesPath,
         teamComponentsPath: flags.teamComponentsPath,
+        format: resolveOutputFormat(flags),
       };
     }
     case "export-component-set": {
@@ -283,6 +299,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         variablesPath: flags.variablesPath,
         exportAssets: flags.exportAssets,
         assetFormat: flags.assetFormat,
+        format: resolveOutputFormat(flags),
       };
     }
     default: {
