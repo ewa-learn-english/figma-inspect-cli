@@ -123,6 +123,17 @@ function requireNodeId(nodeId: string | undefined, command: string): string {
   return nodeId;
 }
 
+function requireVariablesPath(
+  variablesPath: string | undefined,
+  command: string,
+): string {
+  if (!variablesPath) {
+    throw new CliError(`Missing --variables for ${command}.`);
+  }
+
+  return variablesPath;
+}
+
 function requireComponentSetScope(
   flags: ParsedFlags,
   command: string,
@@ -262,7 +273,10 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
       return {
         kind: "build-component-set-spec",
         inputPath: flags.inputPath,
-        variablesPath: flags.variablesPath,
+        variablesPath: requireVariablesPath(
+          flags.variablesPath,
+          "--build-component-set-spec",
+        ),
         teamComponentsPath: flags.teamComponentsPath,
         format: resolveOutputFormat(flags),
       };
@@ -278,7 +292,10 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         kind: "build-component-set-pseudocode",
         inputPath: flags.inputPath,
         outputDir: flags.outputDir ?? flags.outputPath,
-        variablesPath: flags.variablesPath,
+        variablesPath: requireVariablesPath(
+          flags.variablesPath,
+          "--build-component-set-pseudocode",
+        ),
         teamComponentsPath: flags.teamComponentsPath,
         format: resolveOutputFormat(flags),
       };
@@ -296,7 +313,10 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
           flags.componentSetName,
           "--export-component-set",
         ),
-        variablesPath: flags.variablesPath,
+        variablesPath: requireVariablesPath(
+          flags.variablesPath,
+          "--export-component-set",
+        ),
         exportAssets: flags.exportAssets,
         assetFormat: flags.assetFormat,
         format: resolveOutputFormat(flags),

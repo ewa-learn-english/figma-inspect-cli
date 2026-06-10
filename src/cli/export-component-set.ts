@@ -41,7 +41,7 @@ export interface ExportComponentSetOptions {
   teamId: string;
   outputDir: string;
   componentSet: ComponentSetLookup;
-  variablesPath?: string;
+  variablesPath: string;
   exportAssets?: boolean;
   assetFormat?: "svg";
   format?: ContractFormat;

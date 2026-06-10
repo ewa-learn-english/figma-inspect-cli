@@ -34,6 +34,7 @@ Use these defaults unless the user provides overrides in the chat:
 | `FILE_KEY` | `O7aE7SeG2TRBCK5MsjkG7z` |
 | `NODE_ID` | `3:2` |
 | `COMPONENT_SET_NAME` | `Cell` |
+| `VARIABLES_PATH` | `tmp/cp-ds-styles-variables-local.json` |
 
 Derive at runtime when needed:
 
@@ -57,14 +58,13 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 9 | `--inspect-component-set` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME` | |
 | 10 | `--inspect-team-component-set` | `--component-set-name $COMPONENT_SET_NAME` | resolves file/node from team; needs `FIGMA_TEAM_ID` |
 | 11 | `--inspect-file-node` | `--file-key $FILE_KEY --node-id $NODE_ID` | raw API payload |
-| 12 | `--build-component-set-spec` | `--input tmp/component-set.json` | local file only; no Figma token |
-| 13 | `--build-component-set-spec` | `--input tmp/component-set.json --variables tmp/variables.json` | resolves Figma variable ids to token names |
-| 14 | `--build-component-set-spec` | `--input tmp/component-set.json --team-components tmp/ComponentSets.json` | collapses known team components to slots |
-| 15 | `--build-component-set-pseudocode` | `--input tmp/component-set.json` | writes `<ComponentName>.contract.{visuals,geometry,meta}.yaml` and `<ComponentName>.contract.structure.dsl` next to `--input` |
-| 16 | `--build-component-set-pseudocode` | `--input tmp/component-set.json --output-dir tmp --variables tmp/variables.json --team-components tmp/ComponentSets.json` | writes contract files to `tmp/` with token resolution |
-| 17 | `--export-component-set` | `--output-dir tmp --component-set-name $COMPONENT_SET_NAME` | writes `<name>.contract.{visuals,geometry,meta,lock}.yaml`, and `<name>.contract.structure.dsl`; needs `FIGMA_TEAM_ID` |
-| 18 | `--export-component-set` | `--output-dir tmp --component-set-name ProfileStreakIcon --export-assets` | also writes `<name>.contract.assets.yaml`, `<name>.assets/*.svg`, and asset-backed contracts; needs `FIGMA_API_TOKEN` + `FIGMA_TEAM_ID` |
-| 19 | `--export-component-set` | `--output-dir tmp --component-set-name $COMPONENT_SET_NAME --json` | same as row 17 but writes `.json` files instead of `.yaml` |
+| 12 | `--build-component-set-spec` | `--input tmp/component-set.json --variables $VARIABLES_PATH` | local file only; no Figma token |
+| 13 | `--build-component-set-spec` | `--input tmp/component-set.json --variables $VARIABLES_PATH --team-components tmp/ComponentSets.json` | collapses known team components to slots |
+| 14 | `--build-component-set-pseudocode` | `--input tmp/component-set.json --variables $VARIABLES_PATH` | writes `<ComponentName>.contract.{visuals,geometry,meta}.yaml` and `<ComponentName>.contract.structure.dsl` next to `--input` |
+| 15 | `--build-component-set-pseudocode` | `--input tmp/component-set.json --output-dir tmp --variables $VARIABLES_PATH --team-components tmp/ComponentSets.json` | writes contract files to `tmp/` with token resolution |
+| 16 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME` | writes `<name>.contract.{visuals,geometry,meta,lock}.yaml`, and `<name>.contract.structure.dsl`; needs `FIGMA_TEAM_ID` |
+| 17 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name ProfileStreakIcon --export-assets` | also writes `<name>.contract.assets.yaml`, `<name>.assets/*.svg`, and asset-backed contracts; needs `FIGMA_API_TOKEN` + `FIGMA_TEAM_ID` |
+| 18 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME --json` | same as row 16 but writes `.json` files instead of `.yaml` |
 
 Example:
 
@@ -81,13 +81,12 @@ npx . --inspect-component-set-properties --file-key O7aE7SeG2TRBCK5MsjkG7z --nod
 npx . --inspect-component-set --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2 --component-set-name Cell
 npx . --inspect-team-component-set --component-set-name Cell
 npx . --inspect-file-node --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2
-npx . --build-component-set-spec --input tmp/component-set.json
-npx . --build-component-set-spec --input tmp/component-set.json --variables tmp/variables.json
-npx . --build-component-set-spec --input tmp/component-set.json --team-components tmp/ComponentSets.json
-npx . --build-component-set-pseudocode --input tmp/component-set.json
-npx . --build-component-set-pseudocode --input tmp/component-set.json --output-dir tmp --variables tmp/variables.json --team-components tmp/ComponentSets.json
-npx . --export-component-set --output-dir tmp --component-set-name "$COMPONENT_SET_NAME"
-npx . --export-component-set --output-dir tmp --component-set-name "$COMPONENT_SET_NAME" --json
+npx . --build-component-set-spec --input tmp/component-set.json --variables "$VARIABLES_PATH"
+npx . --build-component-set-spec --input tmp/component-set.json --variables "$VARIABLES_PATH" --team-components tmp/ComponentSets.json
+npx . --build-component-set-pseudocode --input tmp/component-set.json --variables "$VARIABLES_PATH"
+npx . --build-component-set-pseudocode --input tmp/component-set.json --output-dir tmp --variables "$VARIABLES_PATH" --team-components tmp/ComponentSets.json
+npx . --export-component-set --output-dir tmp --variables "$VARIABLES_PATH" --component-set-name "$COMPONENT_SET_NAME"
+npx . --export-component-set --output-dir tmp --variables "$VARIABLES_PATH" --component-set-name "$COMPONENT_SET_NAME" --json
 ```
 
 ## Execution rules

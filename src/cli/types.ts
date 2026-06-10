@@ -49,7 +49,7 @@ export type CliCommand =
   | {
       kind: "build-component-set-spec";
       inputPath: string;
-      variablesPath?: string;
+      variablesPath: string;
       teamComponentsPath?: string;
       format: ContractFormat;
     }
@@ -57,7 +57,7 @@ export type CliCommand =
       kind: "build-component-set-pseudocode";
       inputPath: string;
       outputDir?: string;
-      variablesPath?: string;
+      variablesPath: string;
       teamComponentsPath?: string;
       format: ContractFormat;
     }
@@ -65,7 +65,7 @@ export type CliCommand =
       kind: "export-component-set";
       outputDir: string;
       componentSet: ComponentSetLookup;
-      variablesPath?: string;
+      variablesPath: string;
       exportAssets?: boolean;
       assetFormat?: "svg";
       format: ContractFormat;

@@ -9,9 +9,9 @@ export const usage = `Usage:
   figma-inspect --inspect-component-set --file-key <key> --node-id <id> (--component-set-key <key> | --component-set-name <name>) [--json]
   figma-inspect --inspect-team-component-set (--component-set-key <key> | --component-set-name <name>) [--json]
   figma-inspect --inspect-file-node --file-key <key> --node-id <id> [--json]
-  figma-inspect --build-component-set-spec --input <path> [--variables <path>] [--team-components <path>] [--json]
-  figma-inspect --build-component-set-pseudocode --input <path> [--output-dir <dir>] [--variables <path>] [--team-components <path>] [--json]
-  figma-inspect --export-component-set --output-dir <dir> (--component-set-key <key> | --component-set-name <name>) [--variables <path>] [--export-assets] [--asset-format svg] [--json]
+  figma-inspect --build-component-set-spec --input <path> --variables <path> [--team-components <path>] [--json]
+  figma-inspect --build-component-set-pseudocode --input <path> --variables <path> [--output-dir <dir>] [--team-components <path>] [--json]
+  figma-inspect --export-component-set --output-dir <dir> --variables <path> (--component-set-key <key> | --component-set-name <name>) [--export-assets] [--asset-format svg] [--json]
 
 Environment:
   FIGMA_API_TOKEN  Figma personal access token
@@ -37,7 +37,7 @@ Options:
   --input <path>                  Input JSON file path (required with --build-component-set-spec and --build-component-set-pseudocode)
   --output-dir <dir>              Output directory (optional with --build-component-set-pseudocode; defaults to the input file directory)
   --output-dir <dir>              Output directory (required with --export-component-set)
-  --variables <path>              Variables export JSON (optional with --build-component-set-spec and --export-component-set)
+  --variables <path>              Variables export JSON (required with --build-component-set-spec, --build-component-set-pseudocode, and --export-component-set)
   --team-components <path>        Team component sets JSON (optional with --build-component-set-spec and --build-component-set-pseudocode)
   --project-id <id>               Project id (required with --list-project-files)
   --file-key <key>                File key (required with --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, and --inspect-file-node)

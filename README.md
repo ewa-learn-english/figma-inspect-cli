@@ -76,7 +76,7 @@ Build an AI-friendly spec from a local COMPONENT_SET JSON file:
 
 ```sh
 npx . --inspect-component-set ... > tmp/Toast.json
-npx . --build-component-set-spec --input tmp/Toast.json
+npx . --build-component-set-spec --input tmp/Toast.json --variables tmp/cp-ds-styles-variables-local.json
 npx . --build-component-set-spec --input tmp/Toast.json --variables tmp/cp-ds-styles-variables-local.json --team-components tmp/ComponentSets.json
 ```
 
