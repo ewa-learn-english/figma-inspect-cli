@@ -11,6 +11,7 @@ export interface StructureContract {
   contracts: {
     visuals: string;
     geometry: string;
+    meta: string;
   };
   props?: Record<string, ComponentSetPropDefinition>;
   variantAxes: Record<string, string[]>;
@@ -416,6 +417,7 @@ export function buildStructureContract(
     contracts: {
       visuals: `${model.name}.contract.visuals.json`,
       geometry: `${model.name}.contract.geometry.json`,
+      meta: `${model.name}.contract.meta.json`,
     },
     props: model.props,
     variantAxes: model.variantAxes,

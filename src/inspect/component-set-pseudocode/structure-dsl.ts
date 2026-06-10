@@ -163,6 +163,7 @@ export function renderStructureDsl(contract: StructureContract): string {
     "contracts {",
     `${INDENT}visuals ${contract.contracts.visuals}`,
     `${INDENT}geometry ${contract.contracts.geometry}`,
+    `${INDENT}meta ${contract.contracts.meta}`,
     "}",
     "",
   );

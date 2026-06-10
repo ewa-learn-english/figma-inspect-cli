@@ -1,6 +1,9 @@
+export { loadComponentSetContext } from "./component-set-context.js";
 export {
   buildComponentSetPseudocodeFromFile,
+  buildComponentSetPseudocodeFromRaw,
   resolveGeometryContractPath,
+  resolveMetaContractPath,
   resolveStructureDslPath,
   resolveVisualsContractPath,
 } from "./component-set-pseudocode/index.js";

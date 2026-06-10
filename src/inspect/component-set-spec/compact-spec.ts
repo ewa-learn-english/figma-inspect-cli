@@ -1,3 +1,7 @@
+import {
+  compactBoundTypography,
+  slimTextExportKind,
+} from "./slim-text-export.js";
 import type {
   ComponentSetSpec,
   SlimBorder,
@@ -334,10 +338,6 @@ function compactStyle(style: SlimStyle | undefined): SlimStyle | undefined {
   return Object.keys(compact).length > 0 ? compact : undefined;
 }
 
-function roundNumber(value: number): number {
-  return Math.round(value * 100) / 100;
-}
-
 function compactText(text: SlimText | undefined): SlimText | undefined {
   if (!text) {
     return undefined;
@@ -349,58 +349,43 @@ function compactText(text: SlimText | undefined): SlimText | undefined {
     compact.content = text.content;
   }
 
-  const fontFamily = compactTypography(text.fontFamily);
-  if (fontFamily !== undefined) {
-    compact.fontFamily = fontFamily as SlimText["fontFamily"];
-  }
+  for (const [key, value] of Object.entries(text)) {
+    if (value === undefined) {
+      continue;
+    }
 
-  const fontSize = compactTypography(text.fontSize);
-  if (fontSize !== undefined) {
-    compact.fontSize = fontSize as SlimText["fontSize"];
-  }
-
-  const fontWeight = compactTypography(text.fontWeight);
-  if (fontWeight !== undefined) {
-    compact.fontWeight = fontWeight as SlimText["fontWeight"];
-  }
-
-  const fontStyle = compactTypography(text.fontStyle);
-  if (fontStyle !== undefined) {
-    compact.fontStyle = fontStyle as SlimText["fontStyle"];
-  }
-
-  const lineHeight = compactTypography(text.lineHeight);
-  if (lineHeight !== undefined) {
-    compact.lineHeight = (
-      typeof lineHeight === "number" ? roundNumber(lineHeight) : lineHeight
-    ) as SlimText["lineHeight"];
-  }
-
-  const letterSpacing = compactTypography(text.letterSpacing);
-  if (
-    letterSpacing !== undefined &&
-    !(typeof letterSpacing === "number" && letterSpacing === 0)
-  ) {
-    compact.letterSpacing = (
-      typeof letterSpacing === "number"
-        ? roundNumber(letterSpacing)
-        : letterSpacing
-    ) as SlimText["letterSpacing"];
-  }
-
-  if (text.align) {
-    compact.align = text.align;
-  }
-  if (text.verticalAlign && text.verticalAlign !== "TOP") {
-    compact.verticalAlign = text.verticalAlign;
-  }
-  if (text.autoResize && text.autoResize !== "HEIGHT") {
-    compact.autoResize = text.autoResize;
-  }
-
-  const color = compactFill(text.color);
-  if (color) {
-    compact.color = color;
+    switch (slimTextExportKind(key)) {
+      case "skip":
+        break;
+      case "token": {
+        const bound = compactBoundTypography(
+          value as string | number | SlimDimension,
+          compactTypography,
+        );
+        if (bound) {
+          (compact as Record<string, unknown>)[key] = bound;
+        }
+        break;
+      }
+      case "literal":
+        if (key === "verticalAlign" && value === "TOP") {
+          break;
+        }
+        if (key === "autoResize" && value === "HEIGHT") {
+          break;
+        }
+        if (typeof value === "string") {
+          (compact as Record<string, unknown>)[key] = value;
+        }
+        break;
+      case "fill": {
+        const color = compactFill(value as SlimFill);
+        if (color) {
+          compact.color = color;
+        }
+        break;
+      }
+    }
   }
 
   return Object.keys(compact).length > 0 ? compact : undefined;

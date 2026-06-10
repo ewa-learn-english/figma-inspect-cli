@@ -1,3 +1,8 @@
+import {
+  extractBoundToken,
+  extractTextVisuals,
+} from "../component-set-spec/slim-text-export.js";
+import type { SlimText } from "../component-set-spec/types.js";
 import type { PseudocodeModel } from "./types.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -130,15 +135,23 @@ function rowToStyleProps(
     if (key === "id") {
       continue;
     }
+    const bound = extractBoundToken(value);
+    if (bound !== undefined) {
+      const prop = stylePropFromRowKey(key);
+      if (prop.length > 0) {
+        props[prop] = bound;
+      }
+      continue;
+    }
     const token = extractToken(value);
-    if (token !== undefined) {
+    if (typeof token === "string") {
       const prop = stylePropFromRowKey(key);
       if (prop.length > 0) {
         props[prop] = token;
       }
       continue;
     }
-    if (typeof value === "string" || typeof value === "number") {
+    if (typeof value === "string") {
       props[stylePropFromRowKey(key)] = value;
     }
     if (isRecord(value) && !Array.isArray(value)) {
@@ -185,32 +198,10 @@ export function extractVisualsFromNode(
   }
 
   if (text) {
-    const color = extractToken(text.color);
-    if (color !== undefined) {
-      props.color = color;
-    }
-    if (typeof text.align === "string") {
-      props.align = text.align;
-    }
-    const fontFamily = extractToken(text.fontFamily);
-    if (fontFamily !== undefined) {
-      props.fontFamily = fontFamily;
-    }
-    const fontSize = extractToken(text.fontSize);
-    if (fontSize !== undefined) {
-      props.fontSize = fontSize;
-    }
-    if (text.fontWeight !== undefined) {
-      props.fontWeight = text.fontWeight;
-    }
-    const fontStyle = extractToken(text.fontStyle);
-    if (fontStyle !== undefined) {
-      props.fontStyle = fontStyle;
-    }
-    const lineHeight = extractToken(text.lineHeight);
-    if (lineHeight !== undefined) {
-      props.lineHeight = lineHeight;
-    }
+    Object.assign(
+      props,
+      extractTextVisuals(text as SlimText, (value) => extractToken(value)),
+    );
   }
 
   if (icon) {
@@ -397,13 +388,21 @@ function absorbValue(
     return;
   }
 
+  const bound = extractBoundToken(value);
+  if (bound !== undefined) {
+    const nodeName = nodeNameFromValueKey(key);
+    const prop = stylePropFromRowKey(key);
+    mergeNodeBundle(visualBundle, nodeName, { [prop]: bound }, {});
+    return;
+  }
+
   const token = extractToken(value);
   if (token !== undefined) {
     const nodeName = nodeNameFromValueKey(key);
     const prop = stylePropFromRowKey(key);
     if (isGeometryProp(prop)) {
       mergeNodeBundle(geometryBundle, nodeName, {}, { [prop]: token });
-    } else {
+    } else if (typeof token === "string") {
       mergeNodeBundle(visualBundle, nodeName, { [prop]: token }, {});
     }
     return;

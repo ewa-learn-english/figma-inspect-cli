@@ -46,7 +46,7 @@ function buildVariants(
   return sortVariants(variants);
 }
 
-async function readComponentSetFile(
+export async function readComponentSetFile(
   inputPath: string,
 ): Promise<Record<string, unknown>> {
   let rawText: string;
@@ -134,11 +134,10 @@ function buildComponentSetSpec(
   return compactSpec(resolved);
 }
 
-export async function buildComponentSetSpecFromFile(
-  inputPath: string,
+export async function buildComponentSetSpecFromRaw(
+  componentSet: Record<string, unknown>,
   options: BuildComponentSetSpecOptions = {},
 ): Promise<ComponentSetSpec> {
-  const componentSet = await readComponentSetFile(inputPath);
   const registry = options.variablesPath
     ? await loadVariableRegistry(options.variablesPath)
     : undefined;
@@ -147,4 +146,12 @@ export async function buildComponentSetSpecFromFile(
     : undefined;
 
   return buildComponentSetSpec(componentSet, registry, teamComponents);
+}
+
+export async function buildComponentSetSpecFromFile(
+  inputPath: string,
+  options: BuildComponentSetSpecOptions = {},
+): Promise<ComponentSetSpec> {
+  const componentSet = await readComponentSetFile(inputPath);
+  return buildComponentSetSpecFromRaw(componentSet, options);
 }

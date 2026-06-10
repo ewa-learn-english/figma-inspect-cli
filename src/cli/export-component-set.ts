@@ -1,8 +1,8 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
-  buildComponentSetPseudocodeFromFile,
-  getNodeComponentSet,
+  buildComponentSetPseudocodeFromRaw,
+  loadComponentSetContext,
   resolveTeamComponentSetScope,
 } from "../inspect/index.js";
 import type { ComponentSetLookup } from "../inspect/types.js";
@@ -20,6 +20,7 @@ export interface ExportComponentSetResult {
   rawPath: string;
   visualsContractPath: string;
   geometryContractPath: string;
+  metaContractPath: string;
   structureDslPath: string;
 }
 
@@ -50,10 +51,11 @@ export async function exportComponentSet(
     teamId: options.teamId,
     componentSet: options.componentSet,
   });
-  const raw = await getNodeComponentSet({
+  const context = await loadComponentSetContext({
     token: options.token,
     ...scope,
   });
+  const raw = context.tree;
   const baseName = sanitizeFileName(
     resolveExportBaseName(
       options.componentSet,
@@ -72,6 +74,10 @@ export async function exportComponentSet(
     options.outputDir,
     `${baseName}.contract.geometry.json`,
   );
+  const metaContractPath = path.join(
+    options.outputDir,
+    `${baseName}.contract.meta.json`,
+  );
   const structureDslPath = path.join(
     options.outputDir,
     `${baseName}.contract.structure.dsl`,
@@ -79,18 +85,20 @@ export async function exportComponentSet(
 
   await writeJsonFile(rawPath, raw);
 
-  const contractResult = await buildComponentSetPseudocodeFromFile(rawPath, {
+  const contractResult = await buildComponentSetPseudocodeFromRaw(raw, {
     variablesPath: options.variablesPath,
     teamComponentsPath: options.teamComponentsPath,
   });
   await writeJsonFile(visualsContractPath, contractResult.visuals);
   await writeJsonFile(geometryContractPath, contractResult.geometry);
+  await writeJsonFile(metaContractPath, contractResult.meta);
   await writeFile(structureDslPath, contractResult.structureDsl, "utf8");
 
   return {
     rawPath,
     visualsContractPath,
     geometryContractPath,
+    metaContractPath,
     structureDslPath,
   };
 }
@@ -100,6 +108,6 @@ export function writeExportResult(
   stdout: NodeJS.WriteStream,
 ): void {
   stdout.write(
-    `${result.rawPath}\n${result.visualsContractPath}\n${result.geometryContractPath}\n${result.structureDslPath}\n`,
+    `${result.rawPath}\n${result.visualsContractPath}\n${result.geometryContractPath}\n${result.metaContractPath}\n${result.structureDslPath}\n`,
   );
 }

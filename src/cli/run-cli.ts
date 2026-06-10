@@ -17,6 +17,7 @@ import {
   listAllComponentSets,
   listComponentSetProperties,
   resolveGeometryContractPath,
+  resolveMetaContractPath,
   resolveStructureDslPath,
   resolveTeamComponentSetScope,
   resolveVisualsContractPath,
@@ -89,6 +90,10 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         contractDirectory,
         result.componentName,
       );
+      const metaContractPath = resolveMetaContractPath(
+        contractDirectory,
+        result.componentName,
+      );
       await writeFile(
         visualsContractPath,
         `${JSON.stringify(result.visuals, null, 2)}\n`,
@@ -99,10 +104,15 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         `${JSON.stringify(result.geometry, null, 2)}\n`,
         "utf8",
       );
+      await writeFile(
+        metaContractPath,
+        `${JSON.stringify(result.meta, null, 2)}\n`,
+        "utf8",
+      );
       await writeFile(structureDslPath, result.structureDsl, "utf8");
 
       io.stdout.write(
-        `${visualsContractPath}\n${geometryContractPath}\n${structureDslPath}\n`,
+        `${visualsContractPath}\n${geometryContractPath}\n${metaContractPath}\n${structureDslPath}\n`,
       );
     } catch (error) {
       if (error instanceof FigmaInspectError) {
