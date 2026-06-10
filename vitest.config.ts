@@ -8,8 +8,12 @@ export default defineConfig({
       provider: "v8",
       include: ["src/**/*.ts"],
       exclude: ["src/**/*.test.ts", "src/bin/**"],
-      // Threshold enabled once overall coverage reaches 70% (see tmp/MEMORY.md).
-      thresholds: false,
+      thresholds: {
+        lines: 70,
+        functions: 70,
+        branches: 70,
+        statements: 70,
+      },
     },
   },
 });
