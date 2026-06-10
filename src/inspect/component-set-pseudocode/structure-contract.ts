@@ -4,8 +4,8 @@ import type {
   ComponentSetSpec,
   SlimNode,
 } from "../component-set-spec/types.js";
-import type { ContractFormat } from "../contract-format.js";
-import { contractArtifactFileName } from "../contract-format.js";
+import type { ContractFormat } from "../contract/contract-format.js";
+import { contractArtifactFileName } from "../contract/contract-format.js";
 import type { PseudocodeModel } from "./types.js";
 
 export interface StructureContract {

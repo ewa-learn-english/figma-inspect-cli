@@ -1,8 +1,8 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parse } from "yaml";
+import { FigmaInspectError } from "../errors.js";
 import { serializeContractData } from "./contract-format.js";
-import { FigmaInspectError } from "./errors.js";
 
 export interface ContractLockSource {
   fileKey: string;

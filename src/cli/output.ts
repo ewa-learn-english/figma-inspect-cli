@@ -4,8 +4,8 @@ import type {
   FigmaProject,
   FigmaTeamProjectFile,
 } from "../figma-api/schemas.js";
-import type { ContractFormat } from "../inspect/contract-format.js";
-import { serializeContractData } from "../inspect/contract-format.js";
+import type { ContractFormat } from "../inspect/contract/contract-format.js";
+import { serializeContractData } from "../inspect/contract/contract-format.js";
 import type { FigmaComponentSet } from "../inspect/schemas.js";
 import type {
   FigmaComponentSetProperty,

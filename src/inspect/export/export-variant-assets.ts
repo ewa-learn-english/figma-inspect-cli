@@ -3,20 +3,20 @@ import path from "node:path";
 import {
   downloadRenderedImage,
   getFileImageUrls,
-} from "../figma-api/get-file-images.js";
+} from "../../figma-api/get-file-images.js";
+import type {
+  AssetContractEntry,
+  AssetContractMap,
+} from "../component-set-pseudocode/assets-contract.js";
+import { readChildren, readString } from "../component-set-spec/figma-node.js";
+import { parseVariantName } from "../component-set-spec/parse-props.js";
+import { collectVariantAxes } from "../component-set-spec/variant-axes.js";
+import { variantAssetSlug } from "../contract/fingerprint.js";
+import { FigmaInspectError } from "../errors.js";
 import {
   assertComponentSetSupportsAssetExport,
   assertExportedSvgBytes,
 } from "./assert-asset-exportable.js";
-import type {
-  AssetContractEntry,
-  AssetContractMap,
-} from "./component-set-pseudocode/assets-contract.js";
-import { readChildren, readString } from "./component-set-spec/figma-node.js";
-import { parseVariantName } from "./component-set-spec/parse-props.js";
-import { collectVariantAxes } from "./component-set-spec/variant-axes.js";
-import { FigmaInspectError } from "./errors.js";
-import { variantAssetSlug } from "./fingerprint.js";
 import { normalizeExportedSvgBytes } from "./normalize-exported-svg.js";
 
 interface VariantNodeRef {

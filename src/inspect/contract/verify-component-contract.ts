@@ -3,8 +3,9 @@ import {
   filterFileComponentsForComponentSet,
   getComponentSetByKey,
   listFileComponents,
-} from "../figma-api/index.js";
-import { loadComponentSetContext } from "./component-set-context.js";
+} from "../../figma-api/index.js";
+import { loadComponentSetContext } from "../component-set-context.js";
+import { FigmaInspectError } from "../errors.js";
 import type { ContractFormat } from "./contract-format.js";
 import {
   type ContractLock,
@@ -21,7 +22,6 @@ import {
   readComponentContractArtifacts,
   validateComponentContractArtifacts,
 } from "./contract-schema.js";
-import { FigmaInspectError } from "./errors.js";
 import { fingerprintTree } from "./fingerprint.js";
 
 type ComponentContractVerifyStatus = "ok" | "changed" | "error";

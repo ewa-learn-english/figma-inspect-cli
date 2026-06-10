@@ -2,16 +2,16 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { parse } from "yaml";
 import { z } from "zod";
-import type { AssetContractMap } from "./component-set-pseudocode/assets-contract.js";
+import type { AssetContractMap } from "../component-set-pseudocode/assets-contract.js";
 import {
   resolveMetaContractPath,
   resolveStructureDslPath,
-} from "./component-set-pseudocode/build-pseudocode.js";
+} from "../component-set-pseudocode/build-pseudocode.js";
+import { FigmaInspectError } from "../errors.js";
 import {
   type ContractFormat,
   contractArtifactFileName,
 } from "./contract-format.js";
-import { FigmaInspectError } from "./errors.js";
 
 const teamComponentEntrySchema = z.object({
   id: z.string().min(1),

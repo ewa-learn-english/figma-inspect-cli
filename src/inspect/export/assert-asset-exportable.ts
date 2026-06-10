@@ -1,6 +1,6 @@
-import { readChildren, readString } from "./component-set-spec/figma-node.js";
-import { parseComponentSetProps } from "./component-set-spec/parse-props.js";
-import { FigmaInspectError } from "./errors.js";
+import { readChildren, readString } from "../component-set-spec/figma-node.js";
+import { parseComponentSetProps } from "../component-set-spec/parse-props.js";
+import { FigmaInspectError } from "../errors.js";
 
 function variantTreesContainTextNodes(
   componentSet: Record<string, unknown>,

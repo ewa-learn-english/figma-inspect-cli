@@ -8,7 +8,7 @@ import { loadTeamComponentRegistry } from "../component-set-spec/team-component-
 import {
   type ContractFormat,
   contractArtifactFileName,
-} from "../contract-format.js";
+} from "../contract/contract-format.js";
 import {
   buildAssetBackedGeometry,
   buildAssetBackedVisuals,

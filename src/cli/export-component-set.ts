@@ -11,7 +11,7 @@ import {
   type ContractFormat,
   contractArtifactFileName,
   serializeContractData,
-} from "../inspect/contract-format.js";
+} from "../inspect/contract/contract-format.js";
 import {
   buildContractLock,
   collectUnchangedVariantNodeIds,
@@ -19,16 +19,16 @@ import {
   resolveContractLockPath,
   toLockVariants,
   writeContractLock,
-} from "../inspect/contract-lock.js";
+} from "../inspect/contract/contract-lock.js";
 import {
   readComponentContractArtifacts,
   validateComponentContractArtifacts,
-} from "../inspect/contract-schema.js";
+} from "../inspect/contract/contract-schema.js";
 import {
   fingerprintAssetFiles,
   fingerprintContracts,
   fingerprintTree,
-} from "../inspect/fingerprint.js";
+} from "../inspect/contract/fingerprint.js";
 import {
   buildComponentSetPseudocodeFromRaw,
   exportVariantAssets,

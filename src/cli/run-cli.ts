@@ -9,7 +9,7 @@ import {
   listTeamProjectFiles,
   listTeamProjects,
 } from "../figma-api/index.js";
-import { serializeContractData } from "../inspect/contract-format.js";
+import { serializeContractData } from "../inspect/contract/contract-format.js";
 import {
   buildComponentSetPseudocodeFromFile,
   buildComponentSetSpecFromFile,

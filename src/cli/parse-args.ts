@@ -1,4 +1,4 @@
-import type { ContractFormat } from "../inspect/contract-format.js";
+import type { ContractFormat } from "../inspect/contract/contract-format.js";
 import type { ComponentSetLookup } from "../inspect/types.js";
 import { CliError } from "./errors.js";
 import type { CliCommand, ComponentSetCommandScope } from "./types.js";
