@@ -203,9 +203,33 @@ function slimSizing(node: FigmaNode): SlimSizing | undefined {
   return pruneEmpty(sizing);
 }
 
+function slimLayoutDimensions(
+  node: FigmaNode,
+  sizing: SlimSizing | undefined,
+): Pick<SlimLayout, "width" | "height"> {
+  const box = readRecord(node, "absoluteBoundingBox");
+  if (!box) {
+    return {};
+  }
+
+  const bboxWidth = readNumber(box, "width");
+  const bboxHeight = readNumber(box, "height");
+  const dimensions: Pick<SlimLayout, "width" | "height"> = {};
+
+  if (sizing?.horizontal !== "FILL" && bboxWidth !== undefined) {
+    dimensions.width = bboxWidth;
+  }
+  if (sizing?.vertical !== "FILL" && bboxHeight !== undefined) {
+    dimensions.height = bboxHeight;
+  }
+
+  return dimensions;
+}
+
 function slimLayout(node: FigmaNode): SlimLayout | undefined {
   const bound = readNodeBoundVariables(node);
   const layoutMode = readString(node, "layoutMode");
+  const sizing = slimSizing(node);
   const layout: SlimLayout = {
     gap: slimDimension(
       readNumber(node, "itemSpacing"),
@@ -214,7 +238,8 @@ function slimLayout(node: FigmaNode): SlimLayout | undefined {
     padding: slimPadding(node),
     align: slimAlign(node),
     wrap: readString(node, "layoutWrap") === "WRAP" ? true : undefined,
-    sizing: slimSizing(node),
+    sizing,
+    ...slimLayoutDimensions(node, sizing),
     grow: readNumber(node, "layoutGrow"),
     alignSelf: readString(node, "layoutAlign"),
     maxWidth: slimDimension(

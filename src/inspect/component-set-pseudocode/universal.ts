@@ -25,7 +25,7 @@ function propName(raw: string): string {
 }
 
 type FragmentRowIndex = Map<string, Record<string, unknown>>;
-type NodeBundle = Record<string, Record<string, unknown>>;
+export type NodeBundle = Record<string, Record<string, unknown>>;
 
 function extractToken(value: unknown): string | number | undefined {
   if (typeof value === "string" || typeof value === "number") {
@@ -151,7 +151,7 @@ function rowToStyleProps(
   return props;
 }
 
-function extractVisualsFromNode(
+export function extractVisualsFromNode(
   node: Record<string, unknown>,
 ): Record<string, unknown> {
   const props: Record<string, unknown> = {};
@@ -226,13 +226,17 @@ function extractVisualsFromNode(
   return props;
 }
 
-function extractGeometryFromNode(
+export function extractGeometryFromNode(
   node: Record<string, unknown>,
 ): Record<string, unknown> {
   const props: Record<string, unknown> = {};
   const layout = isRecord(node.layout) ? node.layout : undefined;
   if (!layout) {
     return props;
+  }
+
+  if (layout.mode === "row" || layout.mode === "column") {
+    props.layoutMode = layout.mode;
   }
 
   const height = extractToken(layout.height);
@@ -266,11 +270,41 @@ function extractGeometryFromNode(
     }
   }
 
+  if (isRecord(layout.sizing)) {
+    if (layout.sizing.horizontal) {
+      props.sizingHorizontal = layout.sizing.horizontal;
+    }
+    if (layout.sizing.vertical) {
+      props.sizingVertical = layout.sizing.vertical;
+    }
+    if (layout.sizing.main) {
+      props.sizingMain = layout.sizing.main;
+    }
+    if (layout.sizing.cross) {
+      props.sizingCross = layout.sizing.cross;
+    }
+  }
+
+  for (const key of [
+    "minWidth",
+    "maxWidth",
+    "minHeight",
+    "maxHeight",
+  ] as const) {
+    const token = extractToken(layout[key]);
+    if (token !== undefined) {
+      props[key] = token;
+    }
+  }
+
   if (layout.grow !== undefined && layout.grow !== 0) {
     props.grow = layout.grow;
   }
   if (layout.alignSelf !== undefined && layout.alignSelf !== "INHERIT") {
     props.alignSelf = layout.alignSelf;
+  }
+  if (layout.wrap === true) {
+    props.wrap = true;
   }
   if (layout.clip === true) {
     props.clip = true;
@@ -289,7 +323,7 @@ function nodeNameFromValueKey(key: string): string {
   return key;
 }
 
-function mergeNodeBundle(
+export function mergeNodeBundle(
   target: NodeBundle,
   nodeName: string,
   visuals: Record<string, unknown>,
@@ -409,11 +443,46 @@ function collectVariantEntries(
   return entries;
 }
 
-function orderedAxes(model: PseudocodeModel): string[] {
+export function orderedAxes(model: PseudocodeModel): string[] {
   return Object.keys(model.variantAxes);
 }
 
-function setNestedBundle(
+export function mergeNestedContracts(
+  baseline: Record<string, unknown>,
+  overrides: Record<string, unknown>,
+  depth: number,
+  axesDepth: number,
+): Record<string, unknown> {
+  if (depth >= axesDepth) {
+    const result: NodeBundle = {
+      ...(baseline as NodeBundle),
+    };
+    for (const [nodeName, props] of Object.entries(overrides as NodeBundle)) {
+      result[nodeName] = {
+        ...(isRecord(result[nodeName]) ? result[nodeName] : {}),
+        ...(isRecord(props) ? props : {}),
+      };
+    }
+    return result;
+  }
+
+  const result: Record<string, unknown> = { ...baseline };
+  for (const [key, value] of Object.entries(overrides)) {
+    if (!isRecord(value)) {
+      result[key] = value;
+      continue;
+    }
+    result[key] = mergeNestedContracts(
+      isRecord(result[key]) ? (result[key] as Record<string, unknown>) : {},
+      value,
+      depth + 1,
+      axesDepth,
+    );
+  }
+  return result;
+}
+
+export function setNestedBundle(
   root: Record<string, unknown>,
   axes: string[],
   when: Record<string, string>,

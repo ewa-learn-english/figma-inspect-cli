@@ -249,6 +249,16 @@ function compactLayout(layout: SlimLayout | undefined): SlimLayout | undefined {
     compact.sizing = layout.sizing;
   }
 
+  const width = compactDimension(layout.width);
+  if (width !== undefined) {
+    compact.width = width;
+  }
+
+  const height = compactDimension(layout.height);
+  if (height !== undefined) {
+    compact.height = height;
+  }
+
   if (layout.grow !== undefined && layout.grow !== 0) {
     compact.grow = layout.grow;
   }

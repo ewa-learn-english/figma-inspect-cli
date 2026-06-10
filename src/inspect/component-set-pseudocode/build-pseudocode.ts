@@ -3,6 +3,10 @@ import {
   type BuildComponentSetSpecOptions,
   buildComponentSetSpecFromFile,
 } from "../component-set-spec/build-spec.js";
+import {
+  buildBaselineContracts,
+  mergeBaselineWithVariantContracts,
+} from "./baseline-contract.js";
 import { buildPseudocodeModelFromSpec } from "./infer.js";
 import { buildStructureContract } from "./structure-contract.js";
 import { renderStructureDsl } from "./structure-dsl.js";
@@ -52,7 +56,14 @@ function buildComponentSetContracts(
   spec: Awaited<ReturnType<typeof buildComponentSetSpecFromFile>>,
 ): ComponentSetContractResult {
   const model = buildPseudocodeModelFromSpec(spec);
-  const { visuals, geometry } = buildUniversalContracts(model);
+  const variantContracts = buildUniversalContracts(model);
+  const baseline = buildBaselineContracts(spec, model);
+  const axesDepth = Object.keys(model.variantAxes).length;
+  const { visuals, geometry } = mergeBaselineWithVariantContracts(
+    baseline,
+    variantContracts,
+    axesDepth,
+  );
   const structureDsl = renderStructureDsl(buildStructureContract(model, spec));
 
   return {

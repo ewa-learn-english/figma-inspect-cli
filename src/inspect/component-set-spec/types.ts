@@ -45,6 +45,8 @@ export interface SlimLayout {
   align?: SlimAlign;
   wrap?: boolean;
   sizing?: SlimSizing;
+  width?: number | SlimDimension;
+  height?: number | SlimDimension;
   grow?: number;
   alignSelf?: string;
   maxWidth?: number | SlimDimension;
