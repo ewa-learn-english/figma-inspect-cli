@@ -1,10 +1,19 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
+  type ContractLock,
   diffContractLock,
   isContractLockDiffEmpty,
+  readContractLock,
+  resolveContractLockPath,
   toLockVariants,
-  type ContractLock,
 } from "./contract-lock.js";
+
+const contractDir = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../../tmp",
+);
 
 const baseLock: ContractLock = {
   version: 1,
@@ -27,6 +36,32 @@ const baseLock: ContractLock = {
     contracts: "contracts-hash",
   },
 };
+
+describe("resolveContractLockPath", () => {
+  it("points at the lock yaml next to other contract artifacts", () => {
+    expect(resolveContractLockPath(contractDir, "TextInput")).toBe(
+      path.join(contractDir, "TextInput.contract.lock.yaml"),
+    );
+  });
+});
+
+describe("readContractLock", () => {
+  it("loads TextInput lock metadata from tmp", async () => {
+    const lock = await readContractLock(
+      resolveContractLockPath(contractDir, "TextInput"),
+    );
+
+    expect(lock?.source.fileKey).toBe("O7aE7SeG2TRBCK5MsjkG7z");
+    expect(lock?.variants.length).toBeGreaterThan(0);
+    expect(lock?.fingerprints.tree.length).toBeGreaterThan(0);
+  });
+
+  it("returns undefined when the lock file is missing", async () => {
+    await expect(
+      readContractLock(path.join(contractDir, "Missing.contract.lock.yaml")),
+    ).resolves.toBeUndefined();
+  });
+});
 
 describe("toLockVariants", () => {
   it("maps file component fields to lock variant shape", () => {

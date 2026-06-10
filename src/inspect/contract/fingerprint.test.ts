@@ -23,7 +23,12 @@ describe("fingerprintContracts", () => {
     const visuals = { a: 1 };
     const geometry = { b: 2 };
     const dsl = "component X\n";
-    const withMeta = fingerprintContracts(visuals, geometry, { version: 1 }, dsl);
+    const withMeta = fingerprintContracts(
+      visuals,
+      geometry,
+      { version: 1 },
+      dsl,
+    );
     const withoutMeta = fingerprintContracts(visuals, geometry, {}, dsl);
     expect(withMeta).not.toBe(withoutMeta);
   });
