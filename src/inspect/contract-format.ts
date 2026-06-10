@@ -8,14 +8,10 @@ function dataFileExtension(format: ContractFormat): string {
 
 export function contractArtifactFileName(
   componentName: string,
-  artifact: "visuals" | "geometry" | "meta" | "assets" | "raw",
+  artifact: "visuals" | "geometry" | "meta" | "assets",
   format: ContractFormat = "yaml",
 ): string {
   const extension = dataFileExtension(format);
-  if (artifact === "raw") {
-    return `${componentName}${extension}`;
-  }
-
   return `${componentName}.contract.${artifact}${extension}`;
 }
 

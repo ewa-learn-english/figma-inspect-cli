@@ -62,7 +62,7 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 14 | `--build-component-set-spec` | `--input tmp/component-set.json --team-components tmp/ComponentSets.json` | collapses known team components to slots |
 | 15 | `--build-component-set-pseudocode` | `--input tmp/component-set.json` | writes `<ComponentName>.contract.{visuals,geometry,meta}.yaml` and `<ComponentName>.contract.structure.dsl` next to `--input` |
 | 16 | `--build-component-set-pseudocode` | `--input tmp/component-set.json --output-dir tmp --variables tmp/variables.json --team-components tmp/ComponentSets.json` | writes contract files to `tmp/` with token resolution |
-| 17 | `--export-component-set` | `--output-dir tmp --component-set-name $COMPONENT_SET_NAME` | writes `<name>.yaml`, `<name>.contract.{visuals,geometry,meta}.yaml`, and `<name>.contract.structure.dsl`; needs `FIGMA_TEAM_ID` |
+| 17 | `--export-component-set` | `--output-dir tmp --component-set-name $COMPONENT_SET_NAME` | writes `<name>.contract.{visuals,geometry,meta,lock}.yaml`, and `<name>.contract.structure.dsl`; needs `FIGMA_TEAM_ID` |
 | 18 | `--export-component-set` | `--output-dir tmp --component-set-name ProfileStreakIcon --export-assets` | also writes `<name>.contract.assets.yaml`, `<name>.assets/*.svg`, and asset-backed contracts; needs `FIGMA_API_TOKEN` + `FIGMA_TEAM_ID` |
 | 19 | `--export-component-set` | `--output-dir tmp --component-set-name $COMPONENT_SET_NAME --json` | same as row 17 but writes `.json` files instead of `.yaml` |
 
