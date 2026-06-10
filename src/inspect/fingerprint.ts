@@ -14,12 +14,14 @@ export function fingerprintTree(tree: Record<string, unknown>): string {
 export function fingerprintContracts(
   visuals: Record<string, unknown>,
   geometry: Record<string, unknown>,
+  meta: unknown,
   structureDsl: string,
 ): string {
   return sha256Hex(
     stableStringify({
       visuals,
       geometry,
+      meta,
       structureDsl,
     }),
   );

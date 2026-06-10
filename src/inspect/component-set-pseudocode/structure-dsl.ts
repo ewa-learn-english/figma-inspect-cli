@@ -138,7 +138,7 @@ function renderResolve(contract: StructureContract): string[] {
       `${INDENT}geometry = geometry`,
     ];
     if (contract.assetBacked) {
-      lines.push(`${INDENT}asset = assets`);
+      lines.push(`${INDENT}asset = meta.assets`);
     }
     lines.push("}");
     return lines;
@@ -150,7 +150,7 @@ function renderResolve(contract: StructureContract): string[] {
     `${INDENT}geometry = geometry[${path}]`,
   ];
   if (contract.assetBacked) {
-    lines.push(`${INDENT}asset = assets[${path}]`);
+    lines.push(`${INDENT}asset = meta.assets[${path}]`);
   }
   lines.push("}");
   return lines;
@@ -172,11 +172,9 @@ export function renderStructureDsl(contract: StructureContract): string {
     `${INDENT}visuals ${contract.contracts.visuals}`,
     `${INDENT}geometry ${contract.contracts.geometry}`,
     `${INDENT}meta ${contract.contracts.meta}`,
+    "}",
+    "",
   );
-  if (contract.contracts.assets) {
-    lines.push(`${INDENT}assets ${contract.contracts.assets}`);
-  }
-  lines.push("}", "");
 
   if (Object.keys(contract.variantAxes).length > 0) {
     lines.push("variantAxes {");
@@ -196,20 +194,6 @@ export function renderStructureDsl(contract: StructureContract): string {
     }
     if (contract.fallback) {
       lines.push(`${INDENT}fallback => ${contract.fallback}`);
-    }
-    lines.push("}", "");
-  }
-
-  const fragmentNames = Object.keys(contract.fragments).sort();
-  if (fragmentNames.length > 0) {
-    lines.push("fragments {");
-    for (const name of fragmentNames) {
-      const fragment = contract.fragments[name];
-      const when = fragment.when?.map((entry) => entry.prop).join(", ");
-      const whenSuffix = when ? ` when ${when}` : "";
-      lines.push(`${INDENT}fragment ${name}${whenSuffix} {`);
-      renderNode(lines, fragment.node, 2);
-      lines.push(`${INDENT}}`, "");
     }
     lines.push("}", "");
   }

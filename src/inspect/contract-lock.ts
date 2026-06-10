@@ -227,6 +227,91 @@ function normalizeContractLock(value: unknown): ContractLock | undefined {
   };
 }
 
+export function toLockVariants(
+  components: ReadonlyArray<{
+    key: string;
+    node_id: string;
+    name: string;
+    updated_at: string;
+  }>,
+): ContractLockVariant[] {
+  return components.map((component) => ({
+    key: component.key,
+    nodeId: component.node_id,
+    name: component.name,
+    updatedAt: component.updated_at,
+  }));
+}
+
+export interface ContractLockDiff {
+  source: boolean;
+  tree: boolean;
+  variants: string[];
+  addedVariants: string[];
+  removedVariants: string[];
+}
+
+export function diffContractLock(
+  lock: ContractLock,
+  live: {
+    source: ContractLockSource;
+    variants: ContractLockVariant[];
+    treeFingerprint: string;
+  },
+): ContractLockDiff {
+  const lockedByNodeId = new Map(
+    lock.variants.map((variant) => [variant.nodeId, variant]),
+  );
+  const liveByNodeId = new Map(
+    live.variants.map((variant) => [variant.nodeId, variant]),
+  );
+
+  const changedVariants: string[] = [];
+  const addedVariants: string[] = [];
+  const removedVariants: string[] = [];
+
+  for (const liveVariant of live.variants) {
+    const locked = lockedByNodeId.get(liveVariant.nodeId);
+    if (!locked) {
+      addedVariants.push(liveVariant.name);
+      continue;
+    }
+
+    if (locked.updatedAt !== liveVariant.updatedAt) {
+      changedVariants.push(liveVariant.name);
+    }
+  }
+
+  for (const lockedVariant of lock.variants) {
+    if (!liveByNodeId.has(lockedVariant.nodeId)) {
+      removedVariants.push(lockedVariant.name);
+    }
+  }
+
+  return {
+    source:
+      lock.source.componentSetUpdatedAt !== live.source.componentSetUpdatedAt,
+    tree: lock.fingerprints.tree !== live.treeFingerprint,
+    variants: changedVariants.sort((left, right) => left.localeCompare(right)),
+    addedVariants: addedVariants.sort((left, right) =>
+      left.localeCompare(right),
+    ),
+    removedVariants: removedVariants.sort((left, right) =>
+      left.localeCompare(right),
+    ),
+  };
+}
+
+export function isContractLockDiffEmpty(diff: ContractLockDiff): boolean {
+  return (
+    !diff.source &&
+    !diff.tree &&
+    diff.variants.length === 0 &&
+    diff.addedVariants.length === 0 &&
+    diff.removedVariants.length === 0
+  );
+}
+
 export async function writeContractLock(
   lockPath: string,
   lock: ContractLock,

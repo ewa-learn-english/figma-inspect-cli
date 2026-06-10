@@ -11,10 +11,11 @@ export const usage = `Usage:
   figma-inspect --inspect-file-node --file-key <key> --node-id <id> [--json]
   figma-inspect --build-component-set-spec --input <path> --variables <path> [--team-components <path>] [--json]
   figma-inspect --build-component-set-pseudocode --input <path> --variables <path> [--output-dir <dir>] [--team-components <path>] [--json]
+  figma-inspect --verify-component-contract --contract-dir <dir> [--component-name <name>] [--json]
   figma-inspect --export-component-set --output-dir <dir> --variables <path> (--component-set-key <key> | --component-set-name <name>) [--export-assets] [--asset-format svg] [--json]
 
 Environment:
-  FIGMA_API_TOKEN  Figma personal access token
+  FIGMA_API_TOKEN  Figma personal access token (required for --verify-component-contract and all API commands below)
   FIGMA_TEAM_ID    Figma team id (required for --list-team-projects, --list-team-project-files, --list-team-component-sets, and --inspect-team-component-set)
   FIGMA_CACHE      Set to 0 to disable the on-disk response cache (enabled by default)
 
@@ -30,12 +31,15 @@ Options:
   --inspect-team-component-set    Find a published component set by name or key and print its raw YAML
   --inspect-file-node             Print raw YAML for a file node
   --build-component-set-spec      Build an AI-friendly spec from a local COMPONENT_SET JSON file; prints YAML by default
-  --build-component-set-pseudocode Build component contracts from a local COMPONENT_SET JSON file; writes <ComponentName>.contract.{visuals,geometry,meta,assets?}.yaml and <ComponentName>.contract.structure.dsl
-  --export-component-set          Export component contract files for a published team component set as YAML; writes <ComponentName>.contract.lock.yaml; with --export-assets also writes <ComponentName>.contract.assets.yaml and SVG files
+  --build-component-set-pseudocode Build component contracts from a local COMPONENT_SET JSON file; writes <ComponentName>.contract.{visuals,geometry,meta}.yaml and <ComponentName>.contract.structure.dsl
+  --verify-component-contract     Compare lock files to live Figma via the API; validates local contract schema
+  --export-component-set          Export component contract files for a published team component set as YAML; writes <ComponentName>.contract.lock.yaml; with --export-assets also writes <ComponentName>.assets/*.svg and stores asset paths in meta.yaml
   --export-assets                 Export one SVG asset per component variant via the Figma Images API (with --export-component-set; variant props only, no TEXT layers)
   --asset-format <format>         Asset export format; currently supports svg (default when --export-assets is set)
   --input <path>                  Input JSON file path (required with --build-component-set-spec and --build-component-set-pseudocode)
   --output-dir <dir>              Output directory (optional with --build-component-set-pseudocode; defaults to the input file directory)
+  --contract-dir <dir>            Contract directory (required with --verify-component-contract)
+  --component-name <name>         Component name (optional with --verify-component-contract; defaults to all lock files in --contract-dir)
   --output-dir <dir>              Output directory (required with --export-component-set)
   --variables <path>              Variables export JSON (required with --build-component-set-spec, --build-component-set-pseudocode, and --export-component-set)
   --team-components <path>        Team component sets JSON (optional with --build-component-set-spec and --build-component-set-pseudocode)

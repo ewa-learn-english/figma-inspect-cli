@@ -17,12 +17,12 @@ import {
   getNodeComponentSet,
   listAllComponentSets,
   listComponentSetProperties,
-  resolveAssetsContractPath,
   resolveGeometryContractPath,
   resolveMetaContractPath,
   resolveStructureDslPath,
   resolveTeamComponentSetScope,
   resolveVisualsContractPath,
+  verifyComponentContracts,
 } from "../inspect/index.js";
 import { CliError } from "./errors.js";
 import {
@@ -48,6 +48,65 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
 
   if (command.kind === "help") {
     io.stdout.write(usage);
+    return;
+  }
+
+  if (command.kind === "verify-component-contract") {
+    const token = io.env.FIGMA_API_TOKEN;
+    if (!token) {
+      throw new CliError("Missing FIGMA_API_TOKEN environment variable.");
+    }
+
+    try {
+      const results = await verifyComponentContracts({
+        token,
+        contractDir: command.contractDir,
+        componentName: command.componentName,
+        contractFormat: command.contractFormat,
+      });
+      if (command.outputFormat === "json") {
+        io.stdout.write(`${JSON.stringify({ results }, null, 2)}\n`);
+      } else {
+        for (const result of results) {
+          io.stdout.write(`${result.componentName}\t${result.status}\n`);
+          for (const error of result.errors) {
+            io.stdout.write(`  ${error}\n`);
+          }
+          if (result.status === "changed") {
+            const parts: string[] = [];
+            if (result.changed.source) {
+              parts.push("source");
+            }
+            if (result.changed.tree) {
+              parts.push("tree");
+            }
+            if (result.changed.variants.length > 0) {
+              parts.push(`variants=${result.changed.variants.join(", ")}`);
+            }
+            if (result.changed.addedVariants.length > 0) {
+              parts.push(`added=${result.changed.addedVariants.join(", ")}`);
+            }
+            if (result.changed.removedVariants.length > 0) {
+              parts.push(
+                `removed=${result.changed.removedVariants.join(", ")}`,
+              );
+            }
+            io.stdout.write(`  changed: ${parts.join(" ")}\n`);
+          }
+        }
+      }
+
+      if (results.some((result) => result.status !== "ok")) {
+        throw new CliError("Contract verification failed.");
+      }
+    } catch (error) {
+      if (error instanceof FigmaInspectError || error instanceof CliError) {
+        throw error instanceof CliError ? error : new CliError(error.message);
+      }
+
+      throw error;
+    }
+
     return;
   }
 
@@ -115,38 +174,16 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         serializeContractData(result.meta, command.format),
         "utf8",
       );
-      if (result.assets) {
-        const assetsContractPath = resolveAssetsContractPath(
-          contractDirectory,
-          result.componentName,
-          command.format,
-        );
-        await writeFile(
-          assetsContractPath,
-          serializeContractData(result.assets, command.format),
-          "utf8",
-        );
-      }
       await writeFile(structureDslPath, result.structureDsl, "utf8");
 
-      const outputLines = [
-        visualsContractPath,
-        geometryContractPath,
-        metaContractPath,
-        structureDslPath,
-      ];
-      if (result.assets) {
-        outputLines.splice(
-          3,
-          0,
-          resolveAssetsContractPath(
-            contractDirectory,
-            result.componentName,
-            command.format,
-          ),
-        );
-      }
-      io.stdout.write(`${outputLines.join("\n")}\n`);
+      io.stdout.write(
+        `${[
+          visualsContractPath,
+          geometryContractPath,
+          metaContractPath,
+          structureDslPath,
+        ].join("\n")}\n`,
+      );
     } catch (error) {
       if (error instanceof FigmaInspectError) {
         throw new CliError(error.message);

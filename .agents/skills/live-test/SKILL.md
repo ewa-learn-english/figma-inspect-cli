@@ -63,8 +63,10 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 14 | `--build-component-set-pseudocode` | `--input tmp/component-set.json --variables $VARIABLES_PATH` | writes `<ComponentName>.contract.{visuals,geometry,meta}.yaml` and `<ComponentName>.contract.structure.dsl` next to `--input` |
 | 15 | `--build-component-set-pseudocode` | `--input tmp/component-set.json --output-dir tmp --variables $VARIABLES_PATH --team-components tmp/ComponentSets.json` | writes contract files to `tmp/` with token resolution |
 | 16 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME` | writes `<name>.contract.{visuals,geometry,meta,lock}.yaml`, and `<name>.contract.structure.dsl`; needs `FIGMA_TEAM_ID` |
-| 17 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name ProfileStreakIcon --export-assets` | also writes `<name>.contract.assets.yaml`, `<name>.assets/*.svg`, and asset-backed contracts; needs `FIGMA_API_TOKEN` + `FIGMA_TEAM_ID` |
+| 17 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name ProfileStreakIcon --export-assets` | also writes `<name>.assets/*.svg`, stores asset paths in `meta.yaml`, and asset-backed contracts; needs `FIGMA_API_TOKEN` + `FIGMA_TEAM_ID` |
 | 18 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME --json` | same as row 16 but writes `.json` files instead of `.yaml` |
+| 19 | `--verify-component-contract` | `--contract-dir tmp` | compares each lock to live Figma (source, tree, variants); needs `FIGMA_API_TOKEN` |
+| 20 | `--verify-component-contract` | `--contract-dir tmp --component-name Cell --json` | verifies one component; JSON output only |
 
 Example:
 

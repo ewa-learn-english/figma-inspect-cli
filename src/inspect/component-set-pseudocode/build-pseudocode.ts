@@ -43,7 +43,6 @@ export interface ComponentSetContractResult {
   geometry: Record<string, unknown>;
   meta: MetaContract;
   structureDsl: string;
-  assets?: AssetContractMap;
 }
 
 function structureDslFileName(componentName: string): string {
@@ -69,17 +68,6 @@ export function resolveGeometryContractPath(
   return path.join(
     directory,
     contractArtifactFileName(componentName, "geometry", format),
-  );
-}
-
-export function resolveAssetsContractPath(
-  directory: string,
-  componentName: string,
-  format: ContractFormat = "yaml",
-): string {
-  return path.join(
-    directory,
-    contractArtifactFileName(componentName, "assets", format),
   );
 }
 
@@ -118,6 +106,9 @@ function buildComponentSetContracts(
     buildStructureContract(model, spec, { assetBacked, format }),
   );
   const meta = buildMetaContract(componentSet, spec, metaContext);
+  if (assetBacked && options.assets) {
+    meta.assets = options.assets;
+  }
 
   if (assetBacked) {
     return {
@@ -126,7 +117,6 @@ function buildComponentSetContracts(
       geometry: buildAssetBackedGeometry(spec),
       meta,
       structureDsl,
-      assets: options.assets,
     };
   }
 

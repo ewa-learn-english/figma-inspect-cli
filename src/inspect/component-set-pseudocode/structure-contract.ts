@@ -15,7 +15,6 @@ export interface StructureContract {
     visuals: string;
     geometry: string;
     meta: string;
-    assets?: string;
   };
   props?: Record<string, ComponentSetPropDefinition>;
   variantAxes: Record<string, string[]>;
@@ -369,7 +368,6 @@ function buildAssetBackedStructureContract(
       visuals: contractArtifactFileName(model.name, "visuals", format),
       geometry: contractArtifactFileName(model.name, "geometry", format),
       meta: contractArtifactFileName(model.name, "meta", format),
-      assets: contractArtifactFileName(model.name, "assets", format),
     },
     props: model.props,
     variantAxes: model.variantAxes,

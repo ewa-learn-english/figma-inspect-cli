@@ -62,6 +62,13 @@ export type CliCommand =
       format: ContractFormat;
     }
   | {
+      kind: "verify-component-contract";
+      contractDir: string;
+      componentName?: string;
+      contractFormat: ContractFormat;
+      outputFormat: ContractFormat;
+    }
+  | {
       kind: "export-component-set";
       outputDir: string;
       componentSet: ComponentSetLookup;

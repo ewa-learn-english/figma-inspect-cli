@@ -8,7 +8,7 @@ function dataFileExtension(format: ContractFormat): string {
 
 export function contractArtifactFileName(
   componentName: string,
-  artifact: "visuals" | "geometry" | "meta" | "assets",
+  artifact: "visuals" | "geometry" | "meta",
   format: ContractFormat = "yaml",
 ): string {
   const extension = dataFileExtension(format);

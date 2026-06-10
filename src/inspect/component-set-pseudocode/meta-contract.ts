@@ -15,6 +15,7 @@ import type {
   ComponentSetSpec,
 } from "../component-set-spec/types.js";
 import { FigmaInspectError } from "../errors.js";
+import type { AssetContractMap } from "./assets-contract.js";
 
 export interface MetaContractContext {
   teamComponents?: TeamComponentRegistry;
@@ -38,6 +39,7 @@ export interface MetaContract {
   props?: Record<string, MetaContractProp>;
   slots?: Record<string, MetaContractSlot>;
   dependencies?: TeamComponentEntry[];
+  assets?: AssetContractMap;
 }
 
 function readPublishedComponentSetKey(

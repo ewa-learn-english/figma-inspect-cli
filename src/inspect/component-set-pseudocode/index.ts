@@ -1,7 +1,6 @@
 export {
   buildComponentSetPseudocodeFromFile,
   buildComponentSetPseudocodeFromRaw,
-  resolveAssetsContractPath,
   resolveGeometryContractPath,
   resolveMetaContractPath,
   resolveStructureDslPath,

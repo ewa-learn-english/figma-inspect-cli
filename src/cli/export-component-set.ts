@@ -14,12 +14,16 @@ import {
 } from "../inspect/contract-format.js";
 import {
   buildContractLock,
-  type ContractLockVariant,
   collectUnchangedVariantNodeIds,
   readContractLock,
   resolveContractLockPath,
+  toLockVariants,
   writeContractLock,
 } from "../inspect/contract-lock.js";
+import {
+  readComponentContractArtifacts,
+  validateComponentContractArtifacts,
+} from "../inspect/contract-schema.js";
 import {
   fingerprintAssetFiles,
   fingerprintContracts,
@@ -53,7 +57,6 @@ export interface ExportComponentSetResult {
   metaContractPath: string;
   lockContractPath: string;
   structureDslPath: string;
-  assetsContractPath?: string;
   assetsDir?: string;
 }
 
@@ -90,17 +93,6 @@ async function writeDataFile(
   format: ContractFormat,
 ): Promise<void> {
   await writeFile(filePath, serializeContractData(value, format), "utf8");
-}
-
-function toLockVariants(
-  components: ReturnType<typeof filterFileComponentsForComponentSet>,
-): ContractLockVariant[] {
-  return components.map((component) => ({
-    key: component.key,
-    nodeId: component.node_id,
-    name: component.name,
-    updatedAt: component.updated_at,
-  }));
 }
 
 export async function exportComponentSet(
@@ -152,10 +144,6 @@ export async function exportComponentSet(
     contractArtifactFileName(baseName, "meta", format),
   );
   const lockContractPath = resolveContractLockPath(options.outputDir, baseName);
-  const assetsContractPath = path.join(
-    options.outputDir,
-    contractArtifactFileName(baseName, "assets", format),
-  );
   const structureDslPath = path.join(
     options.outputDir,
     `${baseName}.contract.structure.dsl`,
@@ -201,10 +189,14 @@ export async function exportComponentSet(
   await writeDataFile(visualsContractPath, contractResult.visuals, format);
   await writeDataFile(geometryContractPath, contractResult.geometry, format);
   await writeDataFile(metaContractPath, contractResult.meta, format);
-  if (contractResult.assets) {
-    await writeDataFile(assetsContractPath, contractResult.assets, format);
-  }
   await writeFile(structureDslPath, contractResult.structureDsl, "utf8");
+
+  const artifacts = await readComponentContractArtifacts(
+    options.outputDir,
+    baseName,
+    format,
+  );
+  validateComponentContractArtifacts(artifacts, format);
 
   const lock = buildContractLock({
     source: {
@@ -219,6 +211,7 @@ export async function exportComponentSet(
       contracts: fingerprintContracts(
         contractResult.visuals,
         contractResult.geometry,
+        contractResult.meta,
         contractResult.structureDsl,
       ),
       ...(assetsDir
@@ -241,7 +234,6 @@ export async function exportComponentSet(
     metaContractPath,
     lockContractPath,
     structureDslPath,
-    ...(contractResult.assets ? { assetsContractPath } : {}),
     assetsDir,
   };
 }
@@ -257,9 +249,6 @@ export function writeExportResult(
     result.lockContractPath,
     result.structureDslPath,
   ];
-  if (result.assetsContractPath) {
-    lines.push(result.assetsContractPath);
-  }
   if (result.assetsDir) {
     lines.push(result.assetsDir);
   }
