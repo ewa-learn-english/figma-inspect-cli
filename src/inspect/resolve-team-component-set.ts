@@ -33,7 +33,7 @@ function matchesLookup(
 function formatTeamComponentSetLocation(
   componentSet: FigmaTeamComponentSet,
 ): string {
-  return `${componentSet.name} (${componentSet.file_name}, ${componentSet.project_name})`;
+  return `${componentSet.name} (${componentSet.fileName}, ${componentSet.projectName})`;
 }
 
 export async function resolveTeamComponentSetScope({
@@ -71,7 +71,7 @@ export async function resolveTeamComponentSetScope({
   const match = matches[0];
 
   return {
-    fileKey: match.file_key,
+    fileKey: match.fileKey,
     nodeId: match.id,
     componentSet,
     publishedSet: match,

@@ -27,17 +27,17 @@ export async function listAllComponentSets({
         id: componentSet.node_id,
         key: componentSet.key,
         name: componentSet.name,
-        file_key: componentSet.file_key,
-        file_name: file?.name ?? "",
-        project_id: file?.project_id ?? "",
-        project_name: file?.project_name ?? "",
+        fileKey: componentSet.file_key,
+        fileName: file?.name ?? "",
+        projectId: file?.project_id ?? "",
+        projectName: file?.project_name ?? "",
       };
     })
     .sort((left, right) =>
-      left.project_name !== right.project_name
-        ? left.project_name.localeCompare(right.project_name)
-        : left.file_name !== right.file_name
-          ? left.file_name.localeCompare(right.file_name)
+      left.projectName !== right.projectName
+        ? left.projectName.localeCompare(right.projectName)
+        : left.fileName !== right.fileName
+          ? left.fileName.localeCompare(right.fileName)
           : left.name.localeCompare(right.name),
     );
 }

@@ -20,7 +20,7 @@ export function serializeContractData(
   format: ContractFormat,
 ): string {
   if (format === "yaml") {
-    return `${stringify(value)}\n`;
+    return stringify(value);
   }
 
   return `${JSON.stringify(value, null, 2)}\n`;

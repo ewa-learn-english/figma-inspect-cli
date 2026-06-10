@@ -79,8 +79,8 @@ function teamComponentEntryFromPublishedSet(
     id: publishedSet.id,
     key: publishedSet.key,
     name: publishedSet.name,
-    file_key: publishedSet.file_key,
-    project_id: publishedSet.project_id,
+    fileKey: publishedSet.fileKey,
+    projectId: publishedSet.projectId,
   };
 }
 
@@ -97,9 +97,9 @@ function toLockVariants(
 ): ContractLockVariant[] {
   return components.map((component) => ({
     key: component.key,
-    node_id: component.node_id,
+    nodeId: component.node_id,
     name: component.name,
-    updated_at: component.updated_at,
+    updatedAt: component.updated_at,
   }));
 }
 
@@ -207,10 +207,10 @@ export async function exportComponentSet(
 
   const lock = buildContractLock({
     source: {
-      file_key: scope.fileKey,
-      node_id: componentSetNodeId,
-      component_set_key: componentSetMeta.key,
-      component_set_updated_at: componentSetMeta.updated_at,
+      fileKey: scope.fileKey,
+      nodeId: componentSetNodeId,
+      componentSetKey: componentSetMeta.key,
+      componentSetUpdatedAt: componentSetMeta.updated_at,
     },
     variants: lockVariants,
     fingerprints: {

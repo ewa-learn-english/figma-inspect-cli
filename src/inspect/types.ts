@@ -1,10 +1,10 @@
 import type { FigmaComponentSet } from "./schemas.js";
 
 export type FigmaTeamComponentSet = FigmaComponentSet & {
-  file_key: string;
-  file_name: string;
-  project_id: string;
-  project_name: string;
+  fileKey: string;
+  fileName: string;
+  projectId: string;
+  projectName: string;
 };
 
 export interface ListAllComponentSetsOptions {

@@ -5,17 +5,17 @@ import { serializeContractData } from "./contract-format.js";
 import { FigmaInspectError } from "./errors.js";
 
 export interface ContractLockSource {
-  file_key: string;
-  node_id: string;
-  component_set_key: string;
-  component_set_updated_at: string;
+  fileKey: string;
+  nodeId: string;
+  componentSetKey: string;
+  componentSetUpdatedAt: string;
 }
 
 export interface ContractLockVariant {
   key: string;
-  node_id: string;
+  nodeId: string;
   name: string;
-  updated_at: string;
+  updatedAt: string;
 }
 
 export interface ContractLockFingerprints {
@@ -92,15 +92,139 @@ export async function readContractLock(
   }
 
   const parsed = parse(raw);
-  if (
-    typeof parsed !== "object" ||
-    parsed === null ||
-    (parsed as ContractLock).version !== 1
-  ) {
+  const lock = normalizeContractLock(parsed);
+  if (!lock) {
     throw new FigmaInspectError(`Invalid contract lock file: ${lockPath}`);
   }
 
-  return parsed as ContractLock;
+  return lock;
+}
+
+function readRecordField(
+  value: unknown,
+  camelKey: string,
+  snakeKey: string,
+): unknown {
+  if (typeof value !== "object" || value === null) {
+    return undefined;
+  }
+
+  const record = value as Record<string, unknown>;
+  return record[camelKey] ?? record[snakeKey];
+}
+
+function readStringField(
+  value: unknown,
+  camelKey: string,
+  snakeKey: string,
+): string | undefined {
+  const field = readRecordField(value, camelKey, snakeKey);
+  return typeof field === "string" ? field : undefined;
+}
+
+function normalizeContractLockVariant(
+  value: unknown,
+): ContractLockVariant | undefined {
+  const key = readStringField(value, "key", "key");
+  const nodeId = readStringField(value, "nodeId", "node_id");
+  const name = readStringField(value, "name", "name");
+  const updatedAt = readStringField(value, "updatedAt", "updated_at");
+
+  if (!key || !nodeId || !name || !updatedAt) {
+    return undefined;
+  }
+
+  return { key, nodeId, name, updatedAt };
+}
+
+function normalizeContractLockSource(
+  value: unknown,
+): ContractLockSource | undefined {
+  const fileKey = readStringField(value, "fileKey", "file_key");
+  const nodeId = readStringField(value, "nodeId", "node_id");
+  const componentSetKey = readStringField(
+    value,
+    "componentSetKey",
+    "component_set_key",
+  );
+  const componentSetUpdatedAt = readStringField(
+    value,
+    "componentSetUpdatedAt",
+    "component_set_updated_at",
+  );
+
+  if (!fileKey || !nodeId || !componentSetKey || !componentSetUpdatedAt) {
+    return undefined;
+  }
+
+  return { fileKey, nodeId, componentSetKey, componentSetUpdatedAt };
+}
+
+function normalizeContractLock(value: unknown): ContractLock | undefined {
+  if (typeof value !== "object" || value === null) {
+    return undefined;
+  }
+
+  const record = value as Record<string, unknown>;
+  if (record.version !== 1) {
+    return undefined;
+  }
+
+  const source = normalizeContractLockSource(record.source);
+  if (!source) {
+    return undefined;
+  }
+
+  if (!Array.isArray(record.variants)) {
+    return undefined;
+  }
+
+  const variants = record.variants
+    .map((variant) => normalizeContractLockVariant(variant))
+    .filter((variant): variant is ContractLockVariant => variant !== undefined);
+  if (variants.length !== record.variants.length) {
+    return undefined;
+  }
+
+  const fingerprints = record.fingerprints;
+  if (typeof fingerprints !== "object" || fingerprints === null) {
+    return undefined;
+  }
+
+  const fingerprintRecord = fingerprints as Record<string, unknown>;
+  const tree = fingerprintRecord.tree;
+  const contracts = fingerprintRecord.contracts;
+  if (typeof tree !== "string" || typeof contracts !== "string") {
+    return undefined;
+  }
+
+  const assets = fingerprintRecord.assets;
+  let normalizedAssets: Record<string, string> | undefined;
+  if (assets !== undefined) {
+    if (typeof assets !== "object" || assets === null) {
+      return undefined;
+    }
+
+    normalizedAssets = {};
+    for (const [assetKey, hash] of Object.entries(assets)) {
+      if (typeof hash !== "string") {
+        return undefined;
+      }
+
+      normalizedAssets[assetKey] = hash;
+    }
+  }
+
+  return {
+    version: 1,
+    source,
+    variants,
+    fingerprints: {
+      tree,
+      contracts,
+      ...(normalizedAssets ? { assets: normalizedAssets } : {}),
+    },
+  };
 }
 
 export async function writeContractLock(
@@ -120,13 +244,13 @@ export function collectUnchangedVariantNodeIds(
   }
 
   const previousByNodeId = new Map(
-    previousLock.variants.map((variant) => [variant.node_id, variant]),
+    previousLock.variants.map((variant) => [variant.nodeId, variant]),
   );
 
   for (const variant of variants) {
-    const previous = previousByNodeId.get(variant.node_id);
-    if (previous && previous.updated_at === variant.updated_at) {
-      unchanged.add(variant.node_id);
+    const previous = previousByNodeId.get(variant.nodeId);
+    if (previous && previous.updatedAt === variant.updatedAt) {
+      unchanged.add(variant.nodeId);
     }
   }
 
