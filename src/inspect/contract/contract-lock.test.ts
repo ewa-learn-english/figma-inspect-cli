@@ -3,10 +3,12 @@ import { describe, expect, it } from "vitest";
 import { contractFixturesDir } from "../../test/fixtures.js";
 import {
   type ContractLock,
+  collectUnchangedVariantNodeIds,
   diffContractLock,
   isContractLockDiffEmpty,
   readContractLock,
   resolveContractLockPath,
+  stabilizeContractLockDates,
   toLockVariants,
 } from "./contract-lock.js";
 
@@ -92,10 +94,27 @@ describe("diffContractLock", () => {
     expect(isContractLockDiffEmpty(diff)).toBe(true);
   });
 
-  it("reports source and tree drift", () => {
+  it("ignores timestamp drift when identity and tree match", () => {
     const diff = diffContractLock(baseLock, {
       source: {
         ...baseLock.source,
+        componentSetUpdatedAt: "2026-02-01T00:00:00.000Z",
+      },
+      variants: baseLock.variants.map((variant) => ({
+        ...variant,
+        updatedAt: "2026-02-01T00:00:00.000Z",
+      })),
+      treeFingerprint: "tree-hash",
+    });
+
+    expect(isContractLockDiffEmpty(diff)).toBe(true);
+  });
+
+  it("reports source identity and tree drift", () => {
+    const diff = diffContractLock(baseLock, {
+      source: {
+        ...baseLock.source,
+        nodeId: "9:9",
         componentSetUpdatedAt: "2026-02-01T00:00:00.000Z",
       },
       variants: baseLock.variants,
@@ -111,7 +130,7 @@ describe("diffContractLock", () => {
       source: baseLock.source,
       variants: [
         {
-          key: "v1",
+          key: "v1-renamed",
           nodeId: "1:3",
           name: "State=Default",
           updatedAt: "2026-02-01T00:00:00.000Z",
@@ -128,5 +147,67 @@ describe("diffContractLock", () => {
     expect(diff.variants).toEqual(["State=Default"]);
     expect(diff.addedVariants).toEqual(["State=Hover"]);
     expect(diff.removedVariants).toEqual([]);
+  });
+});
+
+describe("collectUnchangedVariantNodeIds", () => {
+  it("reuses variants with changed timestamps when the tree fingerprint is unchanged", () => {
+    const variants = baseLock.variants.map((variant) => ({
+      ...variant,
+      updatedAt: "2026-02-01T00:00:00.000Z",
+    }));
+
+    expect(
+      collectUnchangedVariantNodeIds(baseLock, variants, "tree-hash"),
+    ).toEqual(new Set(["1:3"]));
+  });
+
+  it("falls back to updatedAt when the tree fingerprint changed", () => {
+    const variants = baseLock.variants.map((variant) => ({
+      ...variant,
+      updatedAt: "2026-02-01T00:00:00.000Z",
+    }));
+
+    expect(
+      collectUnchangedVariantNodeIds(baseLock, variants, "other-tree"),
+    ).toEqual(new Set());
+  });
+});
+
+describe("stabilizeContractLockDates", () => {
+  it("preserves previous timestamps when the tree fingerprint is unchanged", () => {
+    const next = {
+      ...baseLock,
+      source: {
+        ...baseLock.source,
+        componentSetUpdatedAt: "2026-02-01T00:00:00.000Z",
+      },
+      variants: baseLock.variants.map((variant) => ({
+        ...variant,
+        updatedAt: "2026-02-01T00:00:00.000Z",
+      })),
+    };
+
+    expect(stabilizeContractLockDates(baseLock, next)).toEqual(baseLock);
+  });
+
+  it("keeps fresh timestamps when the tree fingerprint changed", () => {
+    const next = {
+      ...baseLock,
+      source: {
+        ...baseLock.source,
+        componentSetUpdatedAt: "2026-02-01T00:00:00.000Z",
+      },
+      variants: baseLock.variants.map((variant) => ({
+        ...variant,
+        updatedAt: "2026-02-01T00:00:00.000Z",
+      })),
+      fingerprints: {
+        ...baseLock.fingerprints,
+        tree: "other-tree",
+      },
+    };
+
+    expect(stabilizeContractLockDates(baseLock, next)).toEqual(next);
   });
 });

@@ -101,9 +101,9 @@ async function fetchLiveLockSnapshot(
 
   return {
     source: {
-      fileKey: lock.source.fileKey,
-      nodeId: lock.source.nodeId,
-      componentSetKey: lock.source.componentSetKey,
+      fileKey: componentSetMeta.file_key,
+      nodeId: componentSetMeta.node_id,
+      componentSetKey: componentSetMeta.key,
       componentSetUpdatedAt: componentSetMeta.updated_at,
     },
     variants: toLockVariants(

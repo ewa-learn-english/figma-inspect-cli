@@ -288,23 +288,48 @@ describe("verifyComponentContracts", () => {
     });
   });
 
-  it("reports changed when live component set metadata drifts", async () => {
-    const lock = await loadProfileStreakLock();
+  it("reports ok when only live component set metadata timestamps drift", async () => {
+    const contractDir = await mkdtemp(
+      path.join(tmpdir(), "figma-verify-meta-"),
+    );
+    await copyProfileStreakContracts(contractDir);
 
+    const sourceLock = await loadProfileStreakLock();
     const tree = profileStreakComponentSetTree();
+    const lock = buildContractLock({
+      source: sourceLock.source,
+      variants: sourceLock.variants,
+      fingerprints: {
+        tree: fingerprintTree(tree),
+        contracts: sourceLock.fingerprints.contracts,
+        assets: sourceLock.fingerprints.assets,
+      },
+    });
+
+    await writeFile(
+      resolveContractLockPath(contractDir, "ProfileStreakIcon"),
+      serializeContractData(lock, "yaml"),
+    );
+
     const liveResponses = buildLiveMockResponses(lock, tree, {
       componentSetUpdatedAt: "2099-01-01T00:00:00.000Z",
     });
+    liveResponses.fileComponents.meta.components =
+      liveResponses.fileComponents.meta.components.map((component) => ({
+        ...component,
+        updated_at: "2099-01-01T00:00:00.000Z",
+      }));
 
     const results = await verifyComponentContracts({
       token: "token",
-      contractDir: contractFixtures,
+      contractDir,
       componentName: "ProfileStreakIcon",
       fetchImpl: createFigmaFetchMock(liveResponses),
     });
 
-    expect(results[0]?.status).toBe("changed");
-    expect(results[0]?.changed.source).toBe(true);
+    expect(results[0]?.status).toBe("ok");
+    expect(results[0]?.changed.source).toBe(false);
+    expect(results[0]?.changed.variants).toEqual([]);
     expect(results[0]?.errors).toEqual([]);
   });
 

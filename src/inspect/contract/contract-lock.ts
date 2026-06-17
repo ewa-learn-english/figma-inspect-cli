@@ -48,6 +48,28 @@ function sortVariants(variants: ContractLockVariant[]): ContractLockVariant[] {
   );
 }
 
+function sameSourceIdentity(
+  left: ContractLockSource,
+  right: ContractLockSource,
+): boolean {
+  return (
+    left.fileKey === right.fileKey &&
+    left.nodeId === right.nodeId &&
+    left.componentSetKey === right.componentSetKey
+  );
+}
+
+function sameVariantIdentity(
+  left: ContractLockVariant,
+  right: ContractLockVariant,
+): boolean {
+  return (
+    left.key === right.key &&
+    left.nodeId === right.nodeId &&
+    left.name === right.name
+  );
+}
+
 export function buildContractLock(input: {
   source: ContractLockSource;
   variants: ContractLockVariant[];
@@ -277,7 +299,7 @@ export function diffContractLock(
       continue;
     }
 
-    if (locked.updatedAt !== liveVariant.updatedAt) {
+    if (!sameVariantIdentity(locked, liveVariant)) {
       changedVariants.push(liveVariant.name);
     }
   }
@@ -289,8 +311,7 @@ export function diffContractLock(
   }
 
   return {
-    source:
-      lock.source.componentSetUpdatedAt !== live.source.componentSetUpdatedAt,
+    source: !sameSourceIdentity(lock.source, live.source),
     tree: lock.fingerprints.tree !== live.treeFingerprint,
     variants: changedVariants.sort((left, right) => left.localeCompare(right)),
     addedVariants: addedVariants.sort((left, right) =>
@@ -322,6 +343,7 @@ export async function writeContractLock(
 export function collectUnchangedVariantNodeIds(
   previousLock: ContractLock | undefined,
   variants: ContractLockVariant[],
+  currentTreeFingerprint?: string,
 ): Set<string> {
   const unchanged = new Set<string>();
   if (!previousLock) {
@@ -331,13 +353,62 @@ export function collectUnchangedVariantNodeIds(
   const previousByNodeId = new Map(
     previousLock.variants.map((variant) => [variant.nodeId, variant]),
   );
+  const treeIsUnchanged =
+    currentTreeFingerprint !== undefined &&
+    previousLock.fingerprints.tree === currentTreeFingerprint;
 
   for (const variant of variants) {
     const previous = previousByNodeId.get(variant.nodeId);
-    if (previous && previous.updatedAt === variant.updatedAt) {
+    if (!previous) {
+      continue;
+    }
+
+    if (treeIsUnchanged && sameVariantIdentity(previous, variant)) {
+      unchanged.add(variant.nodeId);
+      continue;
+    }
+
+    if (previous.updatedAt === variant.updatedAt) {
       unchanged.add(variant.nodeId);
     }
   }
 
   return unchanged;
+}
+
+export function stabilizeContractLockDates(
+  previousLock: ContractLock | undefined,
+  lock: ContractLock,
+): ContractLock {
+  if (
+    !previousLock ||
+    previousLock.fingerprints.tree !== lock.fingerprints.tree
+  ) {
+    return lock;
+  }
+
+  const previousByNodeId = new Map(
+    previousLock.variants.map((variant) => [variant.nodeId, variant]),
+  );
+
+  return {
+    ...lock,
+    source: sameSourceIdentity(previousLock.source, lock.source)
+      ? {
+          ...lock.source,
+          componentSetUpdatedAt: previousLock.source.componentSetUpdatedAt,
+        }
+      : lock.source,
+    variants: lock.variants.map((variant) => {
+      const previous = previousByNodeId.get(variant.nodeId);
+      if (!previous || !sameVariantIdentity(previous, variant)) {
+        return variant;
+      }
+
+      return {
+        ...variant,
+        updatedAt: previous.updatedAt,
+      };
+    }),
+  };
 }

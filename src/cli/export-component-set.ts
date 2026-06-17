@@ -17,6 +17,7 @@ import {
   collectUnchangedVariantNodeIds,
   readContractLock,
   resolveContractLockPath,
+  stabilizeContractLockDates,
   toLockVariants,
   writeContractLock,
 } from "../inspect/contract/contract-lock.js";
@@ -137,9 +138,11 @@ export async function exportComponentSet(
     filterFileComponentsForComponentSet(fileComponents, componentSetNodeId),
   );
   const previousLock = await readContractLock(lockContractPath);
+  const treeFingerprint = fingerprintTree(raw);
   const skipNodeIds = collectUnchangedVariantNodeIds(
     previousLock,
     lockVariants,
+    treeFingerprint,
   );
 
   let assetsDir: string | undefined;
@@ -182,34 +185,37 @@ export async function exportComponentSet(
   );
   validateComponentContractArtifacts(artifacts, format);
 
-  const lock = buildContractLock({
-    source: {
-      fileKey: scope.fileKey,
-      nodeId: componentSetNodeId,
-      componentSetKey: componentSetMeta.key,
-      componentSetUpdatedAt: componentSetMeta.updated_at,
-    },
-    variants: lockVariants,
-    fingerprints: {
-      tree: fingerprintTree(raw),
-      contracts: fingerprintContracts(
-        contractResult.visuals,
-        contractResult.geometry,
-        contractResult.meta,
-        contractResult.structureDsl,
-      ),
-      ...(assetsDir
-        ? {
-            assets: await fingerprintAssetFiles(
-              assetsDir,
-              (await readdir(assetsDir))
-                .filter((fileName) => fileName.endsWith(".svg"))
-                .map((fileName) => fileName.slice(0, -".svg".length)),
-            ),
-          }
-        : {}),
-    },
-  });
+  const lock = stabilizeContractLockDates(
+    previousLock,
+    buildContractLock({
+      source: {
+        fileKey: scope.fileKey,
+        nodeId: componentSetNodeId,
+        componentSetKey: componentSetMeta.key,
+        componentSetUpdatedAt: componentSetMeta.updated_at,
+      },
+      variants: lockVariants,
+      fingerprints: {
+        tree: treeFingerprint,
+        contracts: fingerprintContracts(
+          contractResult.visuals,
+          contractResult.geometry,
+          contractResult.meta,
+          contractResult.structureDsl,
+        ),
+        ...(assetsDir
+          ? {
+              assets: await fingerprintAssetFiles(
+                assetsDir,
+                (await readdir(assetsDir))
+                  .filter((fileName) => fileName.endsWith(".svg"))
+                  .map((fileName) => fileName.slice(0, -".svg".length)),
+              ),
+            }
+          : {}),
+      },
+    }),
+  );
   await writeContractLock(lockContractPath, lock);
 
   return {
