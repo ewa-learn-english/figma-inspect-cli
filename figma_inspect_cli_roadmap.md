@@ -377,51 +377,6 @@ Exclude or normalize:
 - Backward compatibility with lock v1 read is preserved.
 - `npm run check` + `npm run build` проходят.
 
-## P2.5 — Preview snapshot export
-
-Статус: сделано.
-
-Цель: дать LLM рядом с DSL/YAML не только контрактное описание, но и визуальный снимок root Figma node/component для сверки импортируемой TypeScript-верстки.
-
-### CLI/API
-
-Добавить общий sidecar export:
-
-```bash
-figma-inspect --export-contract --url "<figma-url>" --output-dir ... --variables ... --export-preview
-```
-
-Также поддержать explicit команды:
-
-```bash
-figma-inspect --export-component-set ... --export-preview
-figma-inspect --export-node-contract ... --export-preview
-```
-
-Опции:
-
-- `--preview-format png|svg` — default `png`;
-- `--preview-scale <number>` — default `2`, только для PNG.
-
-### Semantics
-
-- Preview экспортирует один snapshot root node, а не variant assets.
-- Файлы пишутся рядом с contract artifacts:
-   - `<Name>.component-set.preview.png`
-   - `<Name>.frame.preview.png`
-   - `<Name>.component.preview.png`
-- Preview path печатается в stdout вместе с остальными artifact paths.
-- Preview не входит в lock/fingerprints и не меняет contract surface semantics.
-- PNG/SVG байты валидируются перед записью; SVG нормализуется так же, как exported assets.
-
-### Acceptance criteria
-
-- `--export-contract --url <frame-url> --export-preview` пишет `.frame.preview.png`.
-- `--export-contract --url <component-set-url> --export-preview` пишет `.component-set.preview.png`.
-- `--preview-format svg` пишет `.preview.svg`.
-- Usage/help и live-test skill знают новые флаги.
-- `npm run check` + `npm run build` проходят.
-
 ## P3 — Verified manifest and bulk registry
 
 Цель: управлять 250+ компонентами без ручного запуска CLI по одному.
@@ -474,6 +429,34 @@ figma-inspect --export-node-contract-batch --manifest tools/design-import/nodes.
 - Можно получить список published DS component sets.
 - Можно batch-verify все component-set/component/frame lock-файлы.
 - Можно отфильтровать verified/unverified/changed components.
+
+## P4 — Model handoff generator
+
+Цель: давать LLM минимальный deterministic prompt package.
+
+### Generated handoff
+
+```text
+artifacts/figma-components/<Name>/handoff.md
+artifacts/figma-components/<Name>/implementation-plan.md
+```
+
+Содержимое:
+
+- component summary;
+- props/variant axes;
+- node kind: component-set/component/frame;
+- structural vs asset-backed recommendation;
+- token gaps;
+- assets to copy;
+- known unsupported Figma features;
+- paths to DSL/YAML files;
+- explicit forbidden actions: do not hardcode tokens, do not add story-only props, do not use lock as design prompt.
+
+### Acceptance criteria
+
+- LLM prompt no longer needs raw JSON.
+- Handoff file is deterministic and diff-friendly.
 
 ## P8 — Hardening
 
