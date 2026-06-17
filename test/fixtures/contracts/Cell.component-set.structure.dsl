@@ -13,9 +13,9 @@ props {
 }
 
 contracts {
-  visuals Cell.contract.visuals.yaml
-  geometry Cell.contract.geometry.yaml
-  meta Cell.contract.meta.yaml
+  visuals Cell.component-set.visuals.yaml
+  geometry Cell.component-set.geometry.yaml
+  meta Cell.component-set.meta.yaml
 }
 
 variantAxes {

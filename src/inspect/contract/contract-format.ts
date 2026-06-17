@@ -14,7 +14,7 @@ export function contractArtifactFileName(
   format: ContractFormat = "yaml",
 ): string {
   const extension = dataFileExtension(format);
-  return `${componentName}.contract.${artifact}${extension}`;
+  return `${componentName}.component-set.${artifact}${extension}`;
 }
 
 export function serializeContractData(

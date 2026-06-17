@@ -20,7 +20,9 @@ describe("readComponentContractArtifacts", () => {
     expect(artifacts.meta.version).toBe(1);
     expect(artifacts.meta.props?.State?.type).toBe("variant");
     expect(artifacts.structureDsl).toContain("component TextInput");
-    expect(artifacts.structureDsl).toContain("TextInput.contract.meta.yaml");
+    expect(artifacts.structureDsl).toContain(
+      "TextInput.component-set.meta.yaml",
+    );
     expect(artifacts.visuals).toBeTypeOf("object");
     expect(artifacts.assetsDir).toBeUndefined();
   });

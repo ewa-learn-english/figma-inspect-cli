@@ -13,34 +13,34 @@ const directory = "/contracts/out";
 describe("contract artifact paths", () => {
   it("resolves yaml artifact paths under the output directory", () => {
     expect(resolveMetaContractPath(directory, "TextInput")).toBe(
-      path.join(directory, "TextInput.contract.meta.yaml"),
+      path.join(directory, "TextInput.component-set.meta.yaml"),
     );
     expect(resolveGeometryContractPath(directory, "TextInput")).toBe(
-      path.join(directory, "TextInput.contract.geometry.yaml"),
+      path.join(directory, "TextInput.component-set.geometry.yaml"),
     );
     expect(resolveVisualsContractPath(directory, "TextInput")).toBe(
-      path.join(directory, "TextInput.contract.visuals.yaml"),
+      path.join(directory, "TextInput.component-set.visuals.yaml"),
     );
     expect(resolveStructureDslPath(directory, "TextInput")).toBe(
-      path.join(directory, "TextInput.contract.structure.dsl"),
+      path.join(directory, "TextInput.component-set.structure.dsl"),
     );
     expect(resolveContractLockPath(directory, "TextInput")).toBe(
-      path.join(directory, "TextInput.contract.lock.yaml"),
+      path.join(directory, "TextInput.component-set.lock.yaml"),
     );
   });
 
   it("honors json format for data artifacts only", () => {
     expect(resolveMetaContractPath(directory, "Cell", "json")).toBe(
-      path.join(directory, "Cell.contract.meta.json"),
+      path.join(directory, "Cell.component-set.meta.json"),
     );
     expect(resolveGeometryContractPath(directory, "Cell", "json")).toBe(
-      path.join(directory, "Cell.contract.geometry.json"),
+      path.join(directory, "Cell.component-set.geometry.json"),
     );
     expect(resolveVisualsContractPath(directory, "Cell", "json")).toBe(
-      path.join(directory, "Cell.contract.visuals.json"),
+      path.join(directory, "Cell.component-set.visuals.json"),
     );
     expect(resolveStructureDslPath(directory, "Cell")).toBe(
-      path.join(directory, "Cell.contract.structure.dsl"),
+      path.join(directory, "Cell.component-set.structure.dsl"),
     );
   });
 });

@@ -6,9 +6,9 @@ props {
 }
 
 contracts {
-  visuals ProfileStreakIcon.contract.visuals.yaml
-  geometry ProfileStreakIcon.contract.geometry.yaml
-  meta ProfileStreakIcon.contract.meta.yaml
+  visuals ProfileStreakIcon.component-set.visuals.yaml
+  geometry ProfileStreakIcon.component-set.geometry.yaml
+  meta ProfileStreakIcon.component-set.meta.yaml
 }
 
 variantAxes {

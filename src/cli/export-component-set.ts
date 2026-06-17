@@ -131,7 +131,7 @@ export async function exportComponentSet(
   const lockContractPath = resolveContractLockPath(options.outputDir, baseName);
   const structureDslPath = path.join(
     options.outputDir,
-    `${baseName}.contract.structure.dsl`,
+    `${baseName}.component-set.structure.dsl`,
   );
 
   const lockVariants = toLockVariants(

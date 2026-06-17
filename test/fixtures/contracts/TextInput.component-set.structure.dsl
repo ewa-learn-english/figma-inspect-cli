@@ -13,9 +13,9 @@ props {
 }
 
 contracts {
-  visuals TextInput.contract.visuals.yaml
-  geometry TextInput.contract.geometry.yaml
-  meta TextInput.contract.meta.yaml
+  visuals TextInput.component-set.visuals.yaml
+  geometry TextInput.component-set.geometry.yaml
+  meta TextInput.component-set.meta.yaml
 }
 
 variantAxes {

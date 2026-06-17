@@ -39,7 +39,7 @@ const baseLock: ContractLock = {
 describe("resolveContractLockPath", () => {
   it("points at the lock yaml next to other contract artifacts", () => {
     expect(resolveContractLockPath(contractDir, "TextInput")).toBe(
-      path.join(contractDir, "TextInput.contract.lock.yaml"),
+      path.join(contractDir, "TextInput.component-set.lock.yaml"),
     );
   });
 });
@@ -57,7 +57,9 @@ describe("readContractLock", () => {
 
   it("returns undefined when the lock file is missing", async () => {
     await expect(
-      readContractLock(path.join(contractDir, "Missing.contract.lock.yaml")),
+      readContractLock(
+        path.join(contractDir, "Missing.component-set.lock.yaml"),
+      ),
     ).resolves.toBeUndefined();
   });
 });

@@ -159,7 +159,7 @@ function validateStructureDsl(
     }
   }
 
-  if (structureDsl.includes(".contract.assets.")) {
+  if (structureDsl.includes(".component-set.assets.")) {
     throw new FigmaInspectError(
       "Invalid structure DSL: assets must live in meta.yaml, not a separate assets file.",
     );

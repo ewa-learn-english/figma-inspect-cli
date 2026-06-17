@@ -58,22 +58,22 @@ describe("writeExportResult", () => {
 
     writeExportResult(
       {
-        visualsContractPath: "/out/TextInput.contract.visuals.yaml",
-        geometryContractPath: "/out/TextInput.contract.geometry.yaml",
-        metaContractPath: "/out/TextInput.contract.meta.yaml",
-        lockContractPath: "/out/TextInput.contract.lock.yaml",
-        structureDslPath: "/out/TextInput.contract.structure.dsl",
+        visualsContractPath: "/out/TextInput.component-set.visuals.yaml",
+        geometryContractPath: "/out/TextInput.component-set.geometry.yaml",
+        metaContractPath: "/out/TextInput.component-set.meta.yaml",
+        lockContractPath: "/out/TextInput.component-set.lock.yaml",
+        structureDslPath: "/out/TextInput.component-set.structure.dsl",
       },
       stdout,
     );
 
     expect(output).toBe(
       `${[
-        "/out/TextInput.contract.visuals.yaml",
-        "/out/TextInput.contract.geometry.yaml",
-        "/out/TextInput.contract.meta.yaml",
-        "/out/TextInput.contract.lock.yaml",
-        "/out/TextInput.contract.structure.dsl",
+        "/out/TextInput.component-set.visuals.yaml",
+        "/out/TextInput.component-set.geometry.yaml",
+        "/out/TextInput.component-set.meta.yaml",
+        "/out/TextInput.component-set.lock.yaml",
+        "/out/TextInput.component-set.structure.dsl",
       ].join("\n")}\n`,
     );
   });
@@ -110,10 +110,14 @@ describe("exportComponentSet", () => {
     outputDir = await mkdtemp(path.join(os.tmpdir(), "figma-export-test-"));
 
     const [visuals, geometry, meta, structureDsl] = await Promise.all([
-      loadFixture<Record<string, unknown>>("TextInput.contract.visuals.yaml"),
-      loadFixture<Record<string, unknown>>("TextInput.contract.geometry.yaml"),
-      loadFixture<Record<string, unknown>>("TextInput.contract.meta.yaml"),
-      loadFixture<string>("TextInput.contract.structure.dsl"),
+      loadFixture<Record<string, unknown>>(
+        "TextInput.component-set.visuals.yaml",
+      ),
+      loadFixture<Record<string, unknown>>(
+        "TextInput.component-set.geometry.yaml",
+      ),
+      loadFixture<Record<string, unknown>>("TextInput.component-set.meta.yaml"),
+      loadFixture<string>("TextInput.component-set.structure.dsl"),
     ]);
 
     mocks.resolveTeamComponentSetScope.mockResolvedValue({
@@ -180,10 +184,10 @@ describe("exportComponentSet", () => {
     });
 
     expect(result.metaContractPath).toBe(
-      path.join(outputDir, "TextInput.contract.meta.yaml"),
+      path.join(outputDir, "TextInput.component-set.meta.yaml"),
     );
     expect(result.lockContractPath).toBe(
-      path.join(outputDir, "TextInput.contract.lock.yaml"),
+      path.join(outputDir, "TextInput.component-set.lock.yaml"),
     );
 
     const lock = parse(await readFile(result.lockContractPath, "utf8")) as {
@@ -233,7 +237,7 @@ describe("exportComponentSet", () => {
     );
     expect(result.assetsDir).toBe(path.join(outputDir, "TextInput.assets"));
     expect(result.metaContractPath).toBe(
-      path.join(outputDir, "TextInput.contract.meta.yaml"),
+      path.join(outputDir, "TextInput.component-set.meta.yaml"),
     );
 
     const lock = parse(await readFile(result.lockContractPath, "utf8")) as {

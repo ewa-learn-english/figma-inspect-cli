@@ -37,25 +37,25 @@ vi.mock("../inspect/index.js", () => ({
     (directory: string, componentName: string, format: string) =>
       path.join(
         directory,
-        `${componentName}.contract.geometry.${format === "yaml" ? "yaml" : "json"}`,
+        `${componentName}.component-set.geometry.${format === "yaml" ? "yaml" : "json"}`,
       ),
   ),
   resolveMetaContractPath: vi.fn(
     (directory: string, componentName: string, format: string) =>
       path.join(
         directory,
-        `${componentName}.contract.meta.${format === "yaml" ? "yaml" : "json"}`,
+        `${componentName}.component-set.meta.${format === "yaml" ? "yaml" : "json"}`,
       ),
   ),
   resolveStructureDslPath: vi.fn((directory: string, componentName: string) =>
-    path.join(directory, `${componentName}.contract.structure.dsl`),
+    path.join(directory, `${componentName}.component-set.structure.dsl`),
   ),
   resolveTeamComponentSetScope: vi.fn(),
   resolveVisualsContractPath: vi.fn(
     (directory: string, componentName: string, format: string) =>
       path.join(
         directory,
-        `${componentName}.contract.visuals.${format === "yaml" ? "yaml" : "json"}`,
+        `${componentName}.component-set.visuals.${format === "yaml" ? "yaml" : "json"}`,
       ),
   ),
   verifyComponentContracts: mocks.verifyComponentContracts,
@@ -243,7 +243,7 @@ describe("runCli", () => {
     );
 
     expect(output()).toContain(
-      `${directory}${path.sep}Button.contract.visuals.yaml`,
+      `${directory}${path.sep}Button.component-set.visuals.yaml`,
     );
     await writeFile(path.join(directory, "marker.txt"), "ok");
   });

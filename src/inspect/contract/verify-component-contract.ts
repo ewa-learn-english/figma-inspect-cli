@@ -51,7 +51,7 @@ interface LiveLockSnapshot {
 }
 
 function lockFileNamePattern(): RegExp {
-  return /^(.+)\.contract\.lock\.yaml$/;
+  return /^(.+)\.component-set\.lock\.yaml$/;
 }
 
 async function discoverLockedComponentNames(
@@ -191,7 +191,7 @@ export async function verifyComponentContracts(
 
   if (componentNames.length === 0) {
     throw new FigmaInspectError(
-      `No *.contract.lock.yaml files found in ${options.contractDir}.`,
+      `No *.component-set.lock.yaml files found in ${options.contractDir}.`,
     );
   }
 

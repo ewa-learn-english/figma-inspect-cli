@@ -174,7 +174,7 @@ describe("buildComponentSetPseudocodeFromRaw", () => {
   it("matches TextInput fixture structure DSL sections", async () => {
     const [expectedDsl, expectedMeta] = await Promise.all([
       readFile(
-        path.join(contractFixturesDir, "TextInput.contract.structure.dsl"),
+        path.join(contractFixturesDir, "TextInput.component-set.structure.dsl"),
         "utf8",
       ),
       readComponentContractArtifacts(

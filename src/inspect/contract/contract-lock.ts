@@ -32,7 +32,7 @@ export interface ContractLock {
 }
 
 function contractLockFileName(componentName: string): string {
-  return `${componentName}.contract.lock.yaml`;
+  return `${componentName}.component-set.lock.yaml`;
 }
 
 export function resolveContractLockPath(

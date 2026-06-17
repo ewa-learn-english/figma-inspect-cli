@@ -45,7 +45,7 @@ export interface ComponentSetContractResult {
 }
 
 function structureDslFileName(componentName: string): string {
-  return `${componentName}.contract.structure.dsl`;
+  return `${componentName}.component-set.structure.dsl`;
 }
 
 export function resolveVisualsContractPath(

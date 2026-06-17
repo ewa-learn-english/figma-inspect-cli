@@ -168,10 +168,10 @@ function createFigmaFetchMock(responses: {
 
 async function copyProfileStreakContracts(targetDir: string): Promise<void> {
   const files = [
-    "ProfileStreakIcon.contract.meta.yaml",
-    "ProfileStreakIcon.contract.geometry.yaml",
-    "ProfileStreakIcon.contract.visuals.yaml",
-    "ProfileStreakIcon.contract.structure.dsl",
+    "ProfileStreakIcon.component-set.meta.yaml",
+    "ProfileStreakIcon.component-set.geometry.yaml",
+    "ProfileStreakIcon.component-set.visuals.yaml",
+    "ProfileStreakIcon.component-set.structure.dsl",
   ];
 
   await Promise.all(
@@ -217,7 +217,7 @@ describe("verifyComponentContracts", () => {
         token: "token",
         contractDir: emptyDir,
       }),
-    ).rejects.toThrow(/No \*\.contract\.lock\.yaml files found/);
+    ).rejects.toThrow(/No \*\.component-set\.lock\.yaml files found/);
   });
 
   it("returns error when a named component lock file is missing", async () => {
@@ -422,7 +422,7 @@ describe("verifyComponentContracts", () => {
       resolveContractLockPath(contractDir, "ProfileStreakIcon"),
     );
     await writeFile(
-      path.join(contractDir, "ProfileStreakIcon.contract.structure.dsl"),
+      path.join(contractDir, "ProfileStreakIcon.component-set.structure.dsl"),
       "component WrongName\ncontracts {}\n",
     );
 

@@ -7,19 +7,19 @@ import {
 describe("contractArtifactFileName", () => {
   it("uses yaml extensions by default", () => {
     expect(contractArtifactFileName("TextInput", "meta")).toBe(
-      "TextInput.contract.meta.yaml",
+      "TextInput.component-set.meta.yaml",
     );
     expect(contractArtifactFileName("TextInput", "geometry")).toBe(
-      "TextInput.contract.geometry.yaml",
+      "TextInput.component-set.geometry.yaml",
     );
     expect(contractArtifactFileName("TextInput", "visuals")).toBe(
-      "TextInput.contract.visuals.yaml",
+      "TextInput.component-set.visuals.yaml",
     );
   });
 
   it("uses json extensions when requested", () => {
     expect(contractArtifactFileName("Cell", "meta", "json")).toBe(
-      "Cell.contract.meta.json",
+      "Cell.component-set.meta.json",
     );
   });
 });
