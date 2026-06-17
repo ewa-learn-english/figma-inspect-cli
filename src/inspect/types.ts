@@ -1,5 +1,10 @@
 import type { FigmaComponentSet } from "./schemas.js";
 
+export interface FigmaNodeRef {
+  fileKey: string;
+  nodeId: string;
+}
+
 export type FigmaTeamComponentSet = FigmaComponentSet & {
   fileKey: string;
   fileName: string;
@@ -23,10 +28,17 @@ export type ComponentSetLookup =
   | { kind: "key"; value: string }
   | { kind: "name"; value: string };
 
-export interface ComponentSetScopeOptions {
+export type ComponentSetTarget =
+  | ComponentSetLookup
+  | ({ kind: "node" } & FigmaNodeRef);
+
+export interface ComponentSetScopeOptions extends FigmaNodeRef {
   token: string;
-  fileKey: string;
-  nodeId: string;
   componentSet: ComponentSetLookup;
+  fetchImpl?: typeof fetch;
+}
+
+export interface ComponentSetNodeRefOptions extends FigmaNodeRef {
+  token: string;
   fetchImpl?: typeof fetch;
 }

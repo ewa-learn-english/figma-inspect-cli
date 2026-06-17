@@ -15,8 +15,10 @@ import {
   buildComponentSetSpecFromFile,
   FigmaInspectError,
   getNodeComponentSet,
+  getNodeComponentSetByRef,
   listAllComponentSets,
   listComponentSetProperties,
+  listComponentSetPropertiesByRef,
   resolveGeometryContractPath,
   resolveMetaContractPath,
   resolveStructureDslPath,
@@ -212,6 +214,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         teamId,
         outputDir: command.outputDir,
         componentSet: command.componentSet,
+        sourceUrl: command.sourceUrl,
         variablesPath: command.variablesPath,
         exportAssets: command.exportAssets,
         assetFormat: command.assetFormat,
@@ -299,18 +302,36 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         break;
       }
       case "inspect-component-set-properties": {
-        const properties = await listComponentSetProperties({
-          token,
-          ...command.scope,
-        });
+        const properties =
+          command.scope.kind === "node"
+            ? await listComponentSetPropertiesByRef({
+                token,
+                fileKey: command.scope.fileKey,
+                nodeId: command.scope.nodeId,
+              })
+            : await listComponentSetProperties({
+                token,
+                fileKey: command.scope.fileKey,
+                nodeId: command.scope.nodeId,
+                componentSet: command.scope.componentSet,
+              });
         writeComponentSetProperties(properties, command.format, io.stdout);
         break;
       }
       case "inspect-component-set": {
-        const componentSet = await getNodeComponentSet({
-          token,
-          ...command.scope,
-        });
+        const componentSet =
+          command.scope.kind === "node"
+            ? await getNodeComponentSetByRef({
+                token,
+                fileKey: command.scope.fileKey,
+                nodeId: command.scope.nodeId,
+              })
+            : await getNodeComponentSet({
+                token,
+                fileKey: command.scope.fileKey,
+                nodeId: command.scope.nodeId,
+                componentSet: command.scope.componentSet,
+              });
         writeData(componentSet, command.format, io.stdout);
         break;
       }

@@ -1,5 +1,9 @@
 import type { ContractFormat } from "../inspect/contract/contract-format.js";
-import type { ComponentSetLookup } from "../inspect/types.js";
+import type {
+  ComponentSetLookup,
+  ComponentSetTarget,
+  FigmaNodeRef,
+} from "../inspect/types.js";
 
 export interface CliIo {
   env: NodeJS.ProcessEnv;
@@ -7,11 +11,9 @@ export interface CliIo {
   stderr: NodeJS.WriteStream;
 }
 
-export interface ComponentSetCommandScope {
-  fileKey: string;
-  nodeId: string;
-  componentSet: ComponentSetLookup;
-}
+export type ComponentSetCommandScope =
+  | ({ kind: "lookup"; componentSet: ComponentSetLookup } & FigmaNodeRef)
+  | ({ kind: "node" } & FigmaNodeRef);
 
 export type CliCommand =
   | { kind: "help" }
@@ -40,12 +42,11 @@ export type CliCommand =
       componentSet: ComponentSetLookup;
       format: ContractFormat;
     }
-  | {
+  | ({
       kind: "inspect-file-node";
-      fileKey: string;
-      nodeId: string;
+      sourceUrl?: string;
       format: ContractFormat;
-    }
+    } & FigmaNodeRef)
   | {
       kind: "build-component-set-spec";
       inputPath: string;
@@ -71,7 +72,8 @@ export type CliCommand =
   | {
       kind: "export-component-set";
       outputDir: string;
-      componentSet: ComponentSetLookup;
+      componentSet: ComponentSetTarget;
+      sourceUrl?: string;
       variablesPath: string;
       exportAssets?: boolean;
       assetFormat?: "svg";

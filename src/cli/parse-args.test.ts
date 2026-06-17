@@ -49,6 +49,7 @@ describe("parseCommand", () => {
 
   it("parses component-set scoped inspect commands", () => {
     const scope = {
+      kind: "lookup" as const,
       fileKey: "fk",
       nodeId: "1:2",
       componentSet: { kind: "key" as const, value: "set-key" },
@@ -83,6 +84,7 @@ describe("parseCommand", () => {
     ).toEqual({
       kind: "inspect-component-set",
       scope: {
+        kind: "lookup",
         fileKey: "fk",
         nodeId: "1:2",
         componentSet: { kind: "name", value: "Button" },
@@ -105,17 +107,50 @@ describe("parseCommand", () => {
     expect(
       parseCommand([
         "--inspect-file-node",
-        "--file-key",
-        "fk",
-        "--node-id",
-        "1:2",
+        "--url",
+        "https://www.figma.com/design/fk/File?node-id=1-2",
         "--json",
       ]),
     ).toEqual({
       kind: "inspect-file-node",
       fileKey: "fk",
       nodeId: "1:2",
+      sourceUrl: "https://www.figma.com/design/fk/File?node-id=1-2",
       format: "json",
+    });
+  });
+
+  it("parses component-set scoped commands from a Figma URL", () => {
+    expect(
+      parseCommand([
+        "--inspect-component-set",
+        "--url",
+        "https://www.figma.com/design/fileKey/Settings?node-id=213-695&m=dev",
+      ]),
+    ).toEqual({
+      kind: "inspect-component-set",
+      scope: {
+        kind: "node",
+        fileKey: "fileKey",
+        nodeId: "213:695",
+      },
+      format: "yaml",
+    });
+
+    expect(
+      parseCommand([
+        "--inspect-component-set-properties",
+        "--url",
+        "https://www.figma.com/file/fileKey/Settings?node-id=213%3A695",
+      ]),
+    ).toEqual({
+      kind: "inspect-component-set-properties",
+      scope: {
+        kind: "node",
+        fileKey: "fileKey",
+        nodeId: "213:695",
+      },
+      format: "yaml",
     });
   });
 
@@ -214,6 +249,34 @@ describe("parseCommand", () => {
     });
   });
 
+  it("parses export-component-set by Figma URL", () => {
+    expect(
+      parseCommand([
+        "--export-component-set",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--url",
+        "https://www.figma.com/design/fileKey/Settings?node-id=213-695&m=dev",
+      ]),
+    ).toEqual({
+      kind: "export-component-set",
+      outputDir: "out",
+      componentSet: {
+        kind: "node",
+        fileKey: "fileKey",
+        nodeId: "213:695",
+      },
+      sourceUrl:
+        "https://www.figma.com/design/fileKey/Settings?node-id=213-695&m=dev",
+      variablesPath: "vars.json",
+      exportAssets: false,
+      assetFormat: undefined,
+      format: "yaml",
+    });
+  });
+
   it("rejects missing required flags", () => {
     expect(() => parseCommand(["--verify-component-contract"])).toThrow(
       CliError,
@@ -240,6 +303,9 @@ describe("parseCommand", () => {
         "1:2",
       ]),
     ).toThrow(/component-set-key or --component-set-name/);
+    expect(() =>
+      parseCommand(["--inspect-file-node", "--url", "not-a-url"]),
+    ).toThrow(/Invalid Figma URL/);
   });
 
   it("rejects invalid flag combinations", () => {
@@ -282,5 +348,27 @@ describe("parseCommand", () => {
         "png",
       ]),
     ).toThrow(/Unsupported --asset-format/);
+    expect(() =>
+      parseCommand([
+        "--export-component-set",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--url",
+        "https://www.figma.com/design/fileKey/Settings?node-id=213-695&m=dev",
+        "--component-set-name",
+        "Settings",
+      ]),
+    ).toThrow(/Pass either --url or --component-set-key/);
+    expect(() =>
+      parseCommand([
+        "--inspect-file-node",
+        "--url",
+        "https://www.figma.com/design/fileKey/Settings?node-id=213-695&m=dev",
+        "--file-key",
+        "fileKey",
+      ]),
+    ).toThrow(/Pass either --url or --file-key\/--node-id/);
   });
 });

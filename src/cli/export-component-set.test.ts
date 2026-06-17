@@ -63,6 +63,7 @@ describe("writeExportResult", () => {
         metaContractPath: "/out/TextInput.component-set.meta.yaml",
         lockContractPath: "/out/TextInput.component-set.lock.yaml",
         structureDslPath: "/out/TextInput.component-set.structure.dsl",
+        importNotesPath: "/out/import-notes.md",
       },
       stdout,
     );
@@ -74,6 +75,7 @@ describe("writeExportResult", () => {
         "/out/TextInput.component-set.meta.yaml",
         "/out/TextInput.component-set.lock.yaml",
         "/out/TextInput.component-set.structure.dsl",
+        "/out/import-notes.md",
       ].join("\n")}\n`,
     );
   });
@@ -214,6 +216,48 @@ describe("exportComponentSet", () => {
           component: expect.objectContaining({ name: "TextInput" }),
         }),
       }),
+    );
+  });
+
+  it("writes import notes for URL exports", async () => {
+    const sourceUrl =
+      "https://www.figma.com/design/file-key/Settings?node-id=3971-6465&m=dev";
+    const result = await exportComponentSet({
+      token: "token",
+      teamId: "team-id",
+      outputDir,
+      componentSet: {
+        kind: "node",
+        fileKey: "file-key",
+        nodeId: "3971:6465",
+      },
+      sourceUrl,
+      variablesPath: variablesFixturePath,
+    });
+
+    expect(mocks.resolveTeamComponentSetScope).toHaveBeenCalledWith({
+      token: "token",
+      teamId: "team-id",
+      componentSet: {
+        kind: "node",
+        fileKey: "file-key",
+        nodeId: "3971:6465",
+      },
+    });
+    expect(result.importNotesPath).toBe(
+      path.join(outputDir, "import-notes.md"),
+    );
+    await expect(readFile(result.importNotesPath ?? "", "utf8")).resolves.toBe(
+      [
+        "# Import Notes",
+        "",
+        `sourceUrl: ${JSON.stringify(sourceUrl)}`,
+        'fileKey: "file-key"',
+        'nodeId: "3971:6465"',
+        'componentSetKey: "component-set-key"',
+        'componentSetName: "TextInput"',
+        "",
+      ].join("\n"),
     );
   });
 

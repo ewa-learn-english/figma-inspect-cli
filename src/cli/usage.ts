@@ -5,14 +5,14 @@ export const usage = `Usage:
   figma-inspect --list-team-component-sets [--json]
   figma-inspect --list-file-pages --file-key <key> [--json]
   figma-inspect --list-file-component-sets --file-key <key> [--json]
-  figma-inspect --inspect-component-set-properties --file-key <key> --node-id <id> (--component-set-key <key> | --component-set-name <name>) [--json]
-  figma-inspect --inspect-component-set --file-key <key> --node-id <id> (--component-set-key <key> | --component-set-name <name>) [--json]
+  figma-inspect --inspect-component-set-properties (--url <figma-url> | --file-key <key> --node-id <id> (--component-set-key <key> | --component-set-name <name>)) [--json]
+  figma-inspect --inspect-component-set (--url <figma-url> | --file-key <key> --node-id <id> (--component-set-key <key> | --component-set-name <name>)) [--json]
   figma-inspect --inspect-team-component-set (--component-set-key <key> | --component-set-name <name>) [--json]
-  figma-inspect --inspect-file-node --file-key <key> --node-id <id> [--json]
+  figma-inspect --inspect-file-node (--url <figma-url> | --file-key <key> --node-id <id>) [--json]
   figma-inspect --build-component-set-spec --input <path> --variables <path> [--team-components <path>] [--json]
   figma-inspect --build-component-set-pseudocode --input <path> --variables <path> [--output-dir <dir>] [--team-components <path>] [--json]
   figma-inspect --verify-component-contract --contract-dir <dir> [--component-name <name>] [--json]
-  figma-inspect --export-component-set --output-dir <dir> --variables <path> (--component-set-key <key> | --component-set-name <name>) [--export-assets] [--asset-format svg] [--json]
+  figma-inspect --export-component-set --output-dir <dir> --variables <path> (--url <figma-url> | --component-set-key <key> | --component-set-name <name>) [--export-assets] [--asset-format svg] [--json]
 
 Environment:
   FIGMA_API_TOKEN  Figma personal access token (required for --verify-component-contract and all API commands below)
@@ -43,9 +43,10 @@ Options:
   --output-dir <dir>              Output directory (required with --export-component-set)
   --variables <path>              Variables export JSON (required with --build-component-set-spec, --build-component-set-pseudocode, and --export-component-set)
   --team-components <path>        Team component sets JSON (optional with --build-component-set-spec and --build-component-set-pseudocode)
+  --url <figma-url>               Figma node URL; supports /design/<fileKey>/... and /file/<fileKey>/... with node-id
   --project-id <id>               Project id (required with --list-project-files)
-  --file-key <key>                File key (required with --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, and --inspect-file-node)
-  --node-id <id>                  Node id (required with --inspect-component-set-properties, --inspect-component-set, and --inspect-file-node)
+  --file-key <key>                File key (required with --list-file-pages and --list-file-component-sets; also used with node inspect commands unless --url is set)
+  --node-id <id>                  Node id (required with node inspect commands unless --url is set)
   --component-set-key <key>       Component set key (required with --inspect-component-set-properties and --inspect-component-set unless --component-set-name is set; also works with --inspect-team-component-set and --export-component-set)
   --component-set-name <n>        Component set name (required with --inspect-component-set-properties and --inspect-component-set unless --component-set-key is set; also works with --inspect-team-component-set and --export-component-set)
   --json                          Print or write JSON instead of the default YAML

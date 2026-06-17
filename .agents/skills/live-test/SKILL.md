@@ -35,11 +35,13 @@ Use these defaults unless the user provides overrides in the chat:
 | `NODE_ID` | `3:2` |
 | `COMPONENT_SET_NAME` | `Cell` |
 | `VARIABLES_PATH` | `tmp/cp-ds-styles-variables-local.json` |
+| `FIGMA_NODE_URL` | `https://www.figma.com/design/$FILE_KEY/LiveTest?node-id=${NODE_ID/:/-}` |
 
 Derive at runtime when needed:
 
 - `PROJECT_ID` — from `--list-team-projects`; pick the project whose files include `FILE_KEY`, or the first project if user did not specify.
 - `COMPONENT_SET_KEY` — from `--list-file-component-sets --file-key $FILE_KEY`; pick the entry whose `name` equals `COMPONENT_SET_NAME`.
+- `FIGMA_NODE_URL` — build from `FILE_KEY` and `NODE_ID` if not provided; Figma URLs use `node-id=3-2` while API node ids use `3:2`.
 
 ## Commands to test
 
@@ -58,15 +60,18 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 9 | `--inspect-component-set` | `--file-key $FILE_KEY --node-id $NODE_ID --component-set-name $COMPONENT_SET_NAME` | |
 | 10 | `--inspect-team-component-set` | `--component-set-name $COMPONENT_SET_NAME` | resolves file/node from team; needs `FIGMA_TEAM_ID` |
 | 11 | `--inspect-file-node` | `--file-key $FILE_KEY --node-id $NODE_ID` | raw API payload |
-| 12 | `--build-component-set-spec` | `--input tmp/component-set.json --variables $VARIABLES_PATH` | local file only; no Figma token |
-| 13 | `--build-component-set-spec` | `--input tmp/component-set.json --variables $VARIABLES_PATH --team-components tmp/ComponentSets.json` | collapses known team components to slots |
-| 14 | `--build-component-set-pseudocode` | `--input tmp/component-set.json --variables $VARIABLES_PATH` | writes `<ComponentName>.contract.{visuals,geometry,meta}.yaml` and `<ComponentName>.contract.structure.dsl` next to `--input` |
-| 15 | `--build-component-set-pseudocode` | `--input tmp/component-set.json --output-dir tmp --variables $VARIABLES_PATH --team-components tmp/ComponentSets.json` | writes contract files to `tmp/` with token resolution |
-| 16 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME` | writes `<name>.contract.{visuals,geometry,meta,lock}.yaml`, and `<name>.contract.structure.dsl`; needs `FIGMA_TEAM_ID` |
-| 17 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name ProfileStreakIcon --export-assets` | also writes `<name>.assets/*.svg`, stores asset paths in `meta.yaml`, and asset-backed contracts; needs `FIGMA_API_TOKEN` + `FIGMA_TEAM_ID` |
-| 18 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME --json` | same as row 16 but writes `.json` files instead of `.yaml` |
-| 19 | `--verify-component-contract` | `--contract-dir tmp` | compares each lock to live Figma (source, tree, variants); needs `FIGMA_API_TOKEN` |
-| 20 | `--verify-component-contract` | `--contract-dir tmp --component-name Cell --json` | verifies one component; JSON output only |
+| 12 | `--inspect-file-node` | `--url "$FIGMA_NODE_URL"` | URL variant; supports any Figma node type |
+| 13 | `--inspect-component-set` | `--url "$FIGMA_NODE_URL"` | URL variant; requires the URL target to be a `COMPONENT_SET` |
+| 14 | `--build-component-set-spec` | `--input tmp/component-set.json --variables $VARIABLES_PATH` | local file only; no Figma token |
+| 15 | `--build-component-set-spec` | `--input tmp/component-set.json --variables $VARIABLES_PATH --team-components tmp/ComponentSets.json` | collapses known team components to slots |
+| 16 | `--build-component-set-pseudocode` | `--input tmp/component-set.json --variables $VARIABLES_PATH` | writes `<ComponentName>.component-set.{visuals,geometry,meta}.yaml` and `<ComponentName>.component-set.structure.dsl` next to `--input` |
+| 17 | `--build-component-set-pseudocode` | `--input tmp/component-set.json --output-dir tmp --variables $VARIABLES_PATH --team-components tmp/ComponentSets.json` | writes component-set contract files to `tmp/` with token resolution |
+| 18 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME` | writes `<name>.component-set.{visuals,geometry,meta,lock}.yaml`, and `<name>.component-set.structure.dsl`; needs `FIGMA_TEAM_ID` |
+| 19 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FIGMA_NODE_URL"` | URL variant; also writes `import-notes.md`; needs `FIGMA_TEAM_ID` |
+| 20 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name ProfileStreakIcon --export-assets` | also writes `<name>.assets/*.svg`, stores asset paths in `meta.yaml`, and asset-backed contracts; needs `FIGMA_API_TOKEN` + `FIGMA_TEAM_ID` |
+| 21 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME --json` | same as row 18 but writes `.json` files instead of `.yaml` |
+| 22 | `--verify-component-contract` | `--contract-dir tmp` | compares each lock to live Figma (source, tree, variants); needs `FIGMA_API_TOKEN` |
+| 23 | `--verify-component-contract` | `--contract-dir tmp --component-name Cell --json` | verifies one component; JSON output only |
 
 Example:
 
@@ -83,11 +88,14 @@ npx . --inspect-component-set-properties --file-key O7aE7SeG2TRBCK5MsjkG7z --nod
 npx . --inspect-component-set --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2 --component-set-name Cell
 npx . --inspect-team-component-set --component-set-name Cell
 npx . --inspect-file-node --file-key O7aE7SeG2TRBCK5MsjkG7z --node-id 3:2
+npx . --inspect-file-node --url "$FIGMA_NODE_URL"
+npx . --inspect-component-set --url "$FIGMA_NODE_URL"
 npx . --build-component-set-spec --input tmp/component-set.json --variables "$VARIABLES_PATH"
 npx . --build-component-set-spec --input tmp/component-set.json --variables "$VARIABLES_PATH" --team-components tmp/ComponentSets.json
 npx . --build-component-set-pseudocode --input tmp/component-set.json --variables "$VARIABLES_PATH"
 npx . --build-component-set-pseudocode --input tmp/component-set.json --output-dir tmp --variables "$VARIABLES_PATH" --team-components tmp/ComponentSets.json
 npx . --export-component-set --output-dir tmp --variables "$VARIABLES_PATH" --component-set-name "$COMPONENT_SET_NAME"
+npx . --export-component-set --output-dir tmp --variables "$VARIABLES_PATH" --url "$FIGMA_NODE_URL"
 npx . --export-component-set --output-dir tmp --variables "$VARIABLES_PATH" --component-set-name "$COMPONENT_SET_NAME" --json
 ```
 

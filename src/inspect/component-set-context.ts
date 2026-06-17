@@ -9,7 +9,10 @@ import type {
   DocumentNode,
   FigmaComponentSet,
 } from "./schemas.js";
-import type { ComponentSetScopeOptions } from "./types.js";
+import type {
+  ComponentSetNodeRefOptions,
+  ComponentSetScopeOptions,
+} from "./types.js";
 
 export interface ComponentSetContext {
   tree: DocumentNode;
@@ -43,6 +46,34 @@ function findDocumentNode(
   }
 
   return undefined;
+}
+
+function assertComponentSetNode(
+  node: DocumentNode | undefined,
+  nodeId: string,
+): DocumentNode {
+  if (node?.type !== "COMPONENT_SET") {
+    const type = node?.type ?? "UNKNOWN";
+    throw new FigmaInspectError(
+      `Figma node ${nodeId} is ${type}; expected COMPONENT_SET.`,
+    );
+  }
+
+  return node;
+}
+
+function componentSetContextFromNodeEntry(
+  nodeEntry: Awaited<ReturnType<typeof fetchFileNodeEntry>>,
+  componentSetNode: DocumentNode,
+): ComponentSetContext {
+  const nameIndex = buildLenientNameIndex(nodeEntry.componentSets);
+
+  return {
+    tree: componentSetNode,
+    componentSets: nodeEntry.componentSets,
+    components: nodeEntry.components,
+    nameIndex,
+  };
 }
 
 export async function loadComponentSetContext({
@@ -88,4 +119,21 @@ export async function loadComponentSetContext({
     components: nodeEntry.components,
     nameIndex,
   };
+}
+
+export async function loadComponentSetContextByNodeRef({
+  token,
+  fileKey,
+  nodeId,
+  fetchImpl,
+}: ComponentSetNodeRefOptions): Promise<ComponentSetContext> {
+  const nodeEntry = await fetchFileNodeEntry({
+    token,
+    fileKey,
+    nodeId,
+    fetchImpl,
+  });
+  const componentSetNode = assertComponentSetNode(nodeEntry.document, nodeId);
+
+  return componentSetContextFromNodeEntry(nodeEntry, componentSetNode);
 }

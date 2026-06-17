@@ -1,9 +1,11 @@
 import { TeamComponentRegistry } from "./component-set-spec/team-component-registry.js";
 import { FigmaInspectError } from "./errors.js";
+import { fetchFileNodeEntry } from "./fetch-file-node-entry.js";
 import { listAllComponentSets } from "./list-all-component-sets.js";
 import type {
   ComponentSetLookup,
   ComponentSetScopeOptions,
+  ComponentSetTarget,
   FigmaTeamComponentSet,
 } from "./types.js";
 
@@ -33,7 +35,7 @@ function teamComponentRegistryFromPublishedSets(
 export interface ResolveTeamComponentSetOptions {
   token: string;
   teamId: string;
-  componentSet: ComponentSetLookup;
+  componentSet: ComponentSetTarget;
   fetchImpl?: typeof fetch;
 }
 
@@ -52,28 +54,78 @@ function formatTeamComponentSetLocation(
   return `${componentSet.name} (${componentSet.fileName}, ${componentSet.projectName})`;
 }
 
+async function assertComponentSetNodeTarget({
+  token,
+  componentSet,
+  fetchImpl,
+}: Pick<
+  ResolveTeamComponentSetOptions,
+  "token" | "componentSet" | "fetchImpl"
+>): Promise<void> {
+  if (componentSet.kind !== "node") {
+    return;
+  }
+
+  const nodeEntry = await fetchFileNodeEntry({
+    token,
+    fileKey: componentSet.fileKey,
+    nodeId: componentSet.nodeId,
+    fetchImpl,
+  });
+  if (nodeEntry.document?.type !== "COMPONENT_SET") {
+    const type = nodeEntry.document?.type ?? "UNKNOWN";
+    throw new FigmaInspectError(
+      `Figma node ${componentSet.nodeId} is ${type}; expected COMPONENT_SET.`,
+    );
+  }
+}
+
+function matchesTarget(
+  componentSet: FigmaTeamComponentSet,
+  target: ComponentSetTarget,
+): boolean {
+  if (target.kind === "node") {
+    return (
+      componentSet.fileKey === target.fileKey &&
+      componentSet.id === target.nodeId
+    );
+  }
+
+  return matchesLookup(componentSet, target);
+}
+
+function targetLabel(componentSet: ComponentSetTarget): string {
+  if (componentSet.kind === "name") {
+    return `name "${componentSet.value}"`;
+  }
+
+  if (componentSet.kind === "key") {
+    return `key ${componentSet.value}`;
+  }
+
+  return `node ${componentSet.nodeId} in file ${componentSet.fileKey}`;
+}
+
 export async function resolveTeamComponentSetScope({
   token,
   teamId,
   componentSet,
   fetchImpl,
 }: ResolveTeamComponentSetOptions): Promise<ResolveTeamComponentSetScopeResult> {
+  await assertComponentSetNodeTarget({ token, componentSet, fetchImpl });
+
   const publishedSets = await listAllComponentSets({
     token,
     teamId,
     fetchImpl,
   });
   const matches = publishedSets.filter((entry) =>
-    matchesLookup(entry, componentSet),
+    matchesTarget(entry, componentSet),
   );
 
   if (matches.length === 0) {
-    const label =
-      componentSet.kind === "name"
-        ? `name "${componentSet.value}"`
-        : `key ${componentSet.value}`;
     throw new FigmaInspectError(
-      `No published component set with ${label} found in team.`,
+      `No published component set with ${targetLabel(componentSet)} found in team.`,
     );
   }
 

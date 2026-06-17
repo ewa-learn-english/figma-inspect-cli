@@ -1,10 +1,15 @@
-import { loadComponentSetContext } from "./component-set-context.js";
+import {
+  type ComponentSetContext,
+  loadComponentSetContext,
+  loadComponentSetContextByNodeRef,
+} from "./component-set-context.js";
 import type {
   ComponentEntry,
   DocumentNode,
   FigmaComponentSet,
 } from "./schemas.js";
 import type {
+  ComponentSetNodeRefOptions,
   ComponentSetScopeOptions,
   FigmaComponentSetProperty,
 } from "./types.js";
@@ -112,8 +117,25 @@ function collectNestedComponents(
 export async function listComponentSetProperties(
   options: ComponentSetScopeOptions,
 ): Promise<FigmaComponentSetProperty[]> {
-  const { tree, componentSets, components, nameIndex } =
-    await loadComponentSetContext(options);
+  return listComponentSetPropertiesFromContext(
+    await loadComponentSetContext(options),
+  );
+}
+
+export async function listComponentSetPropertiesByRef(
+  options: ComponentSetNodeRefOptions,
+): Promise<FigmaComponentSetProperty[]> {
+  return listComponentSetPropertiesFromContext(
+    await loadComponentSetContextByNodeRef(options),
+  );
+}
+
+function listComponentSetPropertiesFromContext({
+  tree,
+  componentSets,
+  components,
+  nameIndex,
+}: ComponentSetContext): FigmaComponentSetProperty[] {
   const seen = new Map<string, FigmaComponentSetProperty>();
   collectNestedComponents(tree, nameIndex, componentSets, components, seen);
 

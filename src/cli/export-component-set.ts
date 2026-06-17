@@ -37,7 +37,7 @@ import {
   resolveTeamComponentSetScope,
 } from "../inspect/index.js";
 import type {
-  ComponentSetLookup,
+  ComponentSetTarget,
   FigmaTeamComponentSet,
 } from "../inspect/types.js";
 
@@ -45,7 +45,8 @@ export interface ExportComponentSetOptions {
   token: string;
   teamId: string;
   outputDir: string;
-  componentSet: ComponentSetLookup;
+  componentSet: ComponentSetTarget;
+  sourceUrl?: string;
   variablesPath: string;
   exportAssets?: boolean;
   assetFormat?: "svg";
@@ -59,6 +60,7 @@ export interface ExportComponentSetResult {
   lockContractPath: string;
   structureDslPath: string;
   assetsDir?: string;
+  importNotesPath?: string;
 }
 
 function sanitizeFileName(name: string): string {
@@ -83,6 +85,34 @@ async function writeDataFile(
   format: ContractFormat,
 ): Promise<void> {
   await writeFile(filePath, serializeContractData(value, format), "utf8");
+}
+
+async function writeImportNotes(options: {
+  outputDir: string;
+  sourceUrl: string | undefined;
+  fileKey: string;
+  nodeId: string;
+  componentSetKey: string;
+  componentSetName: string;
+}): Promise<string | undefined> {
+  if (!options.sourceUrl) {
+    return undefined;
+  }
+
+  const notesPath = path.join(options.outputDir, "import-notes.md");
+  const lines = [
+    "# Import Notes",
+    "",
+    `sourceUrl: ${JSON.stringify(options.sourceUrl)}`,
+    `fileKey: ${JSON.stringify(options.fileKey)}`,
+    `nodeId: ${JSON.stringify(options.nodeId)}`,
+    `componentSetKey: ${JSON.stringify(options.componentSetKey)}`,
+    `componentSetName: ${JSON.stringify(options.componentSetName)}`,
+    "",
+  ];
+  await writeFile(notesPath, lines.join("\n"), "utf8");
+
+  return notesPath;
 }
 
 export async function exportComponentSet(
@@ -217,6 +247,14 @@ export async function exportComponentSet(
     }),
   );
   await writeContractLock(lockContractPath, lock);
+  const importNotesPath = await writeImportNotes({
+    outputDir: options.outputDir,
+    sourceUrl: options.sourceUrl,
+    fileKey: scope.fileKey,
+    nodeId: componentSetNodeId,
+    componentSetKey: componentSetMeta.key,
+    componentSetName: scope.publishedSet.name,
+  });
 
   return {
     visualsContractPath,
@@ -225,6 +263,7 @@ export async function exportComponentSet(
     lockContractPath,
     structureDslPath,
     assetsDir,
+    importNotesPath,
   };
 }
 
@@ -241,6 +280,9 @@ export function writeExportResult(
   ];
   if (result.assetsDir) {
     lines.push(result.assetsDir);
+  }
+  if (result.importNotesPath) {
+    lines.push(result.importNotesPath);
   }
   stdout.write(`${lines.join("\n")}\n`);
 }

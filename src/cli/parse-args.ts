@@ -1,5 +1,10 @@
 import type { ContractFormat } from "../inspect/contract/contract-format.js";
-import type { ComponentSetLookup } from "../inspect/types.js";
+import { FigmaInspectError, parseFigmaNodeUrl } from "../inspect/index.js";
+import type {
+  ComponentSetLookup,
+  ComponentSetTarget,
+  FigmaNodeRef,
+} from "../inspect/types.js";
 import { CliError } from "./errors.js";
 import type { CliCommand, ComponentSetCommandScope } from "./types.js";
 import { usage } from "./usage.js";
@@ -28,6 +33,7 @@ interface ParsedFlags {
   outputDir: string | undefined;
   variablesPath: string | undefined;
   teamComponentsPath: string | undefined;
+  url: string | undefined;
   fileKey: string | undefined;
   nodeId: string | undefined;
   componentSetKey: string | undefined;
@@ -66,6 +72,7 @@ function emptyFlags(): ParsedFlags {
     outputDir: undefined,
     variablesPath: undefined,
     teamComponentsPath: undefined,
+    url: undefined,
     fileKey: undefined,
     nodeId: undefined,
     componentSetKey: undefined,
@@ -144,7 +151,14 @@ function requireComponentSetScope(
   flags: ParsedFlags,
   command: string,
 ): ComponentSetCommandScope {
+  if (flags.url) {
+    rejectFileNodeFlagsWithUrl(flags, command);
+    rejectComponentSetLookupWithUrl(flags, command);
+    return { kind: "node", ...parseFigmaUrl(flags.url) };
+  }
+
   return {
+    kind: "lookup",
     fileKey: requireFileKey(flags.fileKey, command),
     nodeId: requireNodeId(flags.nodeId, command),
     componentSet: parseComponentSetLookup(
@@ -153,6 +167,66 @@ function requireComponentSetScope(
       command,
     ),
   };
+}
+
+function parseFigmaUrl(url: string): FigmaNodeRef {
+  try {
+    return parseFigmaNodeUrl(url);
+  } catch (error) {
+    if (error instanceof FigmaInspectError) {
+      throw new CliError(error.message);
+    }
+
+    throw error;
+  }
+}
+
+function rejectFileNodeFlagsWithUrl(flags: ParsedFlags, command: string): void {
+  if (flags.fileKey || flags.nodeId) {
+    throw new CliError(
+      `Pass either --url or --file-key/--node-id for ${command}.`,
+    );
+  }
+}
+
+function rejectComponentSetLookupWithUrl(
+  flags: ParsedFlags,
+  command: string,
+): void {
+  if (flags.componentSetKey || flags.componentSetName) {
+    throw new CliError(
+      `Pass either --url or --component-set-key/--component-set-name for ${command}.`,
+    );
+  }
+}
+
+function resolveNodeRef(flags: ParsedFlags, command: string): FigmaNodeRef {
+  if (flags.url) {
+    rejectFileNodeFlagsWithUrl(flags, command);
+    return parseFigmaUrl(flags.url);
+  }
+
+  return {
+    fileKey: requireFileKey(flags.fileKey, command),
+    nodeId: requireNodeId(flags.nodeId, command),
+  };
+}
+
+function parseComponentSetTarget(
+  flags: ParsedFlags,
+  command: string,
+): ComponentSetTarget {
+  if (flags.url) {
+    rejectFileNodeFlagsWithUrl(flags, command);
+    rejectComponentSetLookupWithUrl(flags, command);
+    return { kind: "node", ...parseFigmaUrl(flags.url) };
+  }
+
+  return parseComponentSetLookup(
+    flags.componentSetKey,
+    flags.componentSetName,
+    command,
+  );
 }
 
 function resolveCommand(flags: ParsedFlags): CliCommand {
@@ -270,8 +344,8 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
     case "inspect-file-node":
       return {
         kind: "inspect-file-node",
-        fileKey: requireFileKey(flags.fileKey, "--inspect-file-node"),
-        nodeId: requireNodeId(flags.nodeId, "--inspect-file-node"),
+        ...resolveNodeRef(flags, "--inspect-file-node"),
+        sourceUrl: flags.url,
         format: resolveOutputFormat(flags),
       };
     case "build-component-set-spec": {
@@ -331,11 +405,8 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
       return {
         kind: "export-component-set",
         outputDir: flags.outputDir,
-        componentSet: parseComponentSetLookup(
-          flags.componentSetKey,
-          flags.componentSetName,
-          "--export-component-set",
-        ),
+        componentSet: parseComponentSetTarget(flags, "--export-component-set"),
+        sourceUrl: flags.url,
         variablesPath: requireVariablesPath(
           flags.variablesPath,
           "--export-component-set",
@@ -467,6 +538,13 @@ export function parseCommand(argv: string[]): CliCommand {
     if (arg === "--team-components") {
       const { value, nextIndex } = readFlagValue(argv, index, arg);
       flags.teamComponentsPath = value;
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--url") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.url = value;
       index = nextIndex;
       continue;
     }

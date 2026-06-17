@@ -13,11 +13,21 @@ const mocks = vi.hoisted(() => ({
   buildComponentSetPseudocodeFromFile: vi.fn(),
   exportComponentSet: vi.fn(),
   listProjectFiles: vi.fn(),
+  getFileNode: vi.fn(),
+  getNodeComponentSetByRef: vi.fn(),
+  listComponentSetPropertiesByRef: vi.fn(),
+  parseFigmaNodeUrl: vi.fn((rawUrl: string) => {
+    const url = new URL(rawUrl);
+    return {
+      fileKey: url.pathname.split("/")[2],
+      nodeId: (url.searchParams.get("node-id") ?? "").replace(/-/g, ":"),
+    };
+  }),
 }));
 
 vi.mock("../figma-api/index.js", () => ({
   FigmaApiError,
-  getFileNode: vi.fn(),
+  getFileNode: mocks.getFileNode,
   listFileComponentSets: vi.fn(),
   listFilePages: vi.fn(),
   listProjectFiles: mocks.listProjectFiles,
@@ -31,8 +41,11 @@ vi.mock("../inspect/index.js", () => ({
     mocks.buildComponentSetPseudocodeFromFile,
   buildComponentSetSpecFromFile: mocks.buildComponentSetSpecFromFile,
   getNodeComponentSet: vi.fn(),
+  getNodeComponentSetByRef: mocks.getNodeComponentSetByRef,
   listAllComponentSets: vi.fn(),
   listComponentSetProperties: vi.fn(),
+  listComponentSetPropertiesByRef: mocks.listComponentSetPropertiesByRef,
+  parseFigmaNodeUrl: mocks.parseFigmaNodeUrl,
   resolveGeometryContractPath: vi.fn(
     (directory: string, componentName: string, format: string) =>
       path.join(
@@ -280,6 +293,99 @@ describe("runCli", () => {
       }),
     );
     expect(output()).toBe("exported\n");
+  });
+
+  it("runs export-component-set from a Figma URL", async () => {
+    mocks.exportComponentSet.mockResolvedValue({
+      visualsContractPath: "/out/a.yaml",
+      geometryContractPath: "/out/b.yaml",
+      metaContractPath: "/out/c.yaml",
+      lockContractPath: "/out/d.yaml",
+      structureDslPath: "/out/e.dsl",
+      importNotesPath: "/out/import-notes.md",
+    });
+    const { io, output } = createIo({ FIGMA_TEAM_ID: "team" });
+    const sourceUrl =
+      "https://www.figma.com/design/fileKey/Settings?node-id=213-695&m=dev";
+
+    await runCli(
+      [
+        "--export-component-set",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--url",
+        sourceUrl,
+      ],
+      io,
+    );
+
+    expect(mocks.exportComponentSet).toHaveBeenCalledWith(
+      expect.objectContaining({
+        token: "token",
+        teamId: "team",
+        outputDir: "out",
+        componentSet: {
+          kind: "node",
+          fileKey: "fileKey",
+          nodeId: "213:695",
+        },
+        sourceUrl,
+      }),
+    );
+    expect(output()).toBe("exported\n");
+  });
+
+  it("inspects any file node from a Figma URL", async () => {
+    mocks.getFileNode.mockResolvedValue({ nodes: { "208:43935": {} } });
+    const { io, output } = createIo();
+
+    await runCli(
+      [
+        "--inspect-file-node",
+        "--url",
+        "https://www.figma.com/design/fileKey/Settings?node-id=208-43935&m=dev",
+        "--json",
+      ],
+      io,
+    );
+
+    expect(mocks.getFileNode).toHaveBeenCalledWith({
+      token: "token",
+      fileKey: "fileKey",
+      nodeId: "208:43935",
+    });
+    expect(output()).toContain('"208:43935"');
+  });
+
+  it("inspects component set helpers from a Figma URL", async () => {
+    mocks.getNodeComponentSetByRef.mockResolvedValue({
+      id: "213:695",
+      type: "COMPONENT_SET",
+      isExposedInstance: false,
+    });
+    mocks.listComponentSetPropertiesByRef.mockResolvedValue([]);
+    const { io } = createIo();
+    const sourceUrl =
+      "https://www.figma.com/design/fileKey/Settings?node-id=213-695&m=dev";
+
+    await runCli(["--inspect-component-set", "--url", sourceUrl], io);
+    await runCli(
+      ["--inspect-component-set-properties", "--url", sourceUrl],
+      io,
+    );
+
+    expect(mocks.getNodeComponentSetByRef).toHaveBeenCalledWith({
+      token: "token",
+      fileKey: "fileKey",
+      nodeId: "213:695",
+    });
+    expect(mocks.listComponentSetPropertiesByRef).toHaveBeenCalledWith({
+      token: "token",
+      fileKey: "fileKey",
+      nodeId: "213:695",
+    });
   });
 
   it("wraps FigmaApiError from export in CliError", async () => {
