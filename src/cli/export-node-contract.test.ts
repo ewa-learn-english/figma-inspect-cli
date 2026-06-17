@@ -70,7 +70,7 @@ describe("exportNodeContract", () => {
         "",
       ].join("\n"),
       lock: {
-        version: 1,
+        version: 2,
         kind: "frame",
         source: {
           fileKey: "file-key",
@@ -78,8 +78,25 @@ describe("exportNodeContract", () => {
           nodeType: "FRAME",
           name: "Settings",
         },
-        fingerprints: { tree: "tree", contracts: "contracts" },
+        fingerprints: {
+          tree: "tree",
+          contractSurface: "surface",
+          contracts: "contracts",
+        },
         dependencies: { componentSets: [], components: [] },
+        approval: {
+          status: "unverified",
+          verifiedAt: null,
+          verifiedBy: null,
+          baselineRevision: null,
+        },
+        drift: {
+          lastCheckedAt: null,
+          metadataChanged: false,
+          sourceChanged: false,
+          structureChanged: false,
+          visualsChanged: false,
+        },
       },
     });
   });
@@ -121,10 +138,14 @@ describe("exportNodeContract", () => {
     });
 
     const lock = parse(await readFile(result.lockContractPath, "utf8")) as {
+      version: number;
       kind: string;
+      fingerprints: { contractSurface?: string };
       source: { nodeType: string };
     };
+    expect(lock.version).toBe(2);
     expect(lock.kind).toBe("frame");
+    expect(lock.fingerprints.contractSurface).toBe("surface");
     expect(lock.source.nodeType).toBe("FRAME");
     await expect(readFile(result.importNotesPath ?? "", "utf8")).resolves.toBe(
       [

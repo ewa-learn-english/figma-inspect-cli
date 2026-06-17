@@ -168,6 +168,7 @@ describe("runCli", () => {
         changed: {
           source: true,
           tree: false,
+          contractSurface: true,
           variants: ["v1"],
           addedVariants: [],
           removedVariants: [],
@@ -190,7 +191,7 @@ describe("runCli", () => {
     ).rejects.toThrow(/Contract verification failed/);
 
     expect(output()).toContain("Cell\tchanged");
-    expect(output()).toContain("changed: source variants=v1");
+    expect(output()).toContain("changed: source contract-surface variants=v1");
   });
 
   it("writes json verify results", async () => {
@@ -219,6 +220,7 @@ describe("runCli", () => {
         changed: {
           source: false,
           tree: true,
+          contractSurface: true,
           kind: false,
         },
       },
@@ -239,7 +241,7 @@ describe("runCli", () => {
     ).rejects.toThrow(/Node contract verification failed/);
 
     expect(output()).toContain("Settings\tframe\tchanged");
-    expect(output()).toContain("changed: tree");
+    expect(output()).toContain("changed: tree contract-surface");
   });
 
   it("wraps FigmaInspectError from verify in CliError", async () => {

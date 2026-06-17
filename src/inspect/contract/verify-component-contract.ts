@@ -25,7 +25,7 @@ import {
   readComponentContractArtifacts,
   validateComponentContractArtifacts,
 } from "./contract-schema.js";
-import { fingerprintTree } from "./fingerprint.js";
+import { fingerprintContractSurface, fingerprintTree } from "./fingerprint.js";
 
 type ComponentContractVerifyStatus = "ok" | "changed" | "error";
 
@@ -48,6 +48,7 @@ interface LiveLockSnapshot {
   source: ContractLockSource;
   variants: ContractLockVariant[];
   treeFingerprint: string;
+  contractSurfaceFingerprint: string;
 }
 
 function lockFileNamePattern(): RegExp {
@@ -103,6 +104,8 @@ async function fetchLiveLockSnapshot(
     source: {
       fileKey: componentSetMeta.file_key,
       nodeId: componentSetMeta.node_id,
+      nodeType: "COMPONENT_SET",
+      ...(lock.source.sourceUrl ? { sourceUrl: lock.source.sourceUrl } : {}),
       componentSetKey: componentSetMeta.key,
       componentSetUpdatedAt: componentSetMeta.updated_at,
     },
@@ -110,6 +113,7 @@ async function fetchLiveLockSnapshot(
       filterFileComponentsForComponentSet(fileComponents, lock.source.nodeId),
     ),
     treeFingerprint: fingerprintTree(context.tree),
+    contractSurfaceFingerprint: fingerprintContractSurface(context.tree),
   };
 }
 
@@ -122,6 +126,7 @@ async function verifySingleComponentContract(
   const emptyDiff: ContractLockDiff = {
     source: false,
     tree: false,
+    contractSurface: false,
     variants: [],
     addedVariants: [],
     removedVariants: [],

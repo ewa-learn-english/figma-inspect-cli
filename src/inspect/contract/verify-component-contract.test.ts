@@ -12,7 +12,7 @@ import {
   readContractLock,
   resolveContractLockPath,
 } from "./contract-lock.js";
-import { fingerprintTree } from "./fingerprint.js";
+import { fingerprintContractSurface, fingerprintTree } from "./fingerprint.js";
 import { verifyComponentContracts } from "./verify-component-contract.js";
 
 const contractFixtures = contractFixturesDir;
@@ -238,6 +238,7 @@ describe("verifyComponentContracts", () => {
         changed: {
           source: false,
           tree: false,
+          contractSurface: false,
           variants: [],
           addedVariants: [],
           removedVariants: [],
@@ -258,6 +259,7 @@ describe("verifyComponentContracts", () => {
       variants: sourceLock.variants,
       fingerprints: {
         tree: fingerprintTree(tree),
+        contractSurface: fingerprintContractSurface(tree),
         contracts: sourceLock.fingerprints.contracts,
         assets: sourceLock.fingerprints.assets,
       },
@@ -282,6 +284,7 @@ describe("verifyComponentContracts", () => {
     expect(results[0]?.changed).toEqual({
       source: false,
       tree: false,
+      contractSurface: false,
       variants: [],
       addedVariants: [],
       removedVariants: [],
@@ -301,6 +304,7 @@ describe("verifyComponentContracts", () => {
       variants: sourceLock.variants,
       fingerprints: {
         tree: fingerprintTree(tree),
+        contractSurface: fingerprintContractSurface(tree),
         contracts: sourceLock.fingerprints.contracts,
         assets: sourceLock.fingerprints.assets,
       },
@@ -331,6 +335,59 @@ describe("verifyComponentContracts", () => {
     expect(results[0]?.changed.source).toBe(false);
     expect(results[0]?.changed.variants).toEqual([]);
     expect(results[0]?.errors).toEqual([]);
+  });
+
+  it("reports ok when only absolute canvas position changes", async () => {
+    const contractDir = await mkdtemp(
+      path.join(tmpdir(), "figma-verify-surface-"),
+    );
+    await copyProfileStreakContracts(contractDir);
+
+    const sourceLock = await loadProfileStreakLock();
+    const tree = {
+      ...profileStreakComponentSetTree(),
+      absoluteBoundingBox: { x: 10, y: 20, width: 100, height: 100 },
+    };
+    const movedTree = {
+      ...tree,
+      absoluteBoundingBox: { x: 900, y: 1200, width: 100, height: 100 },
+    };
+    const lock = buildContractLock({
+      source: sourceLock.source,
+      variants: sourceLock.variants,
+      fingerprints: {
+        tree: fingerprintTree(tree),
+        contractSurface: fingerprintContractSurface(tree),
+        contracts: sourceLock.fingerprints.contracts,
+        assets: sourceLock.fingerprints.assets,
+      },
+    });
+
+    await writeFile(
+      resolveContractLockPath(contractDir, "ProfileStreakIcon"),
+      serializeContractData(lock, "yaml"),
+    );
+
+    const results = await verifyComponentContracts({
+      token: "token",
+      contractDir,
+      componentName: "ProfileStreakIcon",
+      fetchImpl: createFigmaFetchMock(buildLiveMockResponses(lock, movedTree)),
+    });
+
+    expect(fingerprintTree(movedTree)).not.toBe(fingerprintTree(tree));
+    expect(fingerprintContractSurface(movedTree)).toBe(
+      fingerprintContractSurface(tree),
+    );
+    expect(results[0]?.status).toBe("ok");
+    expect(results[0]?.changed).toEqual({
+      source: false,
+      tree: false,
+      contractSurface: false,
+      variants: [],
+      addedVariants: [],
+      removedVariants: [],
+    });
   });
 
   it("discovers and verifies every lock file in the contract directory", async () => {

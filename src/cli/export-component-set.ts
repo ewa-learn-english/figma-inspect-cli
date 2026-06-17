@@ -27,6 +27,7 @@ import {
 } from "../inspect/contract/contract-schema.js";
 import {
   fingerprintAssetFiles,
+  fingerprintContractSurface,
   fingerprintContracts,
   fingerprintTree,
 } from "../inspect/contract/fingerprint.js";
@@ -167,10 +168,12 @@ export async function exportComponentSet(
   );
   const previousLock = await readContractLock(lockContractPath);
   const treeFingerprint = fingerprintTree(raw);
+  const contractSurfaceFingerprint = fingerprintContractSurface(raw);
   const skipNodeIds = collectUnchangedVariantNodeIds(
     previousLock,
     lockVariants,
     treeFingerprint,
+    contractSurfaceFingerprint,
   );
 
   let assetsDir: string | undefined;
@@ -219,12 +222,15 @@ export async function exportComponentSet(
       source: {
         fileKey: scope.fileKey,
         nodeId: componentSetNodeId,
+        nodeType: "COMPONENT_SET",
+        ...(options.sourceUrl ? { sourceUrl: options.sourceUrl } : {}),
         componentSetKey: componentSetMeta.key,
         componentSetUpdatedAt: componentSetMeta.updated_at,
       },
       variants: lockVariants,
       fingerprints: {
         tree: treeFingerprint,
+        contractSurface: contractSurfaceFingerprint,
         contracts: fingerprintContracts(
           contractResult.visuals,
           contractResult.geometry,

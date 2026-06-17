@@ -131,11 +131,18 @@ describe("exportComponentSet", () => {
     );
 
     const lock = parse(await readFile(result.lockContractPath, "utf8")) as {
-      source: { fileKey: string; componentSetKey: string };
+      version: number;
+      kind: string;
+      source: { fileKey: string; nodeType?: string; componentSetKey: string };
+      fingerprints: { contractSurface?: string };
       variants: Array<{ key: string }>;
     };
+    expect(lock.version).toBe(2);
+    expect(lock.kind).toBe("component-set");
     expect(lock.source.fileKey).toBe("file-key");
+    expect(lock.source.nodeType).toBe("COMPONENT_SET");
     expect(lock.source.componentSetKey).toBe("component-set-key");
+    expect(lock.fingerprints.contractSurface).toMatch(/^[a-f0-9]{64}$/);
     expect(lock.variants).toEqual([
       {
         key: "variant-key",

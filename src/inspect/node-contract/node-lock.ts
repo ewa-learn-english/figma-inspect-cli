@@ -1,20 +1,20 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { parse } from "yaml";
 import { serializeContractData } from "../contract/contract-format.js";
+import {
+  hasContractSurfaceFingerprint,
+  normalizeLockVersion,
+  normalizeVersionedLockMetadata,
+} from "../contract/lock-metadata.js";
 import { FigmaInspectError } from "../errors.js";
 import type {
   NodeContractDependency,
   NodeContractFigmaType,
   NodeContractKind,
   NodeContractLock,
+  NodeContractLockDiff,
   NodeContractSource,
 } from "./types.js";
-
-export interface NodeContractLockDiff {
-  source: boolean;
-  tree: boolean;
-  kind: boolean;
-}
 
 function readRecord(value: unknown): Record<string, unknown> | undefined {
   return typeof value === "object" && value !== null && !Array.isArray(value)
@@ -112,7 +112,12 @@ function normalizeDependencyList(
 
 function normalizeLock(value: unknown): NodeContractLock | undefined {
   const record = readRecord(value);
-  if (record?.version !== 1) {
+  if (!record) {
+    return undefined;
+  }
+
+  const version = normalizeLockVersion(record);
+  if (!version) {
     return undefined;
   }
 
@@ -125,19 +130,46 @@ function normalizeLock(value: unknown): NodeContractLock | undefined {
   }
 
   const tree = readString(fingerprints, "tree");
+  const contractSurface = readString(fingerprints, "contractSurface");
   const contracts = readString(fingerprints, "contracts");
   const componentSets = normalizeDependencyList(dependencies.componentSets);
   const components = normalizeDependencyList(dependencies.components);
   if (!tree || !contracts || !componentSets || !components) {
     return undefined;
   }
+  if (version === 2 && !contractSurface) {
+    return undefined;
+  }
 
-  return {
-    version: 1,
+  const metadata = normalizeVersionedLockMetadata(record, version);
+  if (!metadata) {
+    return undefined;
+  }
+
+  const base = {
     kind,
     source,
-    fingerprints: { tree, contracts },
     dependencies: { componentSets, components },
+    approval: metadata.approval,
+    drift: metadata.drift,
+  };
+
+  if (version === 2) {
+    if (!contractSurface) {
+      return undefined;
+    }
+
+    return {
+      ...base,
+      version,
+      fingerprints: { tree, contractSurface, contracts },
+    };
+  }
+
+  return {
+    ...base,
+    version,
+    fingerprints: { tree, contracts },
   };
 }
 
@@ -191,9 +223,26 @@ export function diffNodeContractLock(
   locked: NodeContractLock,
   live: NodeContractLock,
 ): NodeContractLockDiff {
+  const contractSurface = (() => {
+    if (
+      hasContractSurfaceFingerprint(locked.fingerprints) &&
+      hasContractSurfaceFingerprint(live.fingerprints)
+    ) {
+      return (
+        locked.fingerprints.contractSurface !==
+        live.fingerprints.contractSurface
+      );
+    }
+
+    return locked.fingerprints.tree !== live.fingerprints.tree;
+  })();
+
   return {
     source: !sameSourceIdentity(locked.source, live.source),
-    tree: locked.fingerprints.tree !== live.fingerprints.tree,
+    tree:
+      !hasContractSurfaceFingerprint(locked.fingerprints) &&
+      locked.fingerprints.tree !== live.fingerprints.tree,
+    contractSurface,
     kind: locked.kind !== live.kind,
   };
 }
@@ -201,5 +250,5 @@ export function diffNodeContractLock(
 export function isNodeContractLockDiffEmpty(
   diff: NodeContractLockDiff,
 ): boolean {
-  return !diff.source && !diff.tree && !diff.kind;
+  return !diff.source && !diff.tree && !diff.contractSurface && !diff.kind;
 }

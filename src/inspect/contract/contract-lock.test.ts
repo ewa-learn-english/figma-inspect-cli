@@ -1,7 +1,11 @@
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { contractFixturesDir } from "../../test/fixtures.js";
+import { serializeContractData } from "./contract-format.js";
 import {
+  buildContractLock,
   type ContractLock,
   collectUnchangedVariantNodeIds,
   diffContractLock,
@@ -16,6 +20,7 @@ const contractDir = contractFixturesDir;
 
 const baseLock: ContractLock = {
   version: 1,
+  kind: "component-set",
   source: {
     fileKey: "abc",
     nodeId: "1:2",
@@ -33,6 +38,19 @@ const baseLock: ContractLock = {
   fingerprints: {
     tree: "tree-hash",
     contracts: "contracts-hash",
+  },
+  approval: {
+    status: "unverified",
+    verifiedAt: null,
+    verifiedBy: null,
+    baselineRevision: null,
+  },
+  drift: {
+    lastCheckedAt: null,
+    metadataChanged: false,
+    sourceChanged: false,
+    structureChanged: false,
+    visualsChanged: false,
   },
 };
 
@@ -62,6 +80,56 @@ describe("readContractLock", () => {
       ),
     ).resolves.toBeUndefined();
   });
+
+  it("adds approval and drift defaults only when reading v1 locks", async () => {
+    const directory = await mkdtemp(path.join(tmpdir(), "figma-lock-v1-"));
+    const lockPath = resolveContractLockPath(directory, "Cell");
+    await writeFile(
+      lockPath,
+      serializeContractData(
+        {
+          version: 1,
+          source: baseLock.source,
+          variants: baseLock.variants,
+          fingerprints: baseLock.fingerprints,
+        },
+        "yaml",
+      ),
+      "utf8",
+    );
+
+    const lock = await readContractLock(lockPath);
+
+    expect(lock).toMatchObject({
+      version: 1,
+      approval: baseLock.approval,
+      drift: baseLock.drift,
+    });
+  });
+
+  it("rejects v2 locks with missing approval or drift metadata", async () => {
+    const directory = await mkdtemp(path.join(tmpdir(), "figma-lock-v2-"));
+    const lockPath = resolveContractLockPath(directory, "Cell");
+    const lock = buildContractLock({
+      source: baseLock.source,
+      variants: baseLock.variants,
+      fingerprints: {
+        tree: "tree-hash",
+        contractSurface: "surface-hash",
+        contracts: "contracts-hash",
+      },
+    });
+    const { approval: _approval, ...invalidLock } = lock;
+    await writeFile(
+      lockPath,
+      serializeContractData(invalidLock, "yaml"),
+      "utf8",
+    );
+
+    await expect(readContractLock(lockPath)).rejects.toThrow(
+      /Invalid contract lock file/,
+    );
+  });
 });
 
 describe("toLockVariants", () => {
@@ -86,6 +154,44 @@ describe("toLockVariants", () => {
   });
 });
 
+describe("buildContractLock", () => {
+  it("writes component-set lock v2 with contract surface defaults", () => {
+    const lock = buildContractLock({
+      source: baseLock.source,
+      variants: baseLock.variants,
+      fingerprints: {
+        tree: "tree-hash",
+        contractSurface: "surface-hash",
+        contracts: "contracts-hash",
+      },
+    });
+
+    expect(lock).toMatchObject({
+      version: 2,
+      kind: "component-set",
+      source: { nodeType: "COMPONENT_SET" },
+      fingerprints: {
+        tree: "tree-hash",
+        contractSurface: "surface-hash",
+        contracts: "contracts-hash",
+      },
+      approval: {
+        status: "unverified",
+        verifiedAt: null,
+        verifiedBy: null,
+        baselineRevision: null,
+      },
+      drift: {
+        lastCheckedAt: null,
+        metadataChanged: false,
+        sourceChanged: false,
+        structureChanged: false,
+        visualsChanged: false,
+      },
+    });
+  });
+});
+
 describe("diffContractLock", () => {
   it("reports no diff when live matches lock", () => {
     const diff = diffContractLock(baseLock, {
@@ -94,6 +200,47 @@ describe("diffContractLock", () => {
       treeFingerprint: "tree-hash",
     });
     expect(isContractLockDiffEmpty(diff)).toBe(true);
+  });
+
+  it("ignores raw tree drift when contract surface matches", () => {
+    const lock = {
+      ...baseLock,
+      version: 2 as const,
+      fingerprints: {
+        ...baseLock.fingerprints,
+        contractSurface: "surface-hash",
+      },
+    };
+    const diff = diffContractLock(lock, {
+      source: lock.source,
+      variants: lock.variants,
+      treeFingerprint: "other-tree",
+      contractSurfaceFingerprint: "surface-hash",
+    });
+
+    expect(isContractLockDiffEmpty(diff)).toBe(true);
+    expect(diff.tree).toBe(false);
+    expect(diff.contractSurface).toBe(false);
+  });
+
+  it("reports contract surface drift", () => {
+    const lock = {
+      ...baseLock,
+      version: 2 as const,
+      fingerprints: {
+        ...baseLock.fingerprints,
+        contractSurface: "surface-hash",
+      },
+    };
+    const diff = diffContractLock(lock, {
+      source: lock.source,
+      variants: lock.variants,
+      treeFingerprint: "tree-hash",
+      contractSurfaceFingerprint: "other-surface",
+    });
+
+    expect(diff.contractSurface).toBe(true);
+    expect(isContractLockDiffEmpty(diff)).toBe(false);
   });
 
   it("ignores timestamp drift when identity and tree match", () => {

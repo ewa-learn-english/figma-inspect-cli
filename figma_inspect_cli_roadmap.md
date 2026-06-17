@@ -279,9 +279,11 @@ Reasons:
 
 ## P2 — Lock v2 и contract surface fingerprint
 
+Статус: сделано.
+
 Цель: отделить фактические изменения визуального/структурного контракта от metadata drift для всех lock kinds: `component-set`, `component`, `frame`.
 
-### Предлагаемый lock v2
+### Lock v2
 
 ```yaml
 version: 2
@@ -344,18 +346,36 @@ Exclude or normalize:
 
 ### Tasks for agent
 
-1. Add `fingerprintContractSurface(raw, variables, teamComponents?)`.
-2. Add tests with fixture where only `updated_at` changes.
+1. Add `fingerprintContractSurface(raw, variables?, teamComponents?)`.
+2. Add tests with fixture where only `updated_at` / volatile metadata changes.
 3. Add tests where absolute canvas position changes but layout contract does not.
 4. Add tests where padding/fill/text/children order changes and fingerprint changes.
 5. Add migration reader for lock v1/v2.
-6. Keep writer on v2 only after repo adoption is ready.
+6. Write v2 locks for all exporters after repo adoption.
+7. Use `contractSurface` for verify drift, with `tree` as v1 fallback / compatibility fingerprint.
+
+### Done
+
+- Added allowlisted contract surface fingerprinting:
+   - includes node type/name, component and instance identity, variant definitions/names, layout, dimensions, constraints, fills/strokes/effects, opacity/blend mode, text style/content, visibility, bound variables, and children order;
+   - excludes timestamps, plugin/editor metadata, absolute canvas `x/y`, and other REST payload noise.
+- Component-set writer now emits `version: 2`, `kind: component-set`, `fingerprints.contractSurface`, `approval`, and `drift`.
+- Frame/component node writer now emits v2 lock fields and `fingerprints.contractSurface`.
+- Component-set and node lock readers accept both v1 and v2.
+- Verify compares `contractSurface` for v2 locks and falls back to raw `tree` for v1 locks.
+- Verify stdout includes `contract-surface` when a real surface drift is detected.
+- Added unit coverage for:
+   - metadata-only drift;
+   - canvas-position-only drift;
+   - layout/visual/text/children-order changes;
+   - v1 fallback and v2 surface compare.
 
 ### Acceptance criteria
 
 - False positives from timestamp/canvas-position metadata are gone.
 - Real layout/visual/structure changes are detected.
 - Backward compatibility with lock v1 read is preserved.
+- `npm run check` + `npm run build` проходят.
 
 ## P3 — Verified manifest and bulk registry
 

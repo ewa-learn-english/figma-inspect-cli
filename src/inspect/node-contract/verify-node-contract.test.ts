@@ -3,6 +3,10 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { serializeContractData } from "../contract/contract-format.js";
+import {
+  fingerprintContractSurface,
+  fingerprintTree,
+} from "../contract/fingerprint.js";
 import { writeNodeContractLock } from "./node-lock.js";
 import {
   resolveNodeContractLockPath,
@@ -40,6 +44,31 @@ const baseLock = {
     components: [],
   },
 };
+
+function baseV2Lock(tree: Record<string, unknown>) {
+  return {
+    ...baseLock,
+    version: 2 as const,
+    fingerprints: {
+      tree: fingerprintTree(tree),
+      contractSurface: fingerprintContractSurface(tree),
+      contracts: baseLock.fingerprints.contracts,
+    },
+    approval: {
+      status: "unverified" as const,
+      verifiedAt: null,
+      verifiedBy: null,
+      baselineRevision: null,
+    },
+    drift: {
+      lastCheckedAt: null,
+      metadataChanged: false,
+      sourceChanged: false,
+      structureChanged: false,
+      visualsChanged: false,
+    },
+  };
+}
 
 async function writeNodeArtifacts(directory: string): Promise<void> {
   await mkdir(directory, { recursive: true });
@@ -132,6 +161,7 @@ describe("verifyNodeContracts", () => {
         changed: {
           source: false,
           tree: true,
+          contractSurface: true,
           kind: false,
         },
       },
@@ -142,5 +172,103 @@ describe("verifyNodeContracts", () => {
       nodeId: "208:43935",
       fetchImpl: expect.any(Function),
     });
+  });
+
+  it("ignores canvas position drift for v2 node locks", async () => {
+    const directory = await mkdtemp(
+      path.join(os.tmpdir(), "figma-node-verify-v2-test-"),
+    );
+    const tree = {
+      id: "208:43935",
+      name: "Settings",
+      type: "FRAME",
+      isExposedInstance: false,
+      absoluteBoundingBox: { x: 10, y: 20, width: 390, height: 844 },
+    };
+    const movedTree = {
+      ...tree,
+      absoluteBoundingBox: { x: 900, y: 1200, width: 390, height: 844 },
+    };
+
+    await writeNodeArtifacts(directory);
+    await writeNodeContractLock(
+      resolveNodeContractLockPath(directory, "Settings", "frame"),
+      baseV2Lock(tree),
+    );
+    mocks.fetchFileNodeEntry.mockResolvedValue({
+      document: movedTree,
+      componentSets: {},
+      components: {},
+    });
+
+    const results = await verifyNodeContracts({
+      token: "token",
+      contractDir: directory,
+      nodeName: "Settings",
+    });
+
+    expect(fingerprintTree(movedTree)).not.toBe(fingerprintTree(tree));
+    expect(fingerprintContractSurface(movedTree)).toBe(
+      fingerprintContractSurface(tree),
+    );
+    expect(results).toEqual([
+      {
+        nodeName: "Settings",
+        kind: "frame",
+        status: "ok",
+        errors: [],
+        changed: {
+          source: false,
+          tree: false,
+          contractSurface: false,
+          kind: false,
+        },
+      },
+    ]);
+  });
+
+  it("returns an error for v2 node locks with missing approval metadata", async () => {
+    const directory = await mkdtemp(
+      path.join(os.tmpdir(), "figma-node-verify-invalid-v2-"),
+    );
+    const tree = {
+      id: "208:43935",
+      name: "Settings",
+      type: "FRAME",
+      isExposedInstance: false,
+      absoluteBoundingBox: { width: 390, height: 844 },
+    };
+    const { approval: _approval, ...invalidLock } = baseV2Lock(tree);
+
+    await writeNodeArtifacts(directory);
+    await writeFile(
+      resolveNodeContractLockPath(directory, "Settings", "frame"),
+      serializeContractData(invalidLock, "yaml"),
+      "utf8",
+    );
+
+    const results = await verifyNodeContracts({
+      token: "token",
+      contractDir: directory,
+      nodeName: "Settings",
+    });
+
+    expect(results).toEqual([
+      {
+        nodeName: "Settings",
+        kind: "frame",
+        status: "error",
+        errors: [
+          `Invalid node contract lock file: ${resolveNodeContractLockPath(directory, "Settings", "frame")}`,
+        ],
+        changed: {
+          source: false,
+          tree: false,
+          contractSurface: false,
+          kind: false,
+        },
+      },
+    ]);
+    expect(mocks.fetchFileNodeEntry).not.toHaveBeenCalled();
   });
 });

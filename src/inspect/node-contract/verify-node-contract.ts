@@ -1,7 +1,10 @@
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 import type { ContractFormat } from "../contract/contract-format.js";
-import { fingerprintTree } from "../contract/fingerprint.js";
+import {
+  fingerprintContractSurface,
+  fingerprintTree,
+} from "../contract/fingerprint.js";
 import { FigmaInspectError } from "../errors.js";
 import { fetchFileNodeEntry } from "../fetch-file-node-entry.js";
 import { collectNodeContractDependencies } from "./dependencies.js";
@@ -9,7 +12,6 @@ import { assertNodeContractRoot } from "./node-kind.js";
 import {
   diffNodeContractLock,
   isNodeContractLockDiffEmpty,
-  type NodeContractLockDiff,
   readNodeContractLock,
 } from "./node-lock.js";
 import {
@@ -17,7 +19,11 @@ import {
   readNodeContractArtifacts,
   validateNodeContractArtifacts,
 } from "./node-schema.js";
-import type { NodeContractKind, NodeContractLock } from "./types.js";
+import type {
+  NodeContractKind,
+  NodeContractLock,
+  NodeContractLockDiff,
+} from "./types.js";
 
 type NodeContractVerifyStatus = "changed" | "error" | "ok";
 
@@ -47,6 +53,7 @@ function emptyDiff(): NodeContractLockDiff {
   return {
     source: false,
     tree: false,
+    contractSurface: false,
     kind: false,
   };
 }
@@ -129,7 +136,7 @@ async function verifySingleNodeContract(
     });
     const { node, kind } = assertNodeContractRoot(entry, lock.source.nodeId);
     const live: NodeContractLock = {
-      version: 1,
+      version: 2,
       kind,
       source: {
         fileKey: lock.source.fileKey,
@@ -143,6 +150,7 @@ async function verifySingleNodeContract(
       },
       fingerprints: {
         tree: fingerprintTree(node),
+        contractSurface: fingerprintContractSurface(node),
         contracts: lock.fingerprints.contracts,
       },
       dependencies: collectNodeContractDependencies(
@@ -150,6 +158,8 @@ async function verifySingleNodeContract(
         node,
         lock.source.fileKey,
       ),
+      approval: lock.approval,
+      drift: lock.drift,
     };
     const changed = diffNodeContractLock(lock, live);
     const status = isNodeContractLockDiffEmpty(changed) ? "ok" : "changed";

@@ -92,13 +92,18 @@ describe("buildNodeContractFromEntry", () => {
     expect(contract.structureDsl).toContain('node frame "Settings"');
     expect(contract.structureDsl).toContain("Settings.frame.visuals.yaml");
     expect(contract.lock).toMatchObject({
-      version: 1,
+      version: 2,
       kind: "frame",
       source: {
         fileKey: "file-key",
         nodeId: "208:43935",
         nodeType: "FRAME",
         name: "Settings",
+      },
+      fingerprints: {
+        tree: expect.any(String),
+        contractSurface: expect.any(String),
+        contracts: expect.any(String),
       },
     });
   });

@@ -8,6 +8,7 @@ import { slimNode } from "../component-set-spec/slim-node.js";
 import type { SlimNode } from "../component-set-spec/types.js";
 import { loadVariableRegistry } from "../component-set-spec/variable-registry.js";
 import {
+  fingerprintContractSurface,
   fingerprintContracts,
   fingerprintTree,
 } from "../contract/fingerprint.js";
@@ -183,11 +184,12 @@ function buildNodeContractLock(input: {
   structureDsl: string;
 }) {
   return {
-    version: 1 as const,
+    version: 2 as const,
     kind: input.kind,
     source: input.source,
     fingerprints: {
       tree: fingerprintTree(input.tree),
+      contractSurface: fingerprintContractSurface(input.tree),
       contracts: fingerprintContracts(
         input.visuals,
         input.geometry,
@@ -196,6 +198,19 @@ function buildNodeContractLock(input: {
       ),
     },
     dependencies: input.meta.dependencies,
+    approval: {
+      status: "unverified" as const,
+      verifiedAt: null,
+      verifiedBy: null,
+      baselineRevision: null,
+    },
+    drift: {
+      lastCheckedAt: null,
+      metadataChanged: false,
+      sourceChanged: false,
+      structureChanged: false,
+      visualsChanged: false,
+    },
   };
 }
 

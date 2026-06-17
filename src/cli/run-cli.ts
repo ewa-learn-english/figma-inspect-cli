@@ -85,6 +85,9 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
             if (result.changed.tree) {
               parts.push("tree");
             }
+            if (result.changed.contractSurface) {
+              parts.push("contract-surface");
+            }
             if (result.changed.kind) {
               parts.push("kind");
             }
@@ -135,6 +138,9 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
             }
             if (result.changed.tree) {
               parts.push("tree");
+            }
+            if (result.changed.contractSurface) {
+              parts.push("contract-surface");
             }
             if (result.changed.variants.length > 0) {
               parts.push(`variants=${result.changed.variants.join(", ")}`);
