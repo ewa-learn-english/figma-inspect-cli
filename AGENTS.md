@@ -2,6 +2,13 @@
 
 Node.js CLI for inspecting Figma API resources and exporting AI-friendly component contracts.
 
+## Project Status
+
+For this greenfield app:
+**This app has not been released yet! This app has no real users.**
+**Do not add, update, or extend migrations unless directly instructed by the user.**
+**Prefer breaking changes. Don't add shims, bridges. Don't add compatibility layers.**
+
 ## Stack
 
 - TypeScript, ESM (`"type": "module"`, `NodeNext` resolution)
