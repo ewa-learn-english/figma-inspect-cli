@@ -6,6 +6,7 @@ import { parse } from "yaml";
 
 const mocks = vi.hoisted(() => ({
   buildNodeContractFromRef: vi.fn(),
+  exportNodePreview: vi.fn(),
 }));
 
 vi.mock("../inspect/index.js", async () => {
@@ -15,6 +16,7 @@ vi.mock("../inspect/index.js", async () => {
   return {
     ...actual,
     buildNodeContractFromRef: mocks.buildNodeContractFromRef,
+    exportNodePreview: mocks.exportNodePreview,
   };
 });
 
@@ -99,6 +101,12 @@ describe("exportNodeContract", () => {
         },
       },
     });
+    mocks.exportNodePreview.mockImplementation(async (options) => ({
+      previewPath: path.join(
+        options.outputDir,
+        `${options.baseName}.${options.kind}.preview.${options.preview.format}`,
+      ),
+    }));
   });
 
   afterEach(() => {
@@ -159,6 +167,30 @@ describe("exportNodeContract", () => {
         'kind: "frame"',
         "",
       ].join("\n"),
+    );
+  });
+
+  it("exports a root preview when preview is enabled", async () => {
+    const result = await exportNodeContract({
+      token: "token",
+      outputDir,
+      fileKey: "file-key",
+      nodeId: "208:43935",
+      variablesPath: "vars.json",
+      preview: { format: "svg" },
+    });
+
+    expect(mocks.exportNodePreview).toHaveBeenCalledWith({
+      token: "token",
+      fileKey: "file-key",
+      nodeId: "208:43935",
+      baseName: "Settings",
+      kind: "frame",
+      outputDir,
+      preview: { format: "svg" },
+    });
+    expect(result.previewPath).toBe(
+      path.join(outputDir, "Settings.frame.preview.svg"),
     );
   });
 });

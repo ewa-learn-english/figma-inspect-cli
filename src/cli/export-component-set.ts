@@ -33,6 +33,8 @@ import {
 } from "../inspect/contract/fingerprint.js";
 import {
   buildComponentSetPseudocodeFromRaw,
+  type ExportPreviewOptions,
+  exportNodePreview,
   exportVariantAssets,
   loadComponentSetContext,
   resolveTeamComponentSetScope,
@@ -55,6 +57,7 @@ export interface ExportComponentSetOptions {
   variablesPath: string;
   exportAssets?: boolean;
   assetFormat?: "svg";
+  preview?: ExportPreviewOptions;
   format?: ContractFormat;
 }
 
@@ -194,6 +197,20 @@ export async function exportComponentSet(
     assetsDir = exportedAssets.assetsDir;
   }
 
+  const previewPath = options.preview
+    ? (
+        await exportNodePreview({
+          token: options.token,
+          fileKey: scope.fileKey,
+          nodeId: componentSetNodeId,
+          baseName,
+          kind: "component-set",
+          outputDir: options.outputDir,
+          preview: options.preview,
+        })
+      ).previewPath
+    : undefined;
+
   const contractResult = await buildComponentSetPseudocodeFromRaw(raw, {
     variablesPath: options.variablesPath,
     assetBacked: options.exportAssets,
@@ -266,6 +283,7 @@ export async function exportComponentSet(
     metaContractPath,
     lockContractPath,
     structureDslPath,
+    previewPath,
     assetsDir,
     importNotesPath,
   };

@@ -1,5 +1,10 @@
 import type { ContractFormat } from "../inspect/contract/contract-format.js";
-import { FigmaInspectError, parseFigmaNodeUrl } from "../inspect/index.js";
+import type { ExportPreviewOptions, PreviewFormat } from "../inspect/index.js";
+import {
+  DEFAULT_PREVIEW_SCALE,
+  FigmaInspectError,
+  parseFigmaNodeUrl,
+} from "../inspect/index.js";
 import type {
   ComponentSetLookup,
   ComponentSetTarget,
@@ -30,6 +35,9 @@ interface ParsedFlags {
   exportNodeContract: boolean;
   exportAssets: boolean;
   assetFormat: "svg" | undefined;
+  exportPreview: boolean;
+  previewFormat: PreviewFormat | undefined;
+  previewScale: number | undefined;
   projectId: string | undefined;
   inputPath: string | undefined;
   outputPath: string | undefined;
@@ -73,6 +81,9 @@ function emptyFlags(): ParsedFlags {
     exportNodeContract: false,
     exportAssets: false,
     assetFormat: undefined,
+    exportPreview: false,
+    previewFormat: undefined,
+    previewScale: undefined,
     projectId: undefined,
     inputPath: undefined,
     outputPath: undefined,
@@ -102,6 +113,61 @@ function readFlagValue(
   }
 
   return { value, nextIndex: index + 1 };
+}
+
+function parsePreviewFormat(value: string): PreviewFormat {
+  if (value === "png" || value === "svg") {
+    return value;
+  }
+
+  throw new CliError(
+    `Unsupported --preview-format ${JSON.stringify(value)}. Expected png or svg.`,
+  );
+}
+
+function parsePreviewScale(value: string): number {
+  const scale = Number(value);
+  if (!Number.isFinite(scale) || scale <= 0) {
+    throw new CliError(
+      `Invalid --preview-scale ${JSON.stringify(value)}. Expected a positive number.`,
+    );
+  }
+
+  return scale;
+}
+
+function resolvePreviewOptions(
+  flags: ParsedFlags,
+): ExportPreviewOptions | undefined {
+  if (
+    !flags.exportPreview &&
+    flags.previewFormat === undefined &&
+    flags.previewScale === undefined
+  ) {
+    return undefined;
+  }
+
+  if (!flags.exportPreview) {
+    throw new CliError(
+      "--preview-format and --preview-scale require --export-preview.",
+    );
+  }
+
+  const format = flags.previewFormat ?? "png";
+  if (format === "svg") {
+    if (flags.previewScale !== undefined) {
+      throw new CliError(
+        "--preview-scale is only supported with --preview-format png.",
+      );
+    }
+
+    return { format };
+  }
+
+  return {
+    format,
+    scale: flags.previewScale ?? DEFAULT_PREVIEW_SCALE,
+  };
 }
 
 function parseComponentSetLookup(
@@ -427,6 +493,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         throw new CliError("Missing --output-dir for --export-component-set.");
       }
 
+      const preview = resolvePreviewOptions(flags);
       return {
         kind: "export-component-set",
         outputDir: flags.outputDir,
@@ -438,6 +505,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         ),
         exportAssets: flags.exportAssets,
         assetFormat: flags.assetFormat,
+        ...(preview ? { preview } : {}),
         format: resolveOutputFormat(flags),
       };
     }
@@ -447,6 +515,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
       }
 
       const nodeRef = resolveNodeRef(flags, "--export-contract");
+      const preview = resolvePreviewOptions(flags);
       return {
         kind: "export-contract",
         outputDir: flags.outputDir,
@@ -458,6 +527,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         ),
         exportAssets: flags.exportAssets,
         assetFormat: flags.assetFormat,
+        ...(preview ? { preview } : {}),
         format: resolveOutputFormat(flags),
       };
     }
@@ -467,6 +537,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
       }
 
       const nodeRef = resolveNodeRef(flags, "--export-node-contract");
+      const preview = resolvePreviewOptions(flags);
       return {
         kind: "export-node-contract",
         outputDir: flags.outputDir,
@@ -476,6 +547,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
           flags.variablesPath,
           "--export-node-contract",
         ),
+        ...(preview ? { preview } : {}),
         format: resolveOutputFormat(flags),
       };
     }
@@ -587,6 +659,11 @@ export function parseCommand(argv: string[]): CliCommand {
       continue;
     }
 
+    if (arg === "--export-preview") {
+      flags.exportPreview = true;
+      continue;
+    }
+
     if (arg === "--asset-format") {
       const { value, nextIndex } = readFlagValue(argv, index, arg);
       if (value !== "svg") {
@@ -595,6 +672,20 @@ export function parseCommand(argv: string[]): CliCommand {
         );
       }
       flags.assetFormat = value;
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--preview-format") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.previewFormat = parsePreviewFormat(value);
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--preview-scale") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.previewScale = parsePreviewScale(value);
       index = nextIndex;
       continue;
     }

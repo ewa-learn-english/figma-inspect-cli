@@ -325,6 +325,35 @@ describe("parseCommand", () => {
     });
   });
 
+  it("parses export-contract preview options", () => {
+    const sourceUrl =
+      "https://www.figma.com/design/fileKey/Settings?node-id=208-43935&m=dev";
+
+    expect(
+      parseCommand([
+        "--export-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--url",
+        sourceUrl,
+        "--export-preview",
+      ]),
+    ).toEqual({
+      kind: "export-contract",
+      outputDir: "out",
+      fileKey: "fileKey",
+      nodeId: "208:43935",
+      sourceUrl,
+      variablesPath: "vars.json",
+      exportAssets: false,
+      assetFormat: undefined,
+      preview: { format: "png", scale: 2 },
+      format: "yaml",
+    });
+  });
+
   it("parses export-contract by file key and node id", () => {
     expect(
       parseCommand([
@@ -373,6 +402,35 @@ describe("parseCommand", () => {
       nodeId: "208:43935",
       sourceUrl,
       variablesPath: "vars.json",
+      format: "yaml",
+    });
+  });
+
+  it("parses export-node-contract SVG preview options", () => {
+    const sourceUrl =
+      "https://www.figma.com/design/fileKey/Settings?node-id=208-43935&m=dev";
+
+    expect(
+      parseCommand([
+        "--export-node-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--url",
+        sourceUrl,
+        "--export-preview",
+        "--preview-format",
+        "svg",
+      ]),
+    ).toEqual({
+      kind: "export-node-contract",
+      outputDir: "out",
+      fileKey: "fileKey",
+      nodeId: "208:43935",
+      sourceUrl,
+      variablesPath: "vars.json",
+      preview: { format: "svg" },
       format: "yaml",
     });
   });
@@ -480,6 +538,71 @@ describe("parseCommand", () => {
         "png",
       ]),
     ).toThrow(/Unsupported --asset-format/);
+    expect(() =>
+      parseCommand([
+        "--export-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--file-key",
+        "fileKey",
+        "--node-id",
+        "208:43935",
+        "--export-preview",
+        "--preview-format",
+        "pdf",
+      ]),
+    ).toThrow(/Unsupported --preview-format/);
+    expect(() =>
+      parseCommand([
+        "--export-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--file-key",
+        "fileKey",
+        "--node-id",
+        "208:43935",
+        "--export-preview",
+        "--preview-scale",
+        "0",
+      ]),
+    ).toThrow(/Invalid --preview-scale/);
+    expect(() =>
+      parseCommand([
+        "--export-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--file-key",
+        "fileKey",
+        "--node-id",
+        "208:43935",
+        "--export-preview",
+        "--preview-format",
+        "svg",
+        "--preview-scale",
+        "2",
+      ]),
+    ).toThrow(/only supported with --preview-format png/);
+    expect(() =>
+      parseCommand([
+        "--export-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--file-key",
+        "fileKey",
+        "--node-id",
+        "208:43935",
+        "--preview-format",
+        "png",
+      ]),
+    ).toThrow(/require --export-preview/);
     expect(() =>
       parseCommand([
         "--export-component-set",

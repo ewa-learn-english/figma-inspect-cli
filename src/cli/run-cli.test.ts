@@ -348,6 +348,7 @@ describe("runCli", () => {
       metaContractPath: "/out/c.yaml",
       lockContractPath: "/out/d.yaml",
       structureDslPath: "/out/e.dsl",
+      previewPath: "/out/Settings.frame.preview.png",
       importNotesPath: "/out/import-notes.md",
     });
     const { io, output } = createIo({ FIGMA_TEAM_ID: "team" });
@@ -363,6 +364,9 @@ describe("runCli", () => {
         "vars.json",
         "--url",
         sourceUrl,
+        "--export-preview",
+        "--preview-scale",
+        "3",
       ],
       io,
     );
@@ -378,10 +382,11 @@ describe("runCli", () => {
           nodeId: "213:695",
         },
         sourceUrl,
+        preview: { format: "png", scale: 3 },
       }),
     );
     expect(output()).toBe(
-      "/out/a.yaml\n/out/b.yaml\n/out/c.yaml\n/out/d.yaml\n/out/e.dsl\n/out/import-notes.md\n",
+      "/out/a.yaml\n/out/b.yaml\n/out/c.yaml\n/out/d.yaml\n/out/e.dsl\n/out/Settings.frame.preview.png\n/out/import-notes.md\n",
     );
   });
 
@@ -392,6 +397,7 @@ describe("runCli", () => {
       metaContractPath: "/out/c.yaml",
       lockContractPath: "/out/d.yaml",
       structureDslPath: "/out/e.dsl",
+      previewPath: "/out/Settings.frame.preview.png",
       importNotesPath: "/out/import-notes.md",
     });
     const { io, output } = createIo({ FIGMA_TEAM_ID: undefined });
@@ -407,6 +413,9 @@ describe("runCli", () => {
         "vars.json",
         "--url",
         sourceUrl,
+        "--export-preview",
+        "--preview-scale",
+        "3",
       ],
       io,
     );
@@ -419,10 +428,11 @@ describe("runCli", () => {
         fileKey: "fileKey",
         nodeId: "208:43935",
         sourceUrl,
+        preview: { format: "png", scale: 3 },
       }),
     );
     expect(output()).toBe(
-      "/out/a.yaml\n/out/b.yaml\n/out/c.yaml\n/out/d.yaml\n/out/e.dsl\n/out/import-notes.md\n",
+      "/out/a.yaml\n/out/b.yaml\n/out/c.yaml\n/out/d.yaml\n/out/e.dsl\n/out/Settings.frame.preview.png\n/out/import-notes.md\n",
     );
   });
 

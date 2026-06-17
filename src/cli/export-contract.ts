@@ -1,4 +1,5 @@
 import type { ContractFormat } from "../inspect/contract/contract-format.js";
+import type { ExportPreviewOptions } from "../inspect/index.js";
 import { resolveExportContractTarget } from "../inspect/index.js";
 import type { FigmaNodeRef } from "../inspect/types.js";
 import { CliError } from "./errors.js";
@@ -19,6 +20,7 @@ export interface ExportContractOptions extends FigmaNodeRef {
   variablesPath: string;
   exportAssets?: boolean;
   assetFormat?: "svg";
+  preview?: ExportPreviewOptions;
   format?: ContractFormat;
 }
 
@@ -53,6 +55,7 @@ export async function exportContract(
       variablesPath: options.variablesPath,
       exportAssets: options.exportAssets,
       assetFormat: options.assetFormat,
+      preview: options.preview,
       format: options.format,
     });
   }
@@ -70,6 +73,7 @@ export async function exportContract(
     nodeId: target.nodeId,
     sourceUrl: options.sourceUrl,
     variablesPath: options.variablesPath,
+    preview: options.preview,
     format: options.format,
   });
 }

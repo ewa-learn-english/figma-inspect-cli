@@ -7,6 +7,7 @@ export interface ExportArtifactPaths {
 }
 
 export interface ExportArtifactPathExtras {
+  previewPath?: string;
   assetsDir?: string;
   importNotesPath?: string;
 }
@@ -25,6 +26,9 @@ export function writeExportArtifactPaths(
     result.lockContractPath,
     result.structureDslPath,
   ];
+  if (result.previewPath) {
+    lines.push(result.previewPath);
+  }
   if (result.assetsDir) {
     lines.push(result.assetsDir);
   }

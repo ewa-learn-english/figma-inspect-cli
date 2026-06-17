@@ -377,6 +377,51 @@ Exclude or normalize:
 - Backward compatibility with lock v1 read is preserved.
 - `npm run check` + `npm run build` проходят.
 
+## P2.5 — Preview snapshot export
+
+Статус: сделано.
+
+Цель: дать LLM рядом с DSL/YAML не только контрактное описание, но и визуальный снимок root Figma node/component для сверки импортируемой TypeScript-верстки.
+
+### CLI/API
+
+Добавить общий sidecar export:
+
+```bash
+figma-inspect --export-contract --url "<figma-url>" --output-dir ... --variables ... --export-preview
+```
+
+Также поддержать explicit команды:
+
+```bash
+figma-inspect --export-component-set ... --export-preview
+figma-inspect --export-node-contract ... --export-preview
+```
+
+Опции:
+
+- `--preview-format png|svg` — default `png`;
+- `--preview-scale <number>` — default `2`, только для PNG.
+
+### Semantics
+
+- Preview экспортирует один snapshot root node, а не variant assets.
+- Файлы пишутся рядом с contract artifacts:
+   - `<Name>.component-set.preview.png`
+   - `<Name>.frame.preview.png`
+   - `<Name>.component.preview.png`
+- Preview path печатается в stdout вместе с остальными artifact paths.
+- Preview не входит в lock/fingerprints и не меняет contract surface semantics.
+- PNG/SVG байты валидируются перед записью; SVG нормализуется так же, как exported assets.
+
+### Acceptance criteria
+
+- `--export-contract --url <frame-url> --export-preview` пишет `.frame.preview.png`.
+- `--export-contract --url <component-set-url> --export-preview` пишет `.component-set.preview.png`.
+- `--preview-format svg` пишет `.preview.svg`.
+- Usage/help и live-test skill знают новые флаги.
+- `npm run check` + `npm run build` проходят.
+
 ## P3 — Verified manifest and bulk registry
 
 Цель: управлять 250+ компонентами без ручного запуска CLI по одному.
@@ -429,128 +474,6 @@ figma-inspect --export-node-contract-batch --manifest tools/design-import/nodes.
 - Можно получить список published DS component sets.
 - Можно batch-verify все component-set/component/frame lock-файлы.
 - Можно отфильтровать verified/unverified/changed components.
-
-## P4 — Model handoff generator
-
-Цель: давать LLM минимальный deterministic prompt package.
-
-### Generated handoff
-
-```text
-artifacts/figma-components/<Name>/handoff.md
-artifacts/figma-components/<Name>/implementation-plan.md
-```
-
-Содержимое:
-
-- component summary;
-- props/variant axes;
-- node kind: component-set/component/frame;
-- structural vs asset-backed recommendation;
-- token gaps;
-- assets to copy;
-- known unsupported Figma features;
-- paths to DSL/YAML files;
-- explicit forbidden actions: do not hardcode tokens, do not add story-only props, do not use lock as design prompt.
-
-### Acceptance criteria
-
-- LLM prompt no longer needs raw JSON.
-- Handoff file is deterministic and diff-friendly.
-
-## P5 — Storybook matrix generator
-
-Цель: сделать screenshot baseline из Storybook matrix, без LLM-галлюцинаций.
-
-### Inputs
-
-- `components.yaml`;
-- `nodes.yaml` for screen/frame smoke coverage later;
-- component stories metadata;
-- `component-set.meta.yaml` variant axes;
-- fixture-only visual states;
-- viewport config.
-
-### Output
-
-```json
-{
-  "entries": [
-    {
-      "component": "TextInput",
-      "group": "ds-text-input",
-      "story": "Matrix",
-      "viewport": "mobile",
-      "stateKey": "State=Empty__Active=On__Writing=Default",
-      "url": "/iframe.html?id=..."
-    }
-  ]
-}
-```
-
-### Acceptance criteria
-
-- Matrix адаптируется под viewport.
-- Baseline key стабилен.
-- Можно запускать changed-only и all.
-
-## P6 — Screenshot runner and dashboard
-
-Цель: закрыть CI/CD часть: compare, update, approve, dashboard.
-
-### Commands
-
-```bash
-pnpm screenshot:web:compare --matrix tools/screenshot-matrix/matrix.generated.json
-pnpm screenshot:web:update --matrix tools/screenshot-matrix/matrix.generated.json
-pnpm design:dashboard:generate
-```
-
-### Artifacts
-
-```text
-actual.png
-baseline.png
-diff.png
-report.json
-report.md
-video.webm              # optional, mostly for E2E flows
-```
-
-### Dashboard metrics
-
-- `% imported`
-- `% fresh locks`
-- `% screenshots pass`
-- `approval backlog`
-- drift by component
-- failures by component/viewport/state
-- nightly trend
-
-### Acceptance criteria
-
-- MR job blocks only verified component regressions.
-- Nightly produces dashboard.
-- Update job creates artifacts/bot MR, not direct baseline commits.
-
-## P7 — Native E2E and screenshot expansion
-
-Цель: после web DS screenshots добавить iOS/Android confidence.
-
-### Scope
-
-- Maestro smoke flows for features.
-- iOS/Android component screenshot POC.
-- EAS simulator farm integration.
-- Qase upload and reporter integration.
-- Video evidence for native failures.
-
-### Order
-
-1. Web DS screenshot matrix.
-2. Web feature E2E smoke.
-3. Native Maestro smoke.
-4. Native screenshot matrix only for verified DS components.
 
 ## P8 — Hardening
 

@@ -278,6 +278,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         variablesPath: command.variablesPath,
         exportAssets: command.exportAssets,
         assetFormat: command.assetFormat,
+        preview: command.preview,
         format: command.format,
       });
       writeExportArtifactPaths(result, io.stdout);
@@ -307,6 +308,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         variablesPath: command.variablesPath,
         exportAssets: command.exportAssets,
         assetFormat: command.assetFormat,
+        preview: command.preview,
         format: command.format,
       });
       writeExportArtifactPaths(result, io.stdout);
@@ -334,6 +336,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         nodeId: command.nodeId,
         sourceUrl: command.sourceUrl,
         variablesPath: command.variablesPath,
+        preview: command.preview,
         format: command.format,
       });
       writeExportArtifactPaths(result, io.stdout);

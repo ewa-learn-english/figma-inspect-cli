@@ -77,10 +77,11 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 22 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name ProfileStreakIcon --export-assets` | also writes `<name>.assets/*.svg`, stores asset paths in `meta.yaml`, and asset-backed contracts; needs `FIGMA_API_TOKEN` + `FIGMA_TEAM_ID` |
 | 23 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME --json` | same as row 20 but writes `.json` files instead of `.yaml` |
 | 24 | `--export-node-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL"` | explicit node-contract URL variant for FRAME |
-| 25 | `--verify-node-contract` | `--contract-dir tmp` | compares frame/component node locks to live Figma (source, tree, kind); needs `FIGMA_API_TOKEN` |
-| 26 | `--verify-node-contract` | `--contract-dir tmp --node-name "$FRAME_NODE_NAME" --json` | verifies one node contract; JSON output only |
-| 27 | `--verify-component-contract` | `--contract-dir tmp` | compares each lock to live Figma (source, tree, variants); needs `FIGMA_API_TOKEN` |
-| 28 | `--verify-component-contract` | `--contract-dir tmp --component-name Cell --json` | verifies one component; JSON output only |
+| 25 | `--export-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL" --export-preview` | also writes `<name>.frame.preview.png` at PNG scale 2; use `--preview-format svg` for SVG |
+| 26 | `--verify-node-contract` | `--contract-dir tmp` | compares frame/component node locks to live Figma (source, tree, kind); needs `FIGMA_API_TOKEN` |
+| 27 | `--verify-node-contract` | `--contract-dir tmp --node-name "$FRAME_NODE_NAME" --json` | verifies one node contract; JSON output only |
+| 28 | `--verify-component-contract` | `--contract-dir tmp` | compares each lock to live Figma (source, tree, variants); needs `FIGMA_API_TOKEN` |
+| 29 | `--verify-component-contract` | `--contract-dir tmp --component-name Cell --json` | verifies one component; JSON output only |
 
 Example:
 
@@ -109,6 +110,7 @@ npx . --export-component-set --output-dir tmp --variables "$VARIABLES_PATH" --co
 npx . --export-component-set --output-dir tmp --variables "$VARIABLES_PATH" --url "$FIGMA_NODE_URL"
 npx . --export-component-set --output-dir tmp --variables "$VARIABLES_PATH" --component-set-name "$COMPONENT_SET_NAME" --json
 npx . --export-node-contract --output-dir tmp --variables "$VARIABLES_PATH" --url "$FRAME_NODE_URL"
+npx . --export-contract --output-dir tmp --variables "$VARIABLES_PATH" --url "$FRAME_NODE_URL" --export-preview
 npx . --verify-node-contract --contract-dir tmp
 npx . --verify-node-contract --contract-dir tmp --node-name "$FRAME_NODE_NAME" --json
 npx . --verify-component-contract --contract-dir tmp

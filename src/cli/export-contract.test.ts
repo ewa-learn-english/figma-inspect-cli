@@ -51,6 +51,7 @@ describe("exportContract", () => {
       variablesPath: "vars.json",
       exportAssets: true,
       assetFormat: "svg",
+      preview: { format: "png", scale: 2 },
     });
 
     expect(mocks.exportComponentSet).toHaveBeenCalledWith(
@@ -64,6 +65,7 @@ describe("exportContract", () => {
         },
         exportAssets: true,
         assetFormat: "svg",
+        preview: { format: "png", scale: 2 },
       }),
     );
     expect(mocks.exportNodeContract).not.toHaveBeenCalled();
@@ -91,6 +93,7 @@ describe("exportContract", () => {
       sourceUrl:
         "https://www.figma.com/design/file-key/Settings?node-id=208-43935",
       variablesPath: "vars.json",
+      preview: { format: "svg" },
     });
 
     expect(mocks.exportNodeContract).toHaveBeenCalledWith(
@@ -98,6 +101,7 @@ describe("exportContract", () => {
         token: "token",
         fileKey: "file-key",
         nodeId: "208:43935",
+        preview: { format: "svg" },
       }),
     );
     expect(mocks.exportComponentSet).not.toHaveBeenCalled();

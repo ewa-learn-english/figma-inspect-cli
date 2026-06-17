@@ -10,6 +10,12 @@ export {
 export { buildComponentSetSpecFromFile } from "./component-set-spec/index.js";
 export { verifyComponentContracts } from "./contract/verify-component-contract.js";
 export { FigmaInspectError } from "./errors.js";
+export {
+  DEFAULT_PREVIEW_SCALE,
+  type ExportPreviewOptions,
+  exportNodePreview,
+  type PreviewFormat,
+} from "./export/export-node-preview.js";
 export { exportVariantAssets } from "./export/export-variant-assets.js";
 export { resolveExportContractTarget } from "./export-contract-target.js";
 export { parseFigmaNodeUrl } from "./figma-node-url.js";

@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   loadComponentSetContext: vi.fn(),
   buildComponentSetPseudocodeFromRaw: vi.fn(),
   exportVariantAssets: vi.fn(),
+  exportNodePreview: vi.fn(),
   getComponentSetByKey: vi.fn(),
   listFileComponents: vi.fn(),
   filterFileComponentsForComponentSet: vi.fn(),
@@ -19,6 +20,7 @@ vi.mock("../inspect/index.js", () => ({
   loadComponentSetContext: mocks.loadComponentSetContext,
   buildComponentSetPseudocodeFromRaw: mocks.buildComponentSetPseudocodeFromRaw,
   exportVariantAssets: mocks.exportVariantAssets,
+  exportNodePreview: mocks.exportNodePreview,
 }));
 
 vi.mock("../figma-api/index.js", () => ({
@@ -108,6 +110,12 @@ describe("exportComponentSet", () => {
       await writeFile(path.join(assetsDir, "default.svg"), "<svg/>", "utf8");
       return { assetsDir, assets: {} };
     });
+    mocks.exportNodePreview.mockImplementation(async (options) => ({
+      previewPath: path.join(
+        options.outputDir,
+        `${options.baseName}.${options.kind}.preview.${options.preview.format}`,
+      ),
+    }));
   });
 
   afterEach(() => {
@@ -233,5 +241,29 @@ describe("exportComponentSet", () => {
       fingerprints: { assets?: Record<string, string> };
     };
     expect(lock.fingerprints.assets?.default).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it("exports a root preview when preview is enabled", async () => {
+    const result = await exportComponentSet({
+      token: "token",
+      teamId: "team-id",
+      outputDir,
+      componentSet: { kind: "key", value: "component-set-key" },
+      variablesPath: variablesFixturePath,
+      preview: { format: "png", scale: 2 },
+    });
+
+    expect(mocks.exportNodePreview).toHaveBeenCalledWith({
+      token: "token",
+      fileKey: "file-key",
+      nodeId: "3971:6465",
+      baseName: "TextInput",
+      kind: "component-set",
+      outputDir,
+      preview: { format: "png", scale: 2 },
+    });
+    expect(result.previewPath).toBe(
+      path.join(outputDir, "TextInput.component-set.preview.png"),
+    );
   });
 });

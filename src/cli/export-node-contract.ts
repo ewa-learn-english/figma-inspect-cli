@@ -6,6 +6,8 @@ import {
 } from "../inspect/contract/contract-format.js";
 import {
   buildNodeContractFromRef,
+  type ExportPreviewOptions,
+  exportNodePreview,
   readNodeContractArtifacts,
   resolveNodeContractLockPath,
   resolveNodeGeometryContractPath,
@@ -26,12 +28,13 @@ export interface ExportNodeContractOptions extends FigmaNodeRef {
   outputDir: string;
   sourceUrl?: string;
   variablesPath: string;
+  preview?: ExportPreviewOptions;
   format?: ContractFormat;
 }
 
 export interface ExportNodeContractResult
   extends ExportArtifactPaths,
-    Pick<ExportArtifactPathExtras, "importNotesPath"> {}
+    Pick<ExportArtifactPathExtras, "importNotesPath" | "previewPath"> {}
 
 async function writeDataFile(
   filePath: string,
@@ -114,6 +117,19 @@ export async function exportNodeContract(
     contract.nodeName,
     contract.kind,
   );
+  const previewPath = options.preview
+    ? (
+        await exportNodePreview({
+          token: options.token,
+          fileKey: options.fileKey,
+          nodeId: contract.source.nodeId,
+          baseName: contract.nodeName,
+          kind: contract.kind,
+          outputDir: options.outputDir,
+          preview: options.preview,
+        })
+      ).previewPath
+    : undefined;
 
   await writeDataFile(visualsContractPath, contract.visuals, format);
   await writeDataFile(geometryContractPath, contract.geometry, format);
@@ -145,6 +161,7 @@ export async function exportNodeContract(
     metaContractPath,
     lockContractPath,
     structureDslPath,
+    previewPath,
     importNotesPath,
   };
 }

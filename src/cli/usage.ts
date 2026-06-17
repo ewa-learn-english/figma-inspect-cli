@@ -13,9 +13,9 @@ export const usage = `Usage:
   figma-inspect --build-component-set-pseudocode --input <path> --variables <path> [--output-dir <dir>] [--team-components <path>] [--json]
   figma-inspect --verify-component-contract --contract-dir <dir> [--component-name <name>] [--json]
   figma-inspect --verify-node-contract --contract-dir <dir> [--node-name <name>] [--json]
-  figma-inspect --export-contract --output-dir <dir> --variables <path> (--url <figma-url> | --file-key <key> --node-id <id>) [--export-assets] [--asset-format svg] [--json]
-  figma-inspect --export-component-set --output-dir <dir> --variables <path> (--url <figma-url> | --component-set-key <key> | --component-set-name <name>) [--export-assets] [--asset-format svg] [--json]
-  figma-inspect --export-node-contract --output-dir <dir> --variables <path> (--url <figma-url> | --file-key <key> --node-id <id>) [--json]
+  figma-inspect --export-contract --output-dir <dir> --variables <path> (--url <figma-url> | --file-key <key> --node-id <id>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-assets] [--asset-format svg] [--json]
+  figma-inspect --export-component-set --output-dir <dir> --variables <path> (--url <figma-url> | --component-set-key <key> | --component-set-name <name>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-assets] [--asset-format svg] [--json]
+  figma-inspect --export-node-contract --output-dir <dir> --variables <path> (--url <figma-url> | --file-key <key> --node-id <id>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--json]
 
 Environment:
   FIGMA_API_TOKEN  Figma personal access token (required for --verify-component-contract, --verify-node-contract, and all API commands below)
@@ -40,6 +40,9 @@ Options:
   --export-contract               Export contract files for a Figma URL or node ref; auto-detects COMPONENT_SET, FRAME, or standalone COMPONENT
   --export-component-set          Export component contract files for a published team component set as YAML; writes <ComponentName>.component-set.lock.yaml; with --export-assets also writes <ComponentName>.assets/*.svg and stores asset paths in meta.yaml
   --export-node-contract          Export FRAME or standalone COMPONENT node contract files as YAML; writes <Name>.frame.* or <Name>.component.* plus lock
+  --export-preview                Export one root node preview image next to contract artifacts; writes <Name>.<node-type>.preview.png by default
+  --preview-format <format>       Preview export format; supports png or svg (default: png)
+  --preview-scale <scale>         PNG preview scale for the Figma Images API (default: 2)
   --export-assets                 Export one SVG asset per component variant via the Figma Images API (with --export-component-set or --export-contract targeting a COMPONENT_SET; variant props only, no TEXT layers)
   --asset-format <format>         Asset export format; currently supports svg (default when --export-assets is set)
   --input <path>                  Input JSON file path (required with --build-component-set-spec and --build-component-set-pseudocode)
