@@ -40,6 +40,10 @@ import type {
   ComponentSetTarget,
   FigmaTeamComponentSet,
 } from "../inspect/types.js";
+import type {
+  ExportArtifactPathExtras,
+  ExportArtifactPaths,
+} from "./export-result.js";
 
 export interface ExportComponentSetOptions {
   token: string;
@@ -53,15 +57,9 @@ export interface ExportComponentSetOptions {
   format?: ContractFormat;
 }
 
-export interface ExportComponentSetResult {
-  visualsContractPath: string;
-  geometryContractPath: string;
-  metaContractPath: string;
-  lockContractPath: string;
-  structureDslPath: string;
-  assetsDir?: string;
-  importNotesPath?: string;
-}
+export interface ExportComponentSetResult
+  extends ExportArtifactPaths,
+    ExportArtifactPathExtras {}
 
 function sanitizeFileName(name: string): string {
   return name.replace(/[/\\?%*:|"<>]/g, "_");
@@ -265,24 +263,4 @@ export async function exportComponentSet(
     assetsDir,
     importNotesPath,
   };
-}
-
-export function writeExportResult(
-  result: ExportComponentSetResult,
-  stdout: NodeJS.WriteStream,
-): void {
-  const lines = [
-    result.visualsContractPath,
-    result.geometryContractPath,
-    result.metaContractPath,
-    result.lockContractPath,
-    result.structureDslPath,
-  ];
-  if (result.assetsDir) {
-    lines.push(result.assetsDir);
-  }
-  if (result.importNotesPath) {
-    lines.push(result.importNotesPath);
-  }
-  stdout.write(`${lines.join("\n")}\n`);
 }

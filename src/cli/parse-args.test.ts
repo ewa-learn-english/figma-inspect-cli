@@ -295,6 +295,63 @@ describe("parseCommand", () => {
     });
   });
 
+  it("parses export-contract by Figma URL", () => {
+    const sourceUrl =
+      "https://www.figma.com/design/fileKey/Settings?node-id=208-43935&m=dev";
+
+    expect(
+      parseCommand([
+        "--export-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--url",
+        sourceUrl,
+        "--export-assets",
+        "--asset-format",
+        "svg",
+      ]),
+    ).toEqual({
+      kind: "export-contract",
+      outputDir: "out",
+      fileKey: "fileKey",
+      nodeId: "208:43935",
+      sourceUrl,
+      variablesPath: "vars.json",
+      exportAssets: true,
+      assetFormat: "svg",
+      format: "yaml",
+    });
+  });
+
+  it("parses export-contract by file key and node id", () => {
+    expect(
+      parseCommand([
+        "--export-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--file-key",
+        "fileKey",
+        "--node-id",
+        "900:1",
+        "--json",
+      ]),
+    ).toEqual({
+      kind: "export-contract",
+      outputDir: "out",
+      fileKey: "fileKey",
+      nodeId: "900:1",
+      sourceUrl: undefined,
+      variablesPath: "vars.json",
+      exportAssets: false,
+      assetFormat: undefined,
+      format: "json",
+    });
+  });
+
   it("parses export-node-contract by Figma URL", () => {
     const sourceUrl =
       "https://www.figma.com/design/fileKey/Settings?node-id=208-43935&m=dev";
@@ -362,6 +419,9 @@ describe("parseCommand", () => {
     ).toThrow(/Missing --variables/);
     expect(() =>
       parseCommand(["--export-component-set", "--output-dir", "out"]),
+    ).toThrow(CliError);
+    expect(() =>
+      parseCommand(["--export-contract", "--output-dir", "out"]),
     ).toThrow(CliError);
     expect(() =>
       parseCommand(["--export-node-contract", "--output-dir", "out"]),
@@ -438,6 +498,19 @@ describe("parseCommand", () => {
         "--inspect-file-node",
         "--url",
         "https://www.figma.com/design/fileKey/Settings?node-id=213-695&m=dev",
+        "--file-key",
+        "fileKey",
+      ]),
+    ).toThrow(/Pass either --url or --file-key\/--node-id/);
+    expect(() =>
+      parseCommand([
+        "--export-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--url",
+        "https://www.figma.com/design/fileKey/Settings?node-id=208-43935&m=dev",
         "--file-key",
         "fileKey",
       ]),

@@ -200,6 +200,83 @@ Notes:
 - Existing `--export-component-set` behavior stays intact.
 - `npm run check` + `npm run build` проходят.
 
+## P1.6 — Unified export contract wrapper
+
+Статус: сделано.
+
+Цель: упростить CLI для оператора и LLM: по Figma URL не требовать заранее знать, что это `COMPONENT_SET`, `FRAME` или standalone `COMPONENT`.
+
+### CLI/API
+
+Добавить универсальную команду:
+
+```bash
+figma-inspect --export-contract --url "<figma-url>" --output-dir ... --variables ...
+```
+
+Опционально разрешить ручной source:
+
+```bash
+figma-inspect --export-contract --file-key <key> --node-id <id> --output-dir ... --variables ...
+```
+
+### Semantics
+
+`--export-contract` должен быть тонким wrapper/autodetect слоем:
+
+- URL/file-key+node-id превращается в canonical node ref.
+- CLI загружает root node и определяет Figma node type.
+- `COMPONENT_SET` маршрутизируется в существующий component-set export pipeline.
+- `FRAME` маршрутизируется в node-contract frame pipeline.
+- standalone `COMPONENT` маршрутизируется в node-contract component pipeline.
+- `COMPONENT` внутри component set получает понятную ошибку: выбрать root `COMPONENT_SET` или использовать `--export-component-set`.
+- Unsupported node types (`INSTANCE`, `SECTION`, `GROUP`, `CANVAS`, etc.) получают clear error с фактическим node type.
+
+### Compatibility / command policy
+
+Оставить специализированные команды как explicit/debug surface:
+
+```bash
+figma-inspect --export-component-set ...
+figma-inspect --export-node-contract ...
+```
+
+Но в docs/live-test/LLM handoff рекомендовать URL-first путь:
+
+```bash
+figma-inspect --export-contract --url "<figma-url>" --output-dir ... --variables ...
+```
+
+Reasons:
+
+- оператору не нужно понимать Figma node taxonomy;
+- LLM может использовать одну команду для design import;
+- внутри код остается типизированным: component-set и node-contract pipelines не смешиваются;
+- acceptance/error messages становятся проще: “дай ссылку на Figma node”.
+
+### Tasks for agent
+
+1. Add `--export-contract` to parse/run/usage.
+2. Add inspect helper for root node type detection by `FigmaNodeRef`.
+3. Route `COMPONENT_SET` to current `exportComponentSet`.
+4. Route `FRAME`/standalone `COMPONENT` to `exportNodeContract`.
+5. Preserve `sourceUrl` in downstream import notes/locks.
+6. Add tests for autodetect routing:
+   - component set URL -> `.component-set.*`;
+   - frame URL -> `.frame.*`;
+   - standalone component URL -> `.component.*`;
+   - unsupported node -> clear error.
+7. Update `.agents/skills/live-test/SKILL.md`.
+
+### Acceptance criteria
+
+- `--export-contract --url <component-set-url>` produces current component-set artifacts.
+- `--export-contract --url <frame-url>` produces frame artifacts.
+- `--export-contract --url <standalone-component-url>` produces component artifacts.
+- Specialized commands still work.
+- Usage/help and live-test skill prefer `--export-contract` for URL-first workflows.
+- `npm run check` + `npm run build` проходят.
+
 ## P2 — Lock v2 и contract surface fingerprint
 
 Цель: отделить фактические изменения визуального/структурного контракта от metadata drift для всех lock kinds: `component-set`, `component`, `frame`.

@@ -11,6 +11,7 @@ export { buildComponentSetSpecFromFile } from "./component-set-spec/index.js";
 export { verifyComponentContracts } from "./contract/verify-component-contract.js";
 export { FigmaInspectError } from "./errors.js";
 export { exportVariantAssets } from "./export/export-variant-assets.js";
+export { resolveExportContractTarget } from "./export-contract-target.js";
 export { parseFigmaNodeUrl } from "./figma-node-url.js";
 export {
   getNodeComponentSet,

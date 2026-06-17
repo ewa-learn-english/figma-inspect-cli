@@ -13,12 +13,13 @@ export const usage = `Usage:
   figma-inspect --build-component-set-pseudocode --input <path> --variables <path> [--output-dir <dir>] [--team-components <path>] [--json]
   figma-inspect --verify-component-contract --contract-dir <dir> [--component-name <name>] [--json]
   figma-inspect --verify-node-contract --contract-dir <dir> [--node-name <name>] [--json]
+  figma-inspect --export-contract --output-dir <dir> --variables <path> (--url <figma-url> | --file-key <key> --node-id <id>) [--export-assets] [--asset-format svg] [--json]
   figma-inspect --export-component-set --output-dir <dir> --variables <path> (--url <figma-url> | --component-set-key <key> | --component-set-name <name>) [--export-assets] [--asset-format svg] [--json]
   figma-inspect --export-node-contract --output-dir <dir> --variables <path> (--url <figma-url> | --file-key <key> --node-id <id>) [--json]
 
 Environment:
   FIGMA_API_TOKEN  Figma personal access token (required for --verify-component-contract, --verify-node-contract, and all API commands below)
-  FIGMA_TEAM_ID    Figma team id (required for --list-team-projects, --list-team-project-files, --list-team-component-sets, --inspect-team-component-set, and --export-component-set)
+  FIGMA_TEAM_ID    Figma team id (required for team-scoped commands, --export-component-set, and --export-contract when the target is a COMPONENT_SET)
   FIGMA_CACHE      Set to 0 to disable the on-disk response cache (enabled by default)
 
 Options:
@@ -36,17 +37,18 @@ Options:
   --build-component-set-pseudocode Build component contracts from a local COMPONENT_SET JSON file; writes <ComponentName>.component-set.{visuals,geometry,meta}.yaml and <ComponentName>.component-set.structure.dsl
   --verify-component-contract     Compare lock files to live Figma via the API; validates local contract schema
   --verify-node-contract          Compare frame/component node lock files to live Figma via the API; validates local node contract schema
+  --export-contract               Export contract files for a Figma URL or node ref; auto-detects COMPONENT_SET, FRAME, or standalone COMPONENT
   --export-component-set          Export component contract files for a published team component set as YAML; writes <ComponentName>.component-set.lock.yaml; with --export-assets also writes <ComponentName>.assets/*.svg and stores asset paths in meta.yaml
   --export-node-contract          Export FRAME or standalone COMPONENT node contract files as YAML; writes <Name>.frame.* or <Name>.component.* plus lock
-  --export-assets                 Export one SVG asset per component variant via the Figma Images API (with --export-component-set; variant props only, no TEXT layers)
+  --export-assets                 Export one SVG asset per component variant via the Figma Images API (with --export-component-set or --export-contract targeting a COMPONENT_SET; variant props only, no TEXT layers)
   --asset-format <format>         Asset export format; currently supports svg (default when --export-assets is set)
   --input <path>                  Input JSON file path (required with --build-component-set-spec and --build-component-set-pseudocode)
   --output-dir <dir>              Output directory (optional with --build-component-set-pseudocode; defaults to the input file directory)
   --contract-dir <dir>            Contract directory (required with --verify-component-contract and --verify-node-contract)
   --component-name <name>         Component name (optional with --verify-component-contract; defaults to all lock files in --contract-dir)
   --node-name <name>              Node contract base name (optional with --verify-node-contract; defaults to all frame/component lock files in --contract-dir)
-  --output-dir <dir>              Output directory (required with --export-component-set and --export-node-contract)
-  --variables <path>              Variables export JSON (required with --build-component-set-spec, --build-component-set-pseudocode, --export-component-set, and --export-node-contract)
+  --output-dir <dir>              Output directory (required with export commands)
+  --variables <path>              Variables export JSON (required with --build-component-set-spec, --build-component-set-pseudocode, and export commands)
   --team-components <path>        Team component sets JSON (optional with --build-component-set-spec and --build-component-set-pseudocode)
   --url <figma-url>               Figma node URL; supports /design/<fileKey>/... and /file/<fileKey>/... with node-id
   --project-id <id>               Project id (required with --list-project-files)

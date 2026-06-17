@@ -28,14 +28,10 @@ import {
   verifyNodeContracts,
 } from "../inspect/index.js";
 import { CliError } from "./errors.js";
-import {
-  exportComponentSet,
-  writeExportResult,
-} from "./export-component-set.js";
-import {
-  exportNodeContract,
-  writeNodeExportResult,
-} from "./export-node-contract.js";
+import { exportComponentSet } from "./export-component-set.js";
+import { exportContract } from "./export-contract.js";
+import { exportNodeContract } from "./export-node-contract.js";
+import { writeExportArtifactPaths } from "./export-result.js";
 import {
   writeComponentSetProperties,
   writeComponentSets,
@@ -278,13 +274,43 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         assetFormat: command.assetFormat,
         format: command.format,
       });
-      writeExportResult(result, io.stdout);
+      writeExportArtifactPaths(result, io.stdout);
     } catch (error) {
       if (
         error instanceof FigmaApiError ||
         error instanceof FigmaInspectError
       ) {
         throw new CliError(error.message);
+      }
+
+      throw error;
+    }
+
+    return;
+  }
+
+  if (command.kind === "export-contract") {
+    try {
+      const result = await exportContract({
+        token,
+        teamId: io.env.FIGMA_TEAM_ID,
+        outputDir: command.outputDir,
+        fileKey: command.fileKey,
+        nodeId: command.nodeId,
+        sourceUrl: command.sourceUrl,
+        variablesPath: command.variablesPath,
+        exportAssets: command.exportAssets,
+        assetFormat: command.assetFormat,
+        format: command.format,
+      });
+      writeExportArtifactPaths(result, io.stdout);
+    } catch (error) {
+      if (
+        error instanceof CliError ||
+        error instanceof FigmaApiError ||
+        error instanceof FigmaInspectError
+      ) {
+        throw error instanceof CliError ? error : new CliError(error.message);
       }
 
       throw error;
@@ -304,7 +330,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         variablesPath: command.variablesPath,
         format: command.format,
       });
-      writeNodeExportResult(result, io.stdout);
+      writeExportArtifactPaths(result, io.stdout);
     } catch (error) {
       if (
         error instanceof FigmaApiError ||

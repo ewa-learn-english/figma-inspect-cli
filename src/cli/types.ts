@@ -87,6 +87,15 @@ export type CliCommand =
       format: ContractFormat;
     }
   | ({
+      kind: "export-contract";
+      outputDir: string;
+      sourceUrl?: string;
+      variablesPath: string;
+      exportAssets?: boolean;
+      assetFormat?: "svg";
+      format: ContractFormat;
+    } & FigmaNodeRef)
+  | ({
       kind: "export-node-contract";
       outputDir: string;
       sourceUrl?: string;

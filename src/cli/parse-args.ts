@@ -25,6 +25,7 @@ interface ParsedFlags {
   buildComponentSetPseudocode: boolean;
   verifyComponentContract: boolean;
   verifyNodeContract: boolean;
+  exportContract: boolean;
   exportComponentSet: boolean;
   exportNodeContract: boolean;
   exportAssets: boolean;
@@ -67,6 +68,7 @@ function emptyFlags(): ParsedFlags {
     buildComponentSetPseudocode: false,
     verifyComponentContract: false,
     verifyNodeContract: false,
+    exportContract: false,
     exportComponentSet: false,
     exportNodeContract: false,
     exportAssets: false,
@@ -271,13 +273,14 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
       ? ("verify-component-contract" as const)
       : undefined,
     flags.verifyNodeContract ? ("verify-node-contract" as const) : undefined,
+    flags.exportContract ? ("export-contract" as const) : undefined,
     flags.exportComponentSet ? ("export-component-set" as const) : undefined,
     flags.exportNodeContract ? ("export-node-contract" as const) : undefined,
   ].filter((command) => command !== undefined);
 
   if (selected.length === 0) {
     throw new CliError(
-      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --list-team-component-sets, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, --build-component-set-spec, --build-component-set-pseudocode, --verify-component-contract, --verify-node-contract, --export-component-set, or --export-node-contract.\n\n" +
+      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --list-team-component-sets, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, --build-component-set-spec, --build-component-set-pseudocode, --verify-component-contract, --verify-node-contract, --export-contract, --export-component-set, or --export-node-contract.\n\n" +
         usage,
     );
   }
@@ -438,6 +441,26 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         format: resolveOutputFormat(flags),
       };
     }
+    case "export-contract": {
+      if (!flags.outputDir) {
+        throw new CliError("Missing --output-dir for --export-contract.");
+      }
+
+      const nodeRef = resolveNodeRef(flags, "--export-contract");
+      return {
+        kind: "export-contract",
+        outputDir: flags.outputDir,
+        ...nodeRef,
+        sourceUrl: flags.url,
+        variablesPath: requireVariablesPath(
+          flags.variablesPath,
+          "--export-contract",
+        ),
+        exportAssets: flags.exportAssets,
+        assetFormat: flags.assetFormat,
+        format: resolveOutputFormat(flags),
+      };
+    }
     case "export-node-contract": {
       if (!flags.outputDir) {
         throw new CliError("Missing --output-dir for --export-node-contract.");
@@ -541,6 +564,11 @@ export function parseCommand(argv: string[]): CliCommand {
 
     if (arg === "--verify-node-contract") {
       flags.verifyNodeContract = true;
+      continue;
+    }
+
+    if (arg === "--export-contract") {
+      flags.exportContract = true;
       continue;
     }
 

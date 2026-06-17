@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   buildComponentSetSpecFromFile: vi.fn(),
   buildComponentSetPseudocodeFromFile: vi.fn(),
   exportComponentSet: vi.fn(),
+  exportContract: vi.fn(),
   exportNodeContract: vi.fn(),
   listProjectFiles: vi.fn(),
   getFileNode: vi.fn(),
@@ -79,16 +80,14 @@ vi.mock("../inspect/index.js", () => ({
 
 vi.mock("./export-component-set.js", () => ({
   exportComponentSet: mocks.exportComponentSet,
-  writeExportResult: vi.fn((_result, stdout: NodeJS.WriteStream) => {
-    stdout.write("exported\n");
-  }),
+}));
+
+vi.mock("./export-contract.js", () => ({
+  exportContract: mocks.exportContract,
 }));
 
 vi.mock("./export-node-contract.js", () => ({
   exportNodeContract: mocks.exportNodeContract,
-  writeNodeExportResult: vi.fn((_result, stdout: NodeJS.WriteStream) => {
-    stdout.write("node-exported\n");
-  }),
 }));
 
 import { runCli } from "./run-cli.js";
@@ -335,7 +334,9 @@ describe("runCli", () => {
         componentSet: { kind: "name", value: "Button" },
       }),
     );
-    expect(output()).toBe("exported\n");
+    expect(output()).toBe(
+      "/out/a.yaml\n/out/b.yaml\n/out/c.yaml\n/out/d.yaml\n/out/e.dsl\n",
+    );
   });
 
   it("runs export-component-set from a Figma URL", async () => {
@@ -377,7 +378,50 @@ describe("runCli", () => {
         sourceUrl,
       }),
     );
-    expect(output()).toBe("exported\n");
+    expect(output()).toBe(
+      "/out/a.yaml\n/out/b.yaml\n/out/c.yaml\n/out/d.yaml\n/out/e.dsl\n/out/import-notes.md\n",
+    );
+  });
+
+  it("runs export-contract from a Figma URL with optional team id", async () => {
+    mocks.exportContract.mockResolvedValue({
+      visualsContractPath: "/out/a.yaml",
+      geometryContractPath: "/out/b.yaml",
+      metaContractPath: "/out/c.yaml",
+      lockContractPath: "/out/d.yaml",
+      structureDslPath: "/out/e.dsl",
+      importNotesPath: "/out/import-notes.md",
+    });
+    const { io, output } = createIo({ FIGMA_TEAM_ID: undefined });
+    const sourceUrl =
+      "https://www.figma.com/design/fileKey/Settings?node-id=208-43935&m=dev";
+
+    await runCli(
+      [
+        "--export-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--url",
+        sourceUrl,
+      ],
+      io,
+    );
+
+    expect(mocks.exportContract).toHaveBeenCalledWith(
+      expect.objectContaining({
+        token: "token",
+        teamId: undefined,
+        outputDir: "out",
+        fileKey: "fileKey",
+        nodeId: "208:43935",
+        sourceUrl,
+      }),
+    );
+    expect(output()).toBe(
+      "/out/a.yaml\n/out/b.yaml\n/out/c.yaml\n/out/d.yaml\n/out/e.dsl\n/out/import-notes.md\n",
+    );
   });
 
   it("runs export-node-contract from a Figma URL without team id", async () => {
@@ -415,7 +459,9 @@ describe("runCli", () => {
         sourceUrl,
       }),
     );
-    expect(output()).toBe("node-exported\n");
+    expect(output()).toBe(
+      "/out/a.yaml\n/out/b.yaml\n/out/c.yaml\n/out/d.yaml\n/out/e.dsl\n/out/import-notes.md\n",
+    );
   });
 
   it("inspects any file node from a Figma URL", async () => {

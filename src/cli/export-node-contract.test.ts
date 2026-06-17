@@ -18,45 +18,7 @@ vi.mock("../inspect/index.js", async () => {
   };
 });
 
-import {
-  exportNodeContract,
-  writeNodeExportResult,
-} from "./export-node-contract.js";
-
-describe("writeNodeExportResult", () => {
-  it("writes node contract paths on separate lines", () => {
-    let output = "";
-    const stdout = {
-      write(chunk: string): boolean {
-        output += chunk;
-        return true;
-      },
-    } as NodeJS.WriteStream;
-
-    writeNodeExportResult(
-      {
-        visualsContractPath: "/out/Settings.frame.visuals.yaml",
-        geometryContractPath: "/out/Settings.frame.geometry.yaml",
-        metaContractPath: "/out/Settings.frame.meta.yaml",
-        lockContractPath: "/out/Settings.frame.lock.yaml",
-        structureDslPath: "/out/Settings.frame.structure.dsl",
-        importNotesPath: "/out/import-notes.md",
-      },
-      stdout,
-    );
-
-    expect(output).toBe(
-      `${[
-        "/out/Settings.frame.visuals.yaml",
-        "/out/Settings.frame.geometry.yaml",
-        "/out/Settings.frame.meta.yaml",
-        "/out/Settings.frame.lock.yaml",
-        "/out/Settings.frame.structure.dsl",
-        "/out/import-notes.md",
-      ].join("\n")}\n`,
-    );
-  });
-});
+import { exportNodeContract } from "./export-node-contract.js";
 
 describe("exportNodeContract", () => {
   let outputDir: string;

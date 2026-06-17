@@ -70,15 +70,17 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 15 | `--build-component-set-spec` | `--input tmp/component-set.json --variables $VARIABLES_PATH --team-components tmp/ComponentSets.json` | collapses known team components to slots |
 | 16 | `--build-component-set-pseudocode` | `--input tmp/component-set.json --variables $VARIABLES_PATH` | writes `<ComponentName>.component-set.{visuals,geometry,meta}.yaml` and `<ComponentName>.component-set.structure.dsl` next to `--input` |
 | 17 | `--build-component-set-pseudocode` | `--input tmp/component-set.json --output-dir tmp --variables $VARIABLES_PATH --team-components tmp/ComponentSets.json` | writes component-set contract files to `tmp/` with token resolution |
-| 18 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME` | writes `<name>.component-set.{visuals,geometry,meta,lock}.yaml`, and `<name>.component-set.structure.dsl`; needs `FIGMA_TEAM_ID` |
-| 19 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FIGMA_NODE_URL"` | URL variant; also writes `import-notes.md`; needs `FIGMA_TEAM_ID` |
-| 20 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name ProfileStreakIcon --export-assets` | also writes `<name>.assets/*.svg`, stores asset paths in `meta.yaml`, and asset-backed contracts; needs `FIGMA_API_TOKEN` + `FIGMA_TEAM_ID` |
-| 21 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME --json` | same as row 18 but writes `.json` files instead of `.yaml` |
-| 22 | `--export-node-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL"` | URL variant for FRAME; writes `<name>.frame.{visuals,geometry,meta,lock}.yaml` and `<name>.frame.structure.dsl`; needs `FIGMA_API_TOKEN` |
-| 23 | `--verify-node-contract` | `--contract-dir tmp` | compares frame/component node locks to live Figma (source, tree, kind); needs `FIGMA_API_TOKEN` |
-| 24 | `--verify-node-contract` | `--contract-dir tmp --node-name "$FRAME_NODE_NAME" --json` | verifies one node contract; JSON output only |
-| 25 | `--verify-component-contract` | `--contract-dir tmp` | compares each lock to live Figma (source, tree, variants); needs `FIGMA_API_TOKEN` |
-| 26 | `--verify-component-contract` | `--contract-dir tmp --component-name Cell --json` | verifies one component; JSON output only |
+| 18 | `--export-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FIGMA_NODE_URL"` | preferred URL-first variant; auto-detects `COMPONENT_SET`; also writes `import-notes.md`; needs `FIGMA_TEAM_ID` for this target |
+| 19 | `--export-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL"` | preferred URL-first variant; auto-detects `FRAME`; writes `<name>.frame.{visuals,geometry,meta,lock}.yaml` and `<name>.frame.structure.dsl` |
+| 20 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME` | explicit component-set variant; writes `<name>.component-set.{visuals,geometry,meta,lock}.yaml`, and `<name>.component-set.structure.dsl`; needs `FIGMA_TEAM_ID` |
+| 21 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FIGMA_NODE_URL"` | explicit component-set URL variant; also writes `import-notes.md`; needs `FIGMA_TEAM_ID` |
+| 22 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name ProfileStreakIcon --export-assets` | also writes `<name>.assets/*.svg`, stores asset paths in `meta.yaml`, and asset-backed contracts; needs `FIGMA_API_TOKEN` + `FIGMA_TEAM_ID` |
+| 23 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME --json` | same as row 20 but writes `.json` files instead of `.yaml` |
+| 24 | `--export-node-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL"` | explicit node-contract URL variant for FRAME |
+| 25 | `--verify-node-contract` | `--contract-dir tmp` | compares frame/component node locks to live Figma (source, tree, kind); needs `FIGMA_API_TOKEN` |
+| 26 | `--verify-node-contract` | `--contract-dir tmp --node-name "$FRAME_NODE_NAME" --json` | verifies one node contract; JSON output only |
+| 27 | `--verify-component-contract` | `--contract-dir tmp` | compares each lock to live Figma (source, tree, variants); needs `FIGMA_API_TOKEN` |
+| 28 | `--verify-component-contract` | `--contract-dir tmp --component-name Cell --json` | verifies one component; JSON output only |
 
 Example:
 
@@ -101,6 +103,8 @@ npx . --build-component-set-spec --input tmp/component-set.json --variables "$VA
 npx . --build-component-set-spec --input tmp/component-set.json --variables "$VARIABLES_PATH" --team-components tmp/ComponentSets.json
 npx . --build-component-set-pseudocode --input tmp/component-set.json --variables "$VARIABLES_PATH"
 npx . --build-component-set-pseudocode --input tmp/component-set.json --output-dir tmp --variables "$VARIABLES_PATH" --team-components tmp/ComponentSets.json
+npx . --export-contract --output-dir tmp --variables "$VARIABLES_PATH" --url "$FIGMA_NODE_URL"
+npx . --export-contract --output-dir tmp --variables "$VARIABLES_PATH" --url "$FRAME_NODE_URL"
 npx . --export-component-set --output-dir tmp --variables "$VARIABLES_PATH" --component-set-name "$COMPONENT_SET_NAME"
 npx . --export-component-set --output-dir tmp --variables "$VARIABLES_PATH" --url "$FIGMA_NODE_URL"
 npx . --export-component-set --output-dir tmp --variables "$VARIABLES_PATH" --component-set-name "$COMPONENT_SET_NAME" --json

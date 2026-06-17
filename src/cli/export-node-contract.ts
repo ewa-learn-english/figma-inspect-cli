@@ -16,6 +16,10 @@ import {
   writeNodeContractLock,
 } from "../inspect/index.js";
 import type { FigmaNodeRef } from "../inspect/types.js";
+import type {
+  ExportArtifactPathExtras,
+  ExportArtifactPaths,
+} from "./export-result.js";
 
 export interface ExportNodeContractOptions extends FigmaNodeRef {
   token: string;
@@ -25,14 +29,9 @@ export interface ExportNodeContractOptions extends FigmaNodeRef {
   format?: ContractFormat;
 }
 
-export interface ExportNodeContractResult {
-  visualsContractPath: string;
-  geometryContractPath: string;
-  metaContractPath: string;
-  lockContractPath: string;
-  structureDslPath: string;
-  importNotesPath?: string;
-}
+export interface ExportNodeContractResult
+  extends ExportArtifactPaths,
+    Pick<ExportArtifactPathExtras, "importNotesPath"> {}
 
 async function writeDataFile(
   filePath: string,
@@ -148,21 +147,4 @@ export async function exportNodeContract(
     structureDslPath,
     importNotesPath,
   };
-}
-
-export function writeNodeExportResult(
-  result: ExportNodeContractResult,
-  stdout: NodeJS.WriteStream,
-): void {
-  const lines = [
-    result.visualsContractPath,
-    result.geometryContractPath,
-    result.metaContractPath,
-    result.lockContractPath,
-    result.structureDslPath,
-  ];
-  if (result.importNotesPath) {
-    lines.push(result.importNotesPath);
-  }
-  stdout.write(`${lines.join("\n")}\n`);
 }

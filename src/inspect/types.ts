@@ -32,6 +32,10 @@ export type ComponentSetTarget =
   | ComponentSetLookup
   | ({ kind: "node" } & FigmaNodeRef);
 
+export type ExportContractTarget =
+  | ({ kind: "component-set" } & FigmaNodeRef)
+  | ({ kind: "node" } & FigmaNodeRef);
+
 export interface ComponentSetScopeOptions extends FigmaNodeRef {
   token: string;
   componentSet: ComponentSetLookup;

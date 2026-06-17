@@ -29,10 +29,7 @@ vi.mock("../figma-api/index.js", () => ({
 }));
 
 import { contractFixturesDir, variablesFixturePath } from "../test/fixtures.js";
-import {
-  exportComponentSet,
-  writeExportResult,
-} from "./export-component-set.js";
+import { exportComponentSet } from "./export-component-set.js";
 
 async function loadFixture<T>(fileName: string): Promise<T> {
   const content = await readFile(
@@ -45,65 +42,6 @@ async function loadFixture<T>(fileName: string): Promise<T> {
 
   return content as T;
 }
-
-describe("writeExportResult", () => {
-  it("writes contract paths on separate lines", () => {
-    let output = "";
-    const stdout = {
-      write(chunk: string): boolean {
-        output += chunk;
-        return true;
-      },
-    } as NodeJS.WriteStream;
-
-    writeExportResult(
-      {
-        visualsContractPath: "/out/TextInput.component-set.visuals.yaml",
-        geometryContractPath: "/out/TextInput.component-set.geometry.yaml",
-        metaContractPath: "/out/TextInput.component-set.meta.yaml",
-        lockContractPath: "/out/TextInput.component-set.lock.yaml",
-        structureDslPath: "/out/TextInput.component-set.structure.dsl",
-        importNotesPath: "/out/import-notes.md",
-      },
-      stdout,
-    );
-
-    expect(output).toBe(
-      `${[
-        "/out/TextInput.component-set.visuals.yaml",
-        "/out/TextInput.component-set.geometry.yaml",
-        "/out/TextInput.component-set.meta.yaml",
-        "/out/TextInput.component-set.lock.yaml",
-        "/out/TextInput.component-set.structure.dsl",
-        "/out/import-notes.md",
-      ].join("\n")}\n`,
-    );
-  });
-
-  it("includes assets dir when present", () => {
-    let output = "";
-    const stdout = {
-      write(chunk: string): boolean {
-        output += chunk;
-        return true;
-      },
-    } as NodeJS.WriteStream;
-
-    writeExportResult(
-      {
-        visualsContractPath: "/out/a.yaml",
-        geometryContractPath: "/out/b.yaml",
-        metaContractPath: "/out/c.yaml",
-        lockContractPath: "/out/d.yaml",
-        structureDslPath: "/out/e.dsl",
-        assetsDir: "/out/TextInput.assets",
-      },
-      stdout,
-    );
-
-    expect(output.endsWith("/out/TextInput.assets\n")).toBe(true);
-  });
-});
 
 describe("exportComponentSet", () => {
   let outputDir: string;
