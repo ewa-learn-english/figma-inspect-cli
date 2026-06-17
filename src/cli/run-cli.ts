@@ -25,12 +25,17 @@ import {
   resolveTeamComponentSetScope,
   resolveVisualsContractPath,
   verifyComponentContracts,
+  verifyNodeContracts,
 } from "../inspect/index.js";
 import { CliError } from "./errors.js";
 import {
   exportComponentSet,
   writeExportResult,
 } from "./export-component-set.js";
+import {
+  exportNodeContract,
+  writeNodeExportResult,
+} from "./export-node-contract.js";
 import {
   writeComponentSetProperties,
   writeComponentSets,
@@ -50,6 +55,59 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
 
   if (command.kind === "help") {
     io.stdout.write(usage);
+    return;
+  }
+
+  if (command.kind === "verify-node-contract") {
+    const token = io.env.FIGMA_API_TOKEN;
+    if (!token) {
+      throw new CliError("Missing FIGMA_API_TOKEN environment variable.");
+    }
+
+    try {
+      const results = await verifyNodeContracts({
+        token,
+        contractDir: command.contractDir,
+        nodeName: command.nodeName,
+        contractFormat: command.contractFormat,
+      });
+      if (command.outputFormat === "json") {
+        io.stdout.write(`${JSON.stringify({ results }, null, 2)}\n`);
+      } else {
+        for (const result of results) {
+          io.stdout.write(
+            `${result.nodeName}\t${result.kind}\t${result.status}\n`,
+          );
+          for (const error of result.errors) {
+            io.stdout.write(`  ${error}\n`);
+          }
+          if (result.status === "changed") {
+            const parts: string[] = [];
+            if (result.changed.source) {
+              parts.push("source");
+            }
+            if (result.changed.tree) {
+              parts.push("tree");
+            }
+            if (result.changed.kind) {
+              parts.push("kind");
+            }
+            io.stdout.write(`  changed: ${parts.join(" ")}\n`);
+          }
+        }
+      }
+
+      if (results.some((result) => result.status !== "ok")) {
+        throw new CliError("Node contract verification failed.");
+      }
+    } catch (error) {
+      if (error instanceof FigmaInspectError || error instanceof CliError) {
+        throw error instanceof CliError ? error : new CliError(error.message);
+      }
+
+      throw error;
+    }
+
     return;
   }
 
@@ -221,6 +279,32 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         format: command.format,
       });
       writeExportResult(result, io.stdout);
+    } catch (error) {
+      if (
+        error instanceof FigmaApiError ||
+        error instanceof FigmaInspectError
+      ) {
+        throw new CliError(error.message);
+      }
+
+      throw error;
+    }
+
+    return;
+  }
+
+  if (command.kind === "export-node-contract") {
+    try {
+      const result = await exportNodeContract({
+        token,
+        outputDir: command.outputDir,
+        fileKey: command.fileKey,
+        nodeId: command.nodeId,
+        sourceUrl: command.sourceUrl,
+        variablesPath: command.variablesPath,
+        format: command.format,
+      });
+      writeNodeExportResult(result, io.stdout);
     } catch (error) {
       if (
         error instanceof FigmaApiError ||

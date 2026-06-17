@@ -210,6 +210,24 @@ describe("parseCommand", () => {
     });
   });
 
+  it("parses verify-node-contract with contract dir", () => {
+    expect(
+      parseCommand([
+        "--verify-node-contract",
+        "--contract-dir",
+        "tmp",
+        "--node-name",
+        "Settings",
+        "--json",
+      ]),
+    ).toEqual({
+      kind: "verify-node-contract",
+      contractDir: "tmp",
+      nodeName: "Settings",
+      outputFormat: "json",
+    });
+  });
+
   it("uses json only for verify stdout format", () => {
     const command = parseCommand([
       "--verify-component-contract",
@@ -277,10 +295,61 @@ describe("parseCommand", () => {
     });
   });
 
+  it("parses export-node-contract by Figma URL", () => {
+    const sourceUrl =
+      "https://www.figma.com/design/fileKey/Settings?node-id=208-43935&m=dev";
+
+    expect(
+      parseCommand([
+        "--export-node-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--url",
+        sourceUrl,
+      ]),
+    ).toEqual({
+      kind: "export-node-contract",
+      outputDir: "out",
+      fileKey: "fileKey",
+      nodeId: "208:43935",
+      sourceUrl,
+      variablesPath: "vars.json",
+      format: "yaml",
+    });
+  });
+
+  it("parses export-node-contract by file key and node id", () => {
+    expect(
+      parseCommand([
+        "--export-node-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--file-key",
+        "fileKey",
+        "--node-id",
+        "900:1",
+        "--json",
+      ]),
+    ).toEqual({
+      kind: "export-node-contract",
+      outputDir: "out",
+      fileKey: "fileKey",
+      nodeId: "900:1",
+      sourceUrl: undefined,
+      variablesPath: "vars.json",
+      format: "json",
+    });
+  });
+
   it("rejects missing required flags", () => {
     expect(() => parseCommand(["--verify-component-contract"])).toThrow(
       CliError,
     );
+    expect(() => parseCommand(["--verify-node-contract"])).toThrow(CliError);
     expect(() => parseCommand(["--list-project-files"])).toThrow(CliError);
     expect(() => parseCommand(["--list-file-pages"])).toThrow(
       /Missing --file-key/,
@@ -293,6 +362,9 @@ describe("parseCommand", () => {
     ).toThrow(/Missing --variables/);
     expect(() =>
       parseCommand(["--export-component-set", "--output-dir", "out"]),
+    ).toThrow(CliError);
+    expect(() =>
+      parseCommand(["--export-node-contract", "--output-dir", "out"]),
     ).toThrow(CliError);
     expect(() =>
       parseCommand([
@@ -368,6 +440,19 @@ describe("parseCommand", () => {
         "https://www.figma.com/design/fileKey/Settings?node-id=213-695&m=dev",
         "--file-key",
         "fileKey",
+      ]),
+    ).toThrow(/Pass either --url or --file-key\/--node-id/);
+    expect(() =>
+      parseCommand([
+        "--export-node-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--url",
+        "https://www.figma.com/design/fileKey/Settings?node-id=208-43935&m=dev",
+        "--node-id",
+        "208:43935",
       ]),
     ).toThrow(/Pass either --url or --file-key\/--node-id/);
   });

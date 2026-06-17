@@ -24,7 +24,9 @@ interface ParsedFlags {
   buildComponentSetSpec: boolean;
   buildComponentSetPseudocode: boolean;
   verifyComponentContract: boolean;
+  verifyNodeContract: boolean;
   exportComponentSet: boolean;
+  exportNodeContract: boolean;
   exportAssets: boolean;
   assetFormat: "svg" | undefined;
   projectId: string | undefined;
@@ -40,6 +42,7 @@ interface ParsedFlags {
   componentSetName: string | undefined;
   contractDir: string | undefined;
   componentName: string | undefined;
+  nodeName: string | undefined;
   json: boolean;
 }
 
@@ -63,7 +66,9 @@ function emptyFlags(): ParsedFlags {
     buildComponentSetSpec: false,
     buildComponentSetPseudocode: false,
     verifyComponentContract: false,
+    verifyNodeContract: false,
     exportComponentSet: false,
+    exportNodeContract: false,
     exportAssets: false,
     assetFormat: undefined,
     projectId: undefined,
@@ -79,6 +84,7 @@ function emptyFlags(): ParsedFlags {
     componentSetName: undefined,
     contractDir: undefined,
     componentName: undefined,
+    nodeName: undefined,
     json: false,
   };
 }
@@ -264,12 +270,14 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
     flags.verifyComponentContract
       ? ("verify-component-contract" as const)
       : undefined,
+    flags.verifyNodeContract ? ("verify-node-contract" as const) : undefined,
     flags.exportComponentSet ? ("export-component-set" as const) : undefined,
+    flags.exportNodeContract ? ("export-node-contract" as const) : undefined,
   ].filter((command) => command !== undefined);
 
   if (selected.length === 0) {
     throw new CliError(
-      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --list-team-component-sets, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, --build-component-set-spec, --build-component-set-pseudocode, --verify-component-contract, or --export-component-set.\n\n" +
+      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --list-team-component-sets, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, --build-component-set-spec, --build-component-set-pseudocode, --verify-component-contract, --verify-node-contract, --export-component-set, or --export-node-contract.\n\n" +
         usage,
     );
   }
@@ -397,6 +405,20 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         outputFormat: resolveOutputFormat(flags),
       };
     }
+    case "verify-node-contract": {
+      if (!flags.contractDir) {
+        throw new CliError(
+          "Missing --contract-dir for --verify-node-contract.",
+        );
+      }
+
+      return {
+        kind: "verify-node-contract",
+        contractDir: flags.contractDir,
+        nodeName: flags.nodeName,
+        outputFormat: resolveOutputFormat(flags),
+      };
+    }
     case "export-component-set": {
       if (!flags.outputDir) {
         throw new CliError("Missing --output-dir for --export-component-set.");
@@ -413,6 +435,24 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         ),
         exportAssets: flags.exportAssets,
         assetFormat: flags.assetFormat,
+        format: resolveOutputFormat(flags),
+      };
+    }
+    case "export-node-contract": {
+      if (!flags.outputDir) {
+        throw new CliError("Missing --output-dir for --export-node-contract.");
+      }
+
+      const nodeRef = resolveNodeRef(flags, "--export-node-contract");
+      return {
+        kind: "export-node-contract",
+        outputDir: flags.outputDir,
+        ...nodeRef,
+        sourceUrl: flags.url,
+        variablesPath: requireVariablesPath(
+          flags.variablesPath,
+          "--export-node-contract",
+        ),
         format: resolveOutputFormat(flags),
       };
     }
@@ -499,8 +539,18 @@ export function parseCommand(argv: string[]): CliCommand {
       continue;
     }
 
+    if (arg === "--verify-node-contract") {
+      flags.verifyNodeContract = true;
+      continue;
+    }
+
     if (arg === "--export-component-set") {
       flags.exportComponentSet = true;
+      continue;
+    }
+
+    if (arg === "--export-node-contract") {
+      flags.exportNodeContract = true;
       continue;
     }
 
@@ -608,6 +658,13 @@ export function parseCommand(argv: string[]): CliCommand {
     if (arg === "--component-name") {
       const { value, nextIndex } = readFlagValue(argv, index, arg);
       flags.componentName = value;
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--node-name") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.nodeName = value;
       index = nextIndex;
       continue;
     }

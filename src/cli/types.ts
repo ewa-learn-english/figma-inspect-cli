@@ -70,6 +70,13 @@ export type CliCommand =
       outputFormat: ContractFormat;
     }
   | {
+      kind: "verify-node-contract";
+      contractDir: string;
+      nodeName?: string;
+      contractFormat?: ContractFormat;
+      outputFormat: ContractFormat;
+    }
+  | {
       kind: "export-component-set";
       outputDir: string;
       componentSet: ComponentSetTarget;
@@ -78,4 +85,11 @@ export type CliCommand =
       exportAssets?: boolean;
       assetFormat?: "svg";
       format: ContractFormat;
-    };
+    }
+  | ({
+      kind: "export-node-contract";
+      outputDir: string;
+      sourceUrl?: string;
+      variablesPath: string;
+      format: ContractFormat;
+    } & FigmaNodeRef);

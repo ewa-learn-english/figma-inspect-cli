@@ -9,9 +9,11 @@ import { CliError } from "./errors.js";
 const mocks = vi.hoisted(() => ({
   listTeamProjects: vi.fn(),
   verifyComponentContracts: vi.fn(),
+  verifyNodeContracts: vi.fn(),
   buildComponentSetSpecFromFile: vi.fn(),
   buildComponentSetPseudocodeFromFile: vi.fn(),
   exportComponentSet: vi.fn(),
+  exportNodeContract: vi.fn(),
   listProjectFiles: vi.fn(),
   getFileNode: vi.fn(),
   getNodeComponentSetByRef: vi.fn(),
@@ -72,12 +74,20 @@ vi.mock("../inspect/index.js", () => ({
       ),
   ),
   verifyComponentContracts: mocks.verifyComponentContracts,
+  verifyNodeContracts: mocks.verifyNodeContracts,
 }));
 
 vi.mock("./export-component-set.js", () => ({
   exportComponentSet: mocks.exportComponentSet,
   writeExportResult: vi.fn((_result, stdout: NodeJS.WriteStream) => {
     stdout.write("exported\n");
+  }),
+}));
+
+vi.mock("./export-node-contract.js", () => ({
+  exportNodeContract: mocks.exportNodeContract,
+  writeNodeExportResult: vi.fn((_result, stdout: NodeJS.WriteStream) => {
+    stdout.write("node-exported\n");
   }),
 }));
 
@@ -198,6 +208,39 @@ describe("runCli", () => {
     expect(JSON.parse(output())).toEqual({
       results: [{ componentName: "Cell", status: "ok", errors: [] }],
     });
+  });
+
+  it("writes yaml node verify results and fails when status is not ok", async () => {
+    mocks.verifyNodeContracts.mockResolvedValue([
+      {
+        nodeName: "Settings",
+        kind: "frame",
+        status: "changed",
+        errors: [],
+        changed: {
+          source: false,
+          tree: true,
+          kind: false,
+        },
+      },
+    ]);
+    const { io, output } = createIo();
+
+    await expect(
+      runCli(
+        [
+          "--verify-node-contract",
+          "--contract-dir",
+          "tmp",
+          "--node-name",
+          "Settings",
+        ],
+        io,
+      ),
+    ).rejects.toThrow(/Node contract verification failed/);
+
+    expect(output()).toContain("Settings\tframe\tchanged");
+    expect(output()).toContain("changed: tree");
   });
 
   it("wraps FigmaInspectError from verify in CliError", async () => {
@@ -335,6 +378,44 @@ describe("runCli", () => {
       }),
     );
     expect(output()).toBe("exported\n");
+  });
+
+  it("runs export-node-contract from a Figma URL without team id", async () => {
+    mocks.exportNodeContract.mockResolvedValue({
+      visualsContractPath: "/out/a.yaml",
+      geometryContractPath: "/out/b.yaml",
+      metaContractPath: "/out/c.yaml",
+      lockContractPath: "/out/d.yaml",
+      structureDslPath: "/out/e.dsl",
+      importNotesPath: "/out/import-notes.md",
+    });
+    const { io, output } = createIo({ FIGMA_TEAM_ID: undefined });
+    const sourceUrl =
+      "https://www.figma.com/design/fileKey/Settings?node-id=208-43935&m=dev";
+
+    await runCli(
+      [
+        "--export-node-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--url",
+        sourceUrl,
+      ],
+      io,
+    );
+
+    expect(mocks.exportNodeContract).toHaveBeenCalledWith(
+      expect.objectContaining({
+        token: "token",
+        outputDir: "out",
+        fileKey: "fileKey",
+        nodeId: "208:43935",
+        sourceUrl,
+      }),
+    );
+    expect(output()).toBe("node-exported\n");
   });
 
   it("inspects any file node from a Figma URL", async () => {

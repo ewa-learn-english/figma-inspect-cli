@@ -21,4 +21,16 @@ export {
   listComponentSetProperties,
   listComponentSetPropertiesByRef,
 } from "./list-component-set-properties.js";
+export {
+  buildNodeContractFromRef,
+  readNodeContractArtifacts,
+  resolveNodeContractLockPath,
+  resolveNodeGeometryContractPath,
+  resolveNodeMetaContractPath,
+  resolveNodeStructureDslPath,
+  resolveNodeVisualsContractPath,
+  validateNodeContractArtifacts,
+  verifyNodeContracts,
+  writeNodeContractLock,
+} from "./node-contract/index.js";
 export { resolveTeamComponentSetScope } from "./resolve-team-component-set.js";
