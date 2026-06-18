@@ -28,6 +28,22 @@ describe("parseCommand", () => {
       projectId: "123",
       format: "yaml",
     });
+    expect(
+      parseCommand([
+        "--export-team-index",
+        "--output-dir",
+        "tmp/figma-index",
+        "--screen-similarity-threshold",
+        "0.92",
+        "--screen-size-tolerance",
+        "3",
+      ]),
+    ).toEqual({
+      kind: "export-team-index",
+      outputDir: "tmp/figma-index",
+      screenSimilarityThreshold: 0.92,
+      screenSizeTolerance: 3,
+    });
     expect(parseCommand(["--list-file-pages", "--file-key", "abc"])).toEqual({
       kind: "list-file-pages",
       fileKey: "abc",
@@ -549,6 +565,33 @@ describe("parseCommand", () => {
     );
     expect(() => parseCommand(["--verify-node-contract"])).toThrow(CliError);
     expect(() => parseCommand(["--list-project-files"])).toThrow(CliError);
+    expect(() => parseCommand(["--export-team-index"])).toThrow(
+      /Missing --output-dir/,
+    );
+    expect(() =>
+      parseCommand([
+        "--export-team-index",
+        "--output-dir",
+        "tmp/figma-index",
+        "--json",
+      ]),
+    ).toThrow(/not supported/);
+    expect(() =>
+      parseCommand([
+        "--list-team-project-files",
+        "--screen-similarity-threshold",
+        "0.8",
+      ]),
+    ).toThrow(/require --export-team-index/);
+    expect(() =>
+      parseCommand([
+        "--export-team-index",
+        "--output-dir",
+        "tmp/figma-index",
+        "--screen-size-tolerance",
+        "bad",
+      ]),
+    ).toThrow(/non-negative/);
     expect(() => parseCommand(["--list-file-pages"])).toThrow(
       /Missing --file-key/,
     );

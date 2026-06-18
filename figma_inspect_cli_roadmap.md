@@ -447,87 +447,131 @@ figma-inspect --export-contract --url "<figma-url>" --output-dir ... --variables
 - `--export-assets` component-set behavior не меняется.
 - `npm run check` + `npm run build` проходят.
 
-## P3 — Verified manifest and bulk registry
+## P3 — Team inventory index
 
-Цель: управлять 250+ компонентами без ручного запуска CLI по одному.
+Статус: сделано.
 
-### Interim manifest before lock v2
+Цель: дать LLM deterministic discovery layer по всей `FIGMA_TEAM_ID`, чтобы модель могла:
 
-```yaml
-components:
-  TextInput:
-    figma:
-      kind: component-set
-      componentSetKey: ...
-      fileKey: ...
-      nodeId: ...
-    implementation:
-      path: components/ds/TextInput
-      storybookGroup: ds-text-input
-      mode: structural
-    status:
-      imported: true
-      verified: true
-      owner: design-system
-nodes:
-  SettingsScreen:
-    figma:
-      kind: frame
-      fileKey: ...
-      nodeId: ...
-      url: ...
-    implementation:
-      path: app/settings
-      mode: screen
-    status:
-      imported: true
-      verified: false
-      owner: product
-```
+- найти component set / standalone component / screen по названию;
+- открыть URL нужной ноды и передать его в `--export-contract`;
+- по одному screen найти structurally similar alternatives для других device sizes;
+- не сканировать Figma raw JSON вручную.
 
-### Commands
+### CLI/API
+
+Добавлена команда:
 
 ```bash
-figma-inspect --export-component-registry --output tools/design-import/components.generated.yaml
+figma-inspect --export-team-index --output-dir tmp/figma-index
+```
+
+Опции:
+
+- `--output-dir <dir>` — обязательный; команда не имеет дефолтной директории;
+- `--screen-similarity-threshold <number>` — default `0.9`;
+- `--screen-size-tolerance <px>` — default `2`.
+
+### Output
+
+```text
+tmp/figma-index/team.index.yaml
+tmp/figma-index/<Project>.<File>.<FileKey>.index.yaml
+```
+
+`team.index.yaml` — компактный router для модели:
+
+- team id;
+- только список Figma files с counts и path к per-file index.
+- все YAML mapping keys в camelCase и сериализуются в стабильном порядке.
+
+Каждый sibling `*.index.yaml` содержит только navigation index одного Figma file:
+
+- file metadata: `{ key, name, lastModified, projectId, projectName }`;
+- component sets: `{ id, name, lastModified, url }`;
+- standalone components: `{ id, name, lastModified, url }`;
+- screen-sized frames: `{ id, name, size, group, lastModified, url }`;
+- screen groups: `{ id, screens }`, где `id` — `fileKey#<sorted node ids>` и `screens` — `{ id, name, size, lastModified, url }`.
+
+Индекс не содержит props, component internals, screen internals, dependencies, fingerprints, layer paths, variant counts или token diagnostics. Это все появляется только в точечном `--export-contract`.
+
+### Screen detection
+
+Поддержанные размеры:
+
+- `375x916`
+- `375x854`
+- `375x812`
+- `375x667`
+- `390x844`
+- `428x926`
+- `834x1194` (iPad Portrait)
+- `1194x834` (iPad Landscape)
+
+Правила:
+
+- screen candidates — только `FRAME`;
+- размер сравнивается с tolerance;
+- если screen-sized frame вложен в другой screen, индексируется внешний screen, чтобы не плодить дубли;
+- имена используются как labels, но не как source of truth.
+
+### Similarity
+
+- Algorithm: `screen-structure-v1`.
+- Fingerprint строится из normalized structure tokens и instance/component identity.
+- Score учитывает:
+   - multiset similarity структурных tokens;
+   - sequence similarity;
+   - component instance token similarity;
+   - node count similarity.
+- Default threshold: `0.9`.
+
+### Acceptance criteria
+
+- `--export-team-index --output-dir tmp/figma-index` пишет `team.index.yaml` и по одному YAML на Figma file.
+- Без `--output-dir` команда падает понятной ошибкой.
+- Screen alternatives доступны без зависимости от названия screen.
+- Nested screen-sized frames не создают дубли.
+- Output deterministic, compact, YAML-only, camelCase и object-based; `team.index.yaml` не дублирует per-file entries.
+- `npm run check` + `npm run build` проходят.
+
+## P3.5 — Verified manifest and bulk registry
+
+Цель: управлять 250+ импортированными контрактами после discovery/export слоя.
+
+### Possible commands
+
+```bash
 figma-inspect --verify-component-contract --contract-dir artifacts/figma-components --json
+figma-inspect --verify-node-contract --contract-dir artifacts/figma-components --json
 figma-inspect --export-component-set-batch --manifest tools/design-import/components.yaml
 figma-inspect --export-node-contract-batch --manifest tools/design-import/nodes.yaml
 ```
 
 ### Acceptance criteria
 
-- Можно получить список published DS component sets.
 - Можно batch-verify все component-set/component/frame lock-файлы.
-- Можно отфильтровать verified/unverified/changed components.
+- Можно отфильтровать verified/unverified/changed contracts.
+- Batch export читает явный repo-owned manifest, а не пытается импортировать всю Figma team автоматически.
 
-## P4 — Model handoff generator
+## P4 — Consumer skill migration
 
-Цель: давать LLM минимальный deterministic prompt package.
+Статус: не делать как CLI handoff artifact на текущем этапе.
 
-### Generated handoff
+Цель: перенести project-specific LLM guidance в consuming repo skill, а не плодить рядом с контрактами дополнительный prompt file.
 
-```text
-artifacts/figma-components/<Name>/handoff.md
-artifacts/figma-components/<Name>/implementation-plan.md
-```
+### Decision
 
-Содержимое:
-
-- component summary;
-- props/variant axes;
-- node kind: component-set/component/frame;
-- structural vs asset-backed recommendation;
-- token gaps from new contract/token resolution only; ewa-specific token-registry/global-css diagnostics stay outside core CLI as a repo adapter script if needed;
-- assets to copy;
-- known unsupported Figma features;
-- paths to DSL/YAML files;
-- explicit forbidden actions: do not hardcode tokens, do not add story-only props, do not use lock as design prompt.
-- no legacy `.figma.contract.json` compatibility output; new imports are validated from new contract artifacts.
+- Не генерировать `handoff.md`, `implementation-plan.md` или отдельный prompt рядом с каждым компонентом.
+- CLI уже пишет реальные artifacts: DSL/YAML contracts, lock, preview, nested-assets manifest, import notes.
+- Специфика ewa import flow должна жить в `../ewa-expo/.agents/skills/ds-figma-component-inspect/SKILL.md` и связанных consumer skills.
+- Token-registry/global CSS diagnostics остаются repo adapter layer, не core CLI.
 
 ### Acceptance criteria
 
-- LLM prompt no longer needs raw JSON.
-- Handoff file is deterministic and diff-friendly.
+- Consumer skill описывает, как читать `team.index.yaml`, переходить в sibling `*.index.yaml`, выбирать URL и вызывать `--export-contract`.
+- Consumer skill описывает, какие contract files давать модели для реализации.
+- Core CLI не генерирует лишний model prompt файл.
 
 ## P8 — Hardening
 

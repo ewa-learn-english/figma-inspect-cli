@@ -24,6 +24,12 @@ export type CliCommand =
   | { kind: "list-team-projects"; format: ContractFormat }
   | { kind: "list-project-files"; projectId: string; format: ContractFormat }
   | { kind: "list-team-project-files"; format: ContractFormat }
+  | {
+      kind: "export-team-index";
+      outputDir: string;
+      screenSimilarityThreshold?: number;
+      screenSizeTolerance?: number;
+    }
   | { kind: "list-team-component-sets"; format: ContractFormat }
   | { kind: "list-file-pages"; fileKey: string; format: ContractFormat }
   | {

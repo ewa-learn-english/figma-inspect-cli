@@ -50,3 +50,9 @@ export {
   writeNodeContractLock,
 } from "./node-contract/index.js";
 export { resolveTeamComponentSetScope } from "./resolve-team-component-set.js";
+export {
+  type BuildTeamIndexFileInput,
+  buildTeamIndex,
+  type TeamIndex,
+  type TeamIndexFile,
+} from "./team-index.js";

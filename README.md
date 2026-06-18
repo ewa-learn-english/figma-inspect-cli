@@ -30,6 +30,18 @@ List files in all team projects:
 npx . --list-team-project-files
 ```
 
+Export a deterministic YAML inventory for every file in the configured team:
+
+```sh
+npx . --export-team-index --output-dir tmp/figma-index
+```
+
+This writes a compact `tmp/figma-index/team.index.yaml` router plus one sibling
+`tmp/figma-index/*.index.yaml` per Figma file. The team index only lists
+files and their per-file index paths. Per-file indexes use camelCase YAML keys
+and named object rows for component sets, standalone components, screens, and
+screen groups. Detailed contracts are exported later with `--export-contract`.
+
 List published component sets in a team:
 
 ```sh

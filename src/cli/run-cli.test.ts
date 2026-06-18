@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
   exportComponentSet: vi.fn(),
   exportContract: vi.fn(),
   exportNodeContract: vi.fn(),
+  exportTeamIndex: vi.fn(),
   listProjectFiles: vi.fn(),
   getFileNode: vi.fn(),
   getNodeComponentSetByRef: vi.fn(),
@@ -92,6 +93,10 @@ vi.mock("./export-node-contract.js", () => ({
   exportNodeContract: mocks.exportNodeContract,
 }));
 
+vi.mock("./export-team-index.js", () => ({
+  exportTeamIndex: mocks.exportTeamIndex,
+}));
+
 import { runCli } from "./run-cli.js";
 import { usage } from "./usage.js";
 
@@ -159,6 +164,44 @@ describe("runCli", () => {
       teamId: "team",
     });
     expect(output()).toContain('"name": "Design System"');
+  });
+
+  it("exports a team index and writes artifact paths", async () => {
+    mocks.exportTeamIndex.mockResolvedValue({
+      teamIndexPath: "tmp/figma-index/team.index.yaml",
+      fileIndexPaths: [
+        "tmp/figma-index/files/Profile.Settings.file-key.index.yaml",
+      ],
+      fileCount: 1,
+      componentSetCount: 2,
+      componentCount: 1,
+      screenCount: 3,
+    });
+    const { io, output } = createIo();
+
+    await runCli(
+      [
+        "--export-team-index",
+        "--output-dir",
+        "tmp/figma-index",
+        "--screen-similarity-threshold",
+        "0.91",
+        "--screen-size-tolerance",
+        "4",
+      ],
+      io,
+    );
+
+    expect(mocks.exportTeamIndex).toHaveBeenCalledWith({
+      token: "token",
+      teamId: "team",
+      outputDir: "tmp/figma-index",
+      screenSimilarityThreshold: 0.91,
+      screenSizeTolerance: 4,
+    });
+    expect(output()).toBe(
+      "tmp/figma-index/team.index.yaml\ntmp/figma-index/files/Profile.Settings.file-key.index.yaml\n",
+    );
   });
 
   it("writes yaml verify results and fails when status is not ok", async () => {

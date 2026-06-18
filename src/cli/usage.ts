@@ -2,6 +2,7 @@ export const usage = `Usage:
   figma-inspect --list-team-projects [--json]
   figma-inspect --list-project-files --project-id <id> [--json]
   figma-inspect --list-team-project-files [--json]
+  figma-inspect --export-team-index --output-dir <dir> [--screen-similarity-threshold <number>] [--screen-size-tolerance <px>]
   figma-inspect --list-team-component-sets [--json]
   figma-inspect --list-file-pages --file-key <key> [--json]
   figma-inspect --list-file-component-sets --file-key <key> [--json]
@@ -19,13 +20,14 @@ export const usage = `Usage:
 
 Environment:
   FIGMA_API_TOKEN  Figma personal access token (required for --verify-component-contract, --verify-node-contract, and all API commands below)
-  FIGMA_TEAM_ID    Figma team id (required for team-scoped commands, --export-component-set, and --export-contract when the target is a COMPONENT_SET)
+  FIGMA_TEAM_ID    Figma team id (required for team-scoped commands, --export-team-index, --export-component-set, and --export-contract when the target is a COMPONENT_SET)
   FIGMA_CACHE      Set to 0 to disable the on-disk response cache (enabled by default)
 
 Options:
   --list-team-projects            List projects in a Figma team
   --list-project-files            List files in a Figma project
   --list-team-project-files       List files in all team projects
+  --export-team-index             Write a deterministic team inventory index as YAML: team.index.yaml plus one sibling *.index.yaml per Figma file
   --list-team-component-sets      List published component sets in a Figma team
   --list-file-pages               List pages in a Figma file
   --list-file-component-sets      List component sets in a Figma file
@@ -51,12 +53,14 @@ Options:
   --asset-max <number>            Maximum nested asset nodes to export after selection
   --asset-format <format>         Asset export format; svg for --export-assets, svg or png for --export-nested-assets (repeatable; default: svg)
   --asset-scale <scale>           PNG nested asset scale for the Figma Images API (default: 2)
+  --screen-similarity-threshold <number> Screen similarity threshold for --export-team-index (default: 0.9)
+  --screen-size-tolerance <px>     Screen frame size tolerance in pixels for --export-team-index (default: 2)
   --input <path>                  Input JSON file path (required with --build-component-set-spec and --build-component-set-pseudocode)
   --output-dir <dir>              Output directory (optional with --build-component-set-pseudocode; defaults to the input file directory)
   --contract-dir <dir>            Contract directory (required with --verify-component-contract and --verify-node-contract)
   --component-name <name>         Component name (optional with --verify-component-contract; defaults to all lock files in --contract-dir)
   --node-name <name>              Node contract base name (optional with --verify-node-contract; defaults to all frame/component lock files in --contract-dir)
-  --output-dir <dir>              Output directory (required with export commands)
+  --output-dir <dir>              Output directory (required with export commands and --export-team-index)
   --variables <path>              Variables export JSON (required with --build-component-set-spec, --build-component-set-pseudocode, and export commands)
   --team-components <path>        Team component sets JSON (optional with --build-component-set-spec and --build-component-set-pseudocode)
   --url <figma-url>               Figma node URL; supports /design/<fileKey>/... and /file/<fileKey>/... with node-id

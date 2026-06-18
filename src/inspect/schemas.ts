@@ -109,3 +109,12 @@ export function parseFileNodeEntry(
 
   return parsed.data;
 }
+
+export function parseFileEntry(payload: unknown): FileNodeEntry {
+  const parsed = fileNodeEntrySchema.safeParse(payload);
+  if (!parsed.success) {
+    throw new FigmaInspectError("Invalid Figma file response.");
+  }
+
+  return parsed.data;
+}

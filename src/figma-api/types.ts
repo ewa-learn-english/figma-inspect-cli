@@ -41,6 +41,12 @@ export interface GetFileNodeOptions {
   fetchImpl?: typeof fetch;
 }
 
+export interface GetFileOptions {
+  token: string;
+  fileKey: string;
+  fetchImpl?: typeof fetch;
+}
+
 export interface GetFileImagesOptions {
   token: string;
   fileKey: string;

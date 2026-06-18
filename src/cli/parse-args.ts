@@ -28,6 +28,7 @@ interface ParsedFlags {
   listTeamProjects: boolean;
   listProjectFiles: boolean;
   listTeamProjectFiles: boolean;
+  exportTeamIndex: boolean;
   listTeamComponentSets: boolean;
   listFilePages: boolean;
   listFileComponentSets: boolean;
@@ -57,6 +58,8 @@ interface ParsedFlags {
   inputPath: string | undefined;
   outputPath: string | undefined;
   outputDir: string | undefined;
+  screenSimilarityThreshold: number | undefined;
+  screenSizeTolerance: number | undefined;
   variablesPath: string | undefined;
   teamComponentsPath: string | undefined;
   url: string | undefined;
@@ -80,6 +83,7 @@ function emptyFlags(): ParsedFlags {
     listTeamProjects: false,
     listProjectFiles: false,
     listTeamProjectFiles: false,
+    exportTeamIndex: false,
     listTeamComponentSets: false,
     listFilePages: false,
     listFileComponentSets: false,
@@ -109,6 +113,8 @@ function emptyFlags(): ParsedFlags {
     inputPath: undefined,
     outputPath: undefined,
     outputDir: undefined,
+    screenSimilarityThreshold: undefined,
+    screenSizeTolerance: undefined,
     variablesPath: undefined,
     teamComponentsPath: undefined,
     url: undefined,
@@ -187,6 +193,28 @@ function parseAssetMax(value: string): number {
   }
 
   return max;
+}
+
+function parseScreenSimilarityThreshold(value: string): number {
+  const threshold = Number(value);
+  if (!Number.isFinite(threshold) || threshold < 0 || threshold > 1) {
+    throw new CliError(
+      `Invalid --screen-similarity-threshold ${JSON.stringify(value)}. Expected a number between 0 and 1.`,
+    );
+  }
+
+  return threshold;
+}
+
+function parseScreenSizeTolerance(value: string): number {
+  const tolerance = Number(value);
+  if (!Number.isFinite(tolerance) || tolerance < 0) {
+    throw new CliError(
+      `Invalid --screen-size-tolerance ${JSON.stringify(value)}. Expected a non-negative number.`,
+    );
+  }
+
+  return tolerance;
 }
 
 function parseAssetNodeTypes(value: string): NestedAssetNodeType[] {
@@ -496,6 +524,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
     flags.listTeamProjectFiles
       ? ("list-team-project-files" as const)
       : undefined,
+    flags.exportTeamIndex ? ("export-team-index" as const) : undefined,
     flags.listTeamComponentSets
       ? ("list-team-component-sets" as const)
       : undefined,
@@ -528,7 +557,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
 
   if (selected.length === 0) {
     throw new CliError(
-      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --list-team-component-sets, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, --build-component-set-spec, --build-component-set-pseudocode, --verify-component-contract, --verify-node-contract, --export-contract, --export-component-set, or --export-node-contract.\n\n" +
+      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --export-team-index, --list-team-component-sets, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, --build-component-set-spec, --build-component-set-pseudocode, --verify-component-contract, --verify-node-contract, --export-contract, --export-component-set, or --export-node-contract.\n\n" +
         usage,
     );
   }
@@ -538,6 +567,15 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
   }
 
   const command = selected[0];
+  if (
+    command !== "export-team-index" &&
+    (flags.screenSimilarityThreshold !== undefined ||
+      flags.screenSizeTolerance !== undefined)
+  ) {
+    throw new CliError(
+      "--screen-similarity-threshold and --screen-size-tolerance require --export-team-index.",
+    );
+  }
 
   switch (command) {
     case "list-team-projects":
@@ -547,6 +585,24 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         kind: "list-team-project-files",
         format: resolveOutputFormat(flags),
       };
+    case "export-team-index": {
+      if (!flags.outputDir) {
+        throw new CliError("Missing --output-dir for --export-team-index.");
+      }
+
+      if (flags.json) {
+        throw new CliError(
+          "--json is not supported with --export-team-index; team index files are YAML.",
+        );
+      }
+
+      return {
+        kind: "export-team-index",
+        outputDir: flags.outputDir,
+        screenSimilarityThreshold: flags.screenSimilarityThreshold,
+        screenSizeTolerance: flags.screenSizeTolerance,
+      };
+    }
     case "list-team-component-sets":
       return {
         kind: "list-team-component-sets",
@@ -782,6 +838,11 @@ export function parseCommand(argv: string[]): CliCommand {
       continue;
     }
 
+    if (arg === "--export-team-index") {
+      flags.exportTeamIndex = true;
+      continue;
+    }
+
     if (arg === "--list-team-component-sets") {
       flags.listTeamComponentSets = true;
       continue;
@@ -919,6 +980,20 @@ export function parseCommand(argv: string[]): CliCommand {
     if (arg === "--preview-scale") {
       const { value, nextIndex } = readFlagValue(argv, index, arg);
       flags.previewScale = parsePreviewScale(value);
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--screen-similarity-threshold") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.screenSimilarityThreshold = parseScreenSimilarityThreshold(value);
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--screen-size-tolerance") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.screenSizeTolerance = parseScreenSizeTolerance(value);
       index = nextIndex;
       continue;
     }

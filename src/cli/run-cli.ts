@@ -32,6 +32,7 @@ import { exportComponentSet } from "./export-component-set.js";
 import { exportContract } from "./export-contract.js";
 import { exportNodeContract } from "./export-node-contract.js";
 import { writeExportArtifactPaths } from "./export-result.js";
+import { exportTeamIndex } from "./export-team-index.js";
 import {
   writeComponentSetProperties,
   writeComponentSets,
@@ -260,6 +261,37 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
   const token = io.env.FIGMA_API_TOKEN;
   if (!token) {
     throw new CliError("Missing FIGMA_API_TOKEN environment variable.");
+  }
+
+  if (command.kind === "export-team-index") {
+    const teamId = io.env.FIGMA_TEAM_ID;
+    if (!teamId) {
+      throw new CliError("Missing FIGMA_TEAM_ID environment variable.");
+    }
+
+    try {
+      const result = await exportTeamIndex({
+        token,
+        teamId,
+        outputDir: command.outputDir,
+        screenSimilarityThreshold: command.screenSimilarityThreshold,
+        screenSizeTolerance: command.screenSizeTolerance,
+      });
+      io.stdout.write(
+        `${[result.teamIndexPath, ...result.fileIndexPaths].join("\n")}\n`,
+      );
+    } catch (error) {
+      if (
+        error instanceof FigmaApiError ||
+        error instanceof FigmaInspectError
+      ) {
+        throw new CliError(error.message);
+      }
+
+      throw error;
+    }
+
+    return;
   }
 
   if (command.kind === "export-component-set") {
