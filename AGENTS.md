@@ -26,11 +26,15 @@ src/
     run-cli.ts                      # command router (no Figma domain logic)
     usage.ts                        # help text (keep in sync with parse-args + live-test skill)
     export-component-set.ts         # export orchestration
+    export-contract.ts              # auto-detect export target and route to the right exporter
+    export-node-contract.ts         # FRAME / standalone COMPONENT export orchestration
+    export-team-index.ts            # team inventory export
   figma-api/                        # Figma REST client only (HTTP, cache, schemas)
   inspect/                          # domain logic on top of API responses
     component-set-spec/             # COMPONENT_SET → compact spec (props, variants, slim tree)
     component-set-pseudocode/       # spec → contract artifacts (meta, geometry, visuals, structure.dsl)
     contract/                       # contract format, lock, schema validation, fingerprints, verify
+    node-contract/                  # FRAME / standalone COMPONENT contract format, lock, verify
     export/                         # variant SVG export and asset normalization
     *.ts                            # Figma file/component-set loading and lookup helpers
   zod/                              # shared zod helpers
@@ -49,36 +53,53 @@ One command per invocation. Source of truth: `src/cli/usage.ts` and `src/cli/par
 | `--list-team-projects` | yes | yes | |
 | `--list-project-files` | yes | | `--project-id` |
 | `--list-team-project-files` | yes | yes | |
+| `--export-team-index` | yes | yes | `--output-dir`; optional screen grouping thresholds |
 | `--list-team-component-sets` | yes | yes | |
 | `--list-file-pages` | yes | | `--file-key` |
 | `--list-file-component-sets` | yes | | `--file-key` |
-| `--inspect-component-set-properties` | yes | | `--file-key`, `--node-id`, component set key/name |
-| `--inspect-component-set` | yes | | raw COMPONENT_SET YAML |
+| `--inspect-component-set-properties` | yes | | `--url` or `--file-key`, `--node-id`, component set key/name |
+| `--inspect-component-set` | yes | | `--url` or `--file-key`, `--node-id`, component set key/name; raw COMPONENT_SET YAML/JSON |
 | `--inspect-team-component-set` | yes | yes | resolves file/node from team publish |
-| `--inspect-file-node` | yes | | `--file-key`, `--node-id` |
+| `--inspect-file-node` | yes | | `--url` or `--file-key`, `--node-id` |
 | `--build-component-set-spec` | | | local JSON `--input`, `--variables`; no API token |
 | `--build-component-set-pseudocode` | | | writes contract files locally |
 | `--verify-component-contract` | yes | | `--contract-dir`; compares lock to live Figma API |
-| `--export-component-set` | yes | yes | `--output-dir`, `--variables`, component set key/name |
+| `--verify-node-contract` | yes | | `--contract-dir`; compares frame/component lock to live Figma API |
+| `--export-contract` | yes | maybe | `--output-dir`, `--variables`, `--url` or file/node ref; Team ID only when target is `COMPONENT_SET` |
+| `--export-component-set` | yes | yes | `--output-dir`, `--variables`, `--url` or component set key/name |
+| `--export-node-contract` | yes | | `--output-dir`, `--variables`, `--url` or file/node ref |
 
-`--json` on verify affects **stdout format only**; contract files on disk stay YAML unless export uses `--json`.
+`--json` on verify affects **stdout format only**. Export commands write JSON
+data artifacts when `--json` is set, but lock files stay YAML and structure
+files stay DSL. `--json` is not supported with `--export-team-index`.
 
-### Contract artifacts (per component)
+### Contract artifacts
 
-Always four files for the model + lock for CI:
+Component-set exports write four files for the model + lock for CI:
 
-- `<Name>.contract.meta.yaml` — props, slots, dependencies, optional `assets` paths
-- `<Name>.contract.geometry.yaml`
-- `<Name>.contract.visuals.yaml`
-- `<Name>.contract.structure.dsl` — entry point with `contracts {}` and `resolve {}`
-- `<Name>.contract.lock.yaml` — Figma source, variant `updatedAt`, fingerprints (not for LLM prompt)
+- `<Name>.component-set.meta.yaml` — props, slots, dependencies, optional `assets` paths
+- `<Name>.component-set.geometry.yaml`
+- `<Name>.component-set.visuals.yaml`
+- `<Name>.component-set.structure.dsl` — entry point with `contracts {}` and `resolve {}`
+- `<Name>.component-set.lock.yaml` — Figma source, variant `updatedAt`, fingerprints (not for LLM prompt)
 
-With `--export-assets`: `<Name>.assets/*.svg` on disk; paths referenced from `meta.assets`.
+Frame and standalone component exports use the same shape with `<kind>` set to
+`frame` or `component`:
+
+- `<Name>.<kind>.meta.yaml`
+- `<Name>.<kind>.geometry.yaml`
+- `<Name>.<kind>.visuals.yaml`
+- `<Name>.<kind>.structure.dsl`
+- `<Name>.<kind>.lock.yaml`
+
+With `--export-assets`: `<Name>.assets/*.svg` on disk; paths referenced from
+`meta.assets`. With `--export-nested-assets`: `<Name>.assets/*.{svg,png}` plus
+`<Name>.<kind>.nested-assets.yaml`.
 
 ## Environment
 
-- `FIGMA_API_TOKEN` — required for all API commands and `--verify-component-contract`
-- `FIGMA_TEAM_ID` — required for team-scoped list/inspect/export commands
+- `FIGMA_API_TOKEN` — required for all API commands and verify commands
+- `FIGMA_TEAM_ID` — required for team-scoped list/inspect/export commands, `--export-team-index`, `--export-component-set`, and `--export-contract` when the target is a `COMPONENT_SET`
 - `FIGMA_CACHE` — set to `0` to disable on-disk API cache (`figma-inspect-cli-cache/` in temp)
 
 ## Scripts
