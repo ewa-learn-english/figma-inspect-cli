@@ -13,9 +13,9 @@ export const usage = `Usage:
   figma-inspect --build-component-set-pseudocode --input <path> --variables <path> [--output-dir <dir>] [--team-components <path>] [--json]
   figma-inspect --verify-component-contract --contract-dir <dir> [--component-name <name>] [--json]
   figma-inspect --verify-node-contract --contract-dir <dir> [--node-name <name>] [--json]
-  figma-inspect --export-contract --output-dir <dir> --variables <path> (--url <figma-url> | --file-key <key> --node-id <id>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-assets] [--asset-format svg] [--json]
-  figma-inspect --export-component-set --output-dir <dir> --variables <path> (--url <figma-url> | --component-set-key <key> | --component-set-name <name>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-assets] [--asset-format svg] [--json]
-  figma-inspect --export-node-contract --output-dir <dir> --variables <path> (--url <figma-url> | --file-key <key> --node-id <id>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--json]
+  figma-inspect --export-contract --output-dir <dir> --variables <path> (--url <figma-url> | --file-key <key> --node-id <id>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-assets] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|png] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
+  figma-inspect --export-component-set --output-dir <dir> --variables <path> (--url <figma-url> | --component-set-key <key> | --component-set-name <name>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-assets] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|png] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
+  figma-inspect --export-node-contract --output-dir <dir> --variables <path> (--url <figma-url> | --file-key <key> --node-id <id>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|png] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
 
 Environment:
   FIGMA_API_TOKEN  Figma personal access token (required for --verify-component-contract, --verify-node-contract, and all API commands below)
@@ -44,7 +44,13 @@ Options:
   --preview-format <format>       Preview export format; supports png or svg (default: png)
   --preview-scale <scale>         PNG preview scale for the Figma Images API (default: 2)
   --export-assets                 Export one SVG asset per component variant via the Figma Images API (with --export-component-set or --export-contract targeting a COMPONENT_SET; variant props only, no TEXT layers)
-  --asset-format <format>         Asset export format; currently supports svg (default when --export-assets is set)
+  --export-nested-assets          Export selected nested nodes as sidecar assets and write <Name>.<kind>.nested-assets.yaml
+  --asset-node-id <id>            Nested asset node id to export; repeatable; URL-style ids such as 208-43935 are accepted
+  --asset-include-regex <regex>   Select nested asset nodes whose name or path matches the regex
+  --asset-node-types <csv>        Comma-separated Figma node types allowed for regex selection (default: common visual nodes)
+  --asset-max <number>            Maximum nested asset nodes to export after selection
+  --asset-format <format>         Asset export format; svg for --export-assets, svg or png for --export-nested-assets (repeatable; default: svg)
+  --asset-scale <scale>           PNG nested asset scale for the Figma Images API (default: 2)
   --input <path>                  Input JSON file path (required with --build-component-set-spec and --build-component-set-pseudocode)
   --output-dir <dir>              Output directory (optional with --build-component-set-pseudocode; defaults to the input file directory)
   --contract-dir <dir>            Contract directory (required with --verify-component-contract and --verify-node-contract)

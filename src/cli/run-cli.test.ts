@@ -39,6 +39,8 @@ vi.mock("../figma-api/index.js", () => ({
 }));
 
 vi.mock("../inspect/index.js", () => ({
+  DEFAULT_NESTED_ASSET_SCALE: 2,
+  DEFAULT_PREVIEW_SCALE: 2,
   FigmaInspectError,
   buildComponentSetPseudocodeFromFile:
     mocks.buildComponentSetPseudocodeFromFile,
@@ -473,6 +475,60 @@ describe("runCli", () => {
     );
     expect(output()).toBe(
       "/out/a.yaml\n/out/b.yaml\n/out/c.yaml\n/out/d.yaml\n/out/e.dsl\n/out/import-notes.md\n",
+    );
+  });
+
+  it("runs export-node-contract with nested asset options", async () => {
+    mocks.exportNodeContract.mockResolvedValue({
+      visualsContractPath: "/out/a.yaml",
+      geometryContractPath: "/out/b.yaml",
+      metaContractPath: "/out/c.yaml",
+      lockContractPath: "/out/d.yaml",
+      structureDslPath: "/out/e.dsl",
+      nestedAssetsDir: "/out/Settings.assets",
+      nestedAssetsManifestPath: "/out/Settings.frame.nested-assets.yaml",
+      importNotesPath: "/out/import-notes.md",
+    });
+    const { io, output } = createIo({ FIGMA_TEAM_ID: undefined });
+    const sourceUrl =
+      "https://www.figma.com/design/fileKey/Settings?node-id=208-43935&m=dev";
+
+    await runCli(
+      [
+        "--export-node-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--url",
+        sourceUrl,
+        "--export-nested-assets",
+        "--asset-node-id",
+        "401-2",
+        "--asset-format",
+        "png",
+        "--asset-scale",
+        "3",
+      ],
+      io,
+    );
+
+    expect(mocks.exportNodeContract).toHaveBeenCalledWith(
+      expect.objectContaining({
+        token: "token",
+        outputDir: "out",
+        fileKey: "fileKey",
+        nodeId: "208:43935",
+        sourceUrl,
+        nestedAssets: {
+          nodeIds: ["401:2"],
+          formats: ["png"],
+          scale: 3,
+        },
+      }),
+    );
+    expect(output()).toBe(
+      "/out/a.yaml\n/out/b.yaml\n/out/c.yaml\n/out/d.yaml\n/out/e.dsl\n/out/Settings.assets\n/out/Settings.frame.nested-assets.yaml\n/out/import-notes.md\n",
     );
   });
 

@@ -9,6 +9,8 @@ export interface ExportArtifactPaths {
 export interface ExportArtifactPathExtras {
   previewPath?: string;
   assetsDir?: string;
+  nestedAssetsDir?: string;
+  nestedAssetsManifestPath?: string;
   importNotesPath?: string;
 }
 
@@ -26,14 +28,17 @@ export function writeExportArtifactPaths(
     result.lockContractPath,
     result.structureDslPath,
   ];
-  if (result.previewPath) {
-    lines.push(result.previewPath);
+  for (const optionalPath of [
+    result.previewPath,
+    result.assetsDir,
+    result.nestedAssetsDir,
+    result.nestedAssetsManifestPath,
+    result.importNotesPath,
+  ]) {
+    if (optionalPath && !lines.includes(optionalPath)) {
+      lines.push(optionalPath);
+    }
   }
-  if (result.assetsDir) {
-    lines.push(result.assetsDir);
-  }
-  if (result.importNotesPath) {
-    lines.push(result.importNotesPath);
-  }
+
   stdout.write(`${lines.join("\n")}\n`);
 }

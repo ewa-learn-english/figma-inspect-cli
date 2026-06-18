@@ -354,6 +354,56 @@ describe("parseCommand", () => {
     });
   });
 
+  it("parses export-contract nested asset options", () => {
+    const sourceUrl =
+      "https://www.figma.com/design/fileKey/Settings?node-id=208-43935&m=dev";
+
+    expect(
+      parseCommand([
+        "--export-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--url",
+        sourceUrl,
+        "--export-nested-assets",
+        "--asset-node-id",
+        "401-2",
+        "--asset-include-regex",
+        "icon|logo",
+        "--asset-node-types",
+        "instance,vector",
+        "--asset-max",
+        "4",
+        "--asset-format",
+        "svg",
+        "--asset-format",
+        "png",
+        "--asset-scale",
+        "3",
+      ]),
+    ).toEqual({
+      kind: "export-contract",
+      outputDir: "out",
+      fileKey: "fileKey",
+      nodeId: "208:43935",
+      sourceUrl,
+      variablesPath: "vars.json",
+      exportAssets: false,
+      assetFormat: undefined,
+      nestedAssets: {
+        nodeIds: ["401:2"],
+        includeRegex: "icon|logo",
+        nodeTypes: ["INSTANCE", "VECTOR"],
+        maxAssets: 4,
+        formats: ["svg", "png"],
+        scale: 3,
+      },
+      format: "yaml",
+    });
+  });
+
   it("parses export-contract by file key and node id", () => {
     expect(
       parseCommand([
@@ -431,6 +481,39 @@ describe("parseCommand", () => {
       sourceUrl,
       variablesPath: "vars.json",
       preview: { format: "svg" },
+      format: "yaml",
+    });
+  });
+
+  it("parses export-node-contract nested asset defaults", () => {
+    const sourceUrl =
+      "https://www.figma.com/design/fileKey/Settings?node-id=208-43935&m=dev";
+
+    expect(
+      parseCommand([
+        "--export-node-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--url",
+        sourceUrl,
+        "--export-nested-assets",
+        "--asset-node-id",
+        "401-2",
+      ]),
+    ).toEqual({
+      kind: "export-node-contract",
+      outputDir: "out",
+      fileKey: "fileKey",
+      nodeId: "208:43935",
+      sourceUrl,
+      variablesPath: "vars.json",
+      nestedAssets: {
+        nodeIds: ["401:2"],
+        formats: ["svg"],
+        scale: 2,
+      },
       format: "yaml",
     });
   });
@@ -537,7 +620,136 @@ describe("parseCommand", () => {
         "--asset-format",
         "png",
       ]),
+    ).toThrow(/requires --export-assets or --export-nested-assets/);
+    expect(() =>
+      parseCommand([
+        "--export-component-set",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--component-set-key",
+        "a",
+        "--export-assets",
+        "--asset-format",
+        "png",
+      ]),
+    ).toThrow(/--export-assets supports svg/);
+    expect(() =>
+      parseCommand([
+        "--export-node-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--file-key",
+        "fileKey",
+        "--node-id",
+        "208:43935",
+        "--export-assets",
+      ]),
+    ).toThrow(/Use --export-nested-assets/);
+    expect(() =>
+      parseCommand([
+        "--export-node-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--file-key",
+        "fileKey",
+        "--node-id",
+        "208:43935",
+        "--export-nested-assets",
+      ]),
+    ).toThrow(/requires --asset-node-id or --asset-include-regex/);
+    expect(() =>
+      parseCommand([
+        "--export-node-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--file-key",
+        "fileKey",
+        "--node-id",
+        "208:43935",
+        "--asset-node-id",
+        "401:2",
+      ]),
+    ).toThrow(/require --export-nested-assets/);
+    expect(() =>
+      parseCommand([
+        "--export-node-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--file-key",
+        "fileKey",
+        "--node-id",
+        "208:43935",
+        "--export-nested-assets",
+        "--asset-node-id",
+        "401:2",
+        "--asset-format",
+        "pdf",
+      ]),
     ).toThrow(/Unsupported --asset-format/);
+    expect(() =>
+      parseCommand([
+        "--export-node-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--file-key",
+        "fileKey",
+        "--node-id",
+        "208:43935",
+        "--export-nested-assets",
+        "--asset-node-id",
+        "401:2",
+        "--asset-max",
+        "0",
+      ]),
+    ).toThrow(/Invalid --asset-max/);
+    expect(() =>
+      parseCommand([
+        "--export-node-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--file-key",
+        "fileKey",
+        "--node-id",
+        "208:43935",
+        "--export-nested-assets",
+        "--asset-node-id",
+        "401:2",
+        "--asset-node-types",
+        "TEXT",
+      ]),
+    ).toThrow(/Unsupported --asset-node-types entry/);
+    expect(() =>
+      parseCommand([
+        "--export-node-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--file-key",
+        "fileKey",
+        "--node-id",
+        "208:43935",
+        "--export-nested-assets",
+        "--asset-node-id",
+        "401:2",
+        "--asset-scale",
+        "3",
+      ]),
+    ).toThrow(/only supported with --asset-format png/);
     expect(() =>
       parseCommand([
         "--export-contract",

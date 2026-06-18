@@ -1,9 +1,18 @@
 import type { ContractFormat } from "../inspect/contract/contract-format.js";
-import type { ExportPreviewOptions, PreviewFormat } from "../inspect/index.js";
+import type {
+  ExportPreviewOptions,
+  NestedAssetFormat,
+  NestedAssetNodeType,
+  NestedAssetsOptions,
+  PreviewFormat,
+} from "../inspect/index.js";
 import {
+  DEFAULT_NESTED_ASSET_SCALE,
   DEFAULT_PREVIEW_SCALE,
   FigmaInspectError,
+  isNestedAssetNodeType,
   parseFigmaNodeUrl,
+  supportedNestedAssetNodeTypes,
 } from "../inspect/index.js";
 import type {
   ComponentSetLookup,
@@ -34,7 +43,13 @@ interface ParsedFlags {
   exportComponentSet: boolean;
   exportNodeContract: boolean;
   exportAssets: boolean;
-  assetFormat: "svg" | undefined;
+  exportNestedAssets: boolean;
+  assetFormats: NestedAssetFormat[];
+  assetNodeIds: string[];
+  assetIncludeRegex: string | undefined;
+  assetNodeTypes: NestedAssetNodeType[] | undefined;
+  assetMax: number | undefined;
+  assetScale: number | undefined;
   exportPreview: boolean;
   previewFormat: PreviewFormat | undefined;
   previewScale: number | undefined;
@@ -80,7 +95,13 @@ function emptyFlags(): ParsedFlags {
     exportComponentSet: false,
     exportNodeContract: false,
     exportAssets: false,
-    assetFormat: undefined,
+    exportNestedAssets: false,
+    assetFormats: [],
+    assetNodeIds: [],
+    assetIncludeRegex: undefined,
+    assetNodeTypes: undefined,
+    assetMax: undefined,
+    assetScale: undefined,
     exportPreview: false,
     previewFormat: undefined,
     previewScale: undefined,
@@ -134,6 +155,167 @@ function parsePreviewScale(value: string): number {
   }
 
   return scale;
+}
+
+function parseAssetFormat(value: string): NestedAssetFormat {
+  if (value === "svg" || value === "png") {
+    return value;
+  }
+
+  throw new CliError(
+    `Unsupported --asset-format ${JSON.stringify(value)}. Expected svg or png.`,
+  );
+}
+
+function parseAssetScale(value: string): number {
+  const scale = Number(value);
+  if (!Number.isFinite(scale) || scale <= 0) {
+    throw new CliError(
+      `Invalid --asset-scale ${JSON.stringify(value)}. Expected a positive number.`,
+    );
+  }
+
+  return scale;
+}
+
+function parseAssetMax(value: string): number {
+  const max = Number(value);
+  if (!Number.isInteger(max) || max <= 0) {
+    throw new CliError(
+      `Invalid --asset-max ${JSON.stringify(value)}. Expected a positive integer.`,
+    );
+  }
+
+  return max;
+}
+
+function parseAssetNodeTypes(value: string): NestedAssetNodeType[] {
+  const nodeTypes = value
+    .split(",")
+    .map((entry) => entry.trim().toUpperCase())
+    .filter((entry) => entry.length > 0);
+
+  if (nodeTypes.length === 0) {
+    throw new CliError(
+      "--asset-node-types must include at least one node type.",
+    );
+  }
+
+  const supportedTypes = supportedNestedAssetNodeTypes();
+  const parsed: NestedAssetNodeType[] = [];
+  for (const nodeType of nodeTypes) {
+    if (!isNestedAssetNodeType(nodeType)) {
+      throw new CliError(
+        `Unsupported --asset-node-types entry ${JSON.stringify(nodeType)}. Expected one of ${supportedTypes.join(", ")}.`,
+      );
+    }
+    parsed.push(nodeType);
+  }
+
+  return [...new Set(parsed)];
+}
+
+function parseAssetIncludeRegex(value: string): string {
+  try {
+    new RegExp(value, "i");
+    return value;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new CliError(
+        `Invalid --asset-include-regex ${JSON.stringify(value)}: ${error.message}`,
+      );
+    }
+
+    throw error;
+  }
+}
+
+function normalizeFlagNodeId(value: string): string {
+  return value.replace(/-/g, ":");
+}
+
+function uniqueAssetFormats(formats: NestedAssetFormat[]): NestedAssetFormat[] {
+  return [...new Set(formats)];
+}
+
+function resolveAssetFormat(flags: ParsedFlags): "svg" | undefined {
+  if (!flags.exportAssets) {
+    return undefined;
+  }
+
+  const formats = uniqueAssetFormats(flags.assetFormats);
+  if (formats.some((format) => format !== "svg")) {
+    throw new CliError(
+      "--asset-format png is only supported with --export-nested-assets; --export-assets supports svg.",
+    );
+  }
+
+  return formats.includes("svg") ? "svg" : undefined;
+}
+
+function hasNestedAssetFlags(flags: ParsedFlags): boolean {
+  return (
+    flags.assetNodeIds.length > 0 ||
+    flags.assetIncludeRegex !== undefined ||
+    flags.assetNodeTypes !== undefined ||
+    flags.assetMax !== undefined ||
+    flags.assetScale !== undefined
+  );
+}
+
+function resolveNestedAssetsOptions(
+  flags: ParsedFlags,
+): NestedAssetsOptions | undefined {
+  if (!flags.exportNestedAssets && !hasNestedAssetFlags(flags)) {
+    return undefined;
+  }
+
+  if (!flags.exportNestedAssets) {
+    throw new CliError(
+      "--asset-node-id, --asset-include-regex, --asset-node-types, --asset-max, and --asset-scale require --export-nested-assets.",
+    );
+  }
+
+  if (
+    flags.assetNodeIds.length === 0 &&
+    flags.assetIncludeRegex === undefined
+  ) {
+    throw new CliError(
+      "--export-nested-assets requires --asset-node-id or --asset-include-regex.",
+    );
+  }
+
+  const formats = uniqueAssetFormats(
+    flags.assetFormats.length > 0 ? flags.assetFormats : ["svg"],
+  );
+  if (flags.assetScale !== undefined && !formats.includes("png")) {
+    throw new CliError(
+      "--asset-scale is only supported with --asset-format png.",
+    );
+  }
+
+  return {
+    nodeIds: flags.assetNodeIds,
+    ...(flags.assetIncludeRegex
+      ? { includeRegex: flags.assetIncludeRegex }
+      : {}),
+    ...(flags.assetNodeTypes ? { nodeTypes: flags.assetNodeTypes } : {}),
+    ...(flags.assetMax !== undefined ? { maxAssets: flags.assetMax } : {}),
+    formats,
+    scale: flags.assetScale ?? DEFAULT_NESTED_ASSET_SCALE,
+  };
+}
+
+function rejectUnusedAssetFormats(flags: ParsedFlags): void {
+  if (
+    flags.assetFormats.length > 0 &&
+    !flags.exportAssets &&
+    !flags.exportNestedAssets
+  ) {
+    throw new CliError(
+      "--asset-format requires --export-assets or --export-nested-assets.",
+    );
+  }
 }
 
 function resolvePreviewOptions(
@@ -493,7 +675,10 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         throw new CliError("Missing --output-dir for --export-component-set.");
       }
 
+      rejectUnusedAssetFormats(flags);
       const preview = resolvePreviewOptions(flags);
+      const assetFormat = resolveAssetFormat(flags);
+      const nestedAssets = resolveNestedAssetsOptions(flags);
       return {
         kind: "export-component-set",
         outputDir: flags.outputDir,
@@ -504,7 +689,8 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
           "--export-component-set",
         ),
         exportAssets: flags.exportAssets,
-        assetFormat: flags.assetFormat,
+        assetFormat,
+        ...(nestedAssets ? { nestedAssets } : {}),
         ...(preview ? { preview } : {}),
         format: resolveOutputFormat(flags),
       };
@@ -515,7 +701,10 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
       }
 
       const nodeRef = resolveNodeRef(flags, "--export-contract");
+      rejectUnusedAssetFormats(flags);
       const preview = resolvePreviewOptions(flags);
+      const assetFormat = resolveAssetFormat(flags);
+      const nestedAssets = resolveNestedAssetsOptions(flags);
       return {
         kind: "export-contract",
         outputDir: flags.outputDir,
@@ -526,7 +715,8 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
           "--export-contract",
         ),
         exportAssets: flags.exportAssets,
-        assetFormat: flags.assetFormat,
+        assetFormat,
+        ...(nestedAssets ? { nestedAssets } : {}),
         ...(preview ? { preview } : {}),
         format: resolveOutputFormat(flags),
       };
@@ -537,7 +727,14 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
       }
 
       const nodeRef = resolveNodeRef(flags, "--export-node-contract");
+      if (flags.exportAssets) {
+        throw new CliError(
+          "--export-assets is not supported with --export-node-contract. Use --export-nested-assets for node sidecar assets.",
+        );
+      }
+      rejectUnusedAssetFormats(flags);
       const preview = resolvePreviewOptions(flags);
+      const nestedAssets = resolveNestedAssetsOptions(flags);
       return {
         kind: "export-node-contract",
         outputDir: flags.outputDir,
@@ -547,6 +744,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
           flags.variablesPath,
           "--export-node-contract",
         ),
+        ...(nestedAssets ? { nestedAssets } : {}),
         ...(preview ? { preview } : {}),
         format: resolveOutputFormat(flags),
       };
@@ -659,6 +857,11 @@ export function parseCommand(argv: string[]): CliCommand {
       continue;
     }
 
+    if (arg === "--export-nested-assets") {
+      flags.exportNestedAssets = true;
+      continue;
+    }
+
     if (arg === "--export-preview") {
       flags.exportPreview = true;
       continue;
@@ -666,12 +869,42 @@ export function parseCommand(argv: string[]): CliCommand {
 
     if (arg === "--asset-format") {
       const { value, nextIndex } = readFlagValue(argv, index, arg);
-      if (value !== "svg") {
-        throw new CliError(
-          `Unsupported --asset-format ${JSON.stringify(value)}. Expected svg.`,
-        );
-      }
-      flags.assetFormat = value;
+      flags.assetFormats.push(parseAssetFormat(value));
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--asset-node-id") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.assetNodeIds.push(normalizeFlagNodeId(value));
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--asset-include-regex") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.assetIncludeRegex = parseAssetIncludeRegex(value);
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--asset-node-types") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.assetNodeTypes = parseAssetNodeTypes(value);
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--asset-max") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.assetMax = parseAssetMax(value);
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--asset-scale") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.assetScale = parseAssetScale(value);
       index = nextIndex;
       continue;
     }

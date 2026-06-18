@@ -1,4 +1,4 @@
-import { mkdir, readdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
   filterFileComponentsForComponentSet,
@@ -34,9 +34,11 @@ import {
 import {
   buildComponentSetPseudocodeFromRaw,
   type ExportPreviewOptions,
+  exportNestedAssets,
   exportNodePreview,
   exportVariantAssets,
   loadComponentSetContext,
+  type NestedAssetsOptions,
   resolveTeamComponentSetScope,
 } from "../inspect/index.js";
 import type {
@@ -57,6 +59,7 @@ export interface ExportComponentSetOptions {
   variablesPath: string;
   exportAssets?: boolean;
   assetFormat?: "svg";
+  nestedAssets?: NestedAssetsOptions;
   preview?: ExportPreviewOptions;
   format?: ContractFormat;
 }
@@ -210,6 +213,17 @@ export async function exportComponentSet(
         })
       ).previewPath
     : undefined;
+  const nestedAssetsResult = options.nestedAssets
+    ? await exportNestedAssets({
+        token: options.token,
+        fileKey: scope.fileKey,
+        root: raw,
+        baseName,
+        kind: "component-set",
+        outputDir: options.outputDir,
+        nestedAssets: options.nestedAssets,
+      })
+    : undefined;
 
   const contractResult = await buildComponentSetPseudocodeFromRaw(raw, {
     variablesPath: options.variablesPath,
@@ -258,9 +272,7 @@ export async function exportComponentSet(
           ? {
               assets: await fingerprintAssetFiles(
                 assetsDir,
-                (await readdir(assetsDir))
-                  .filter((fileName) => fileName.endsWith(".svg"))
-                  .map((fileName) => fileName.slice(0, -".svg".length)),
+                exportedAssets?.assetSlugs ?? [],
               ),
             }
           : {}),
@@ -285,6 +297,8 @@ export async function exportComponentSet(
     structureDslPath,
     previewPath,
     assetsDir,
+    nestedAssetsDir: nestedAssetsResult?.nestedAssetsDir,
+    nestedAssetsManifestPath: nestedAssetsResult?.nestedAssetsManifestPath,
     importNotesPath,
   };
 }

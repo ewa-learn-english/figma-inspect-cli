@@ -38,6 +38,7 @@ Use these defaults unless the user provides overrides in the chat:
 | `FIGMA_NODE_URL` | `https://www.figma.com/design/$FILE_KEY/LiveTest?node-id=${NODE_ID/:/-}` |
 | `FRAME_NODE_URL` | user-provided FRAME URL for node contract export |
 | `FRAME_NODE_NAME` | base file name produced by `FRAME_NODE_URL` export |
+| `NESTED_ASSET_NODE_ID` | user-provided nested node id under `FRAME_NODE_URL` for asset sidecar export |
 
 Derive at runtime when needed:
 
@@ -46,6 +47,7 @@ Derive at runtime when needed:
 - `FIGMA_NODE_URL` — build from `FILE_KEY` and `NODE_ID` if not provided; Figma URLs use `node-id=3-2` while API node ids use `3:2`.
 - `FRAME_NODE_URL` — must point to a `FRAME`; if the user does not provide one, pick a screen/frame from the same file and set this explicitly before rows 22-24.
 - `FRAME_NODE_NAME` — derive from the exported `<Name>.frame.lock.yaml` file name.
+- `NESTED_ASSET_NODE_ID` — pick a visible nested vector, instance, component, group, or frame under `FRAME_NODE_URL`; Figma URL-style ids with `-` are accepted by the CLI.
 
 ## Commands to test
 
@@ -78,10 +80,11 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 23 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME --json` | same as row 20 but writes `.json` files instead of `.yaml` |
 | 24 | `--export-node-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL"` | explicit node-contract URL variant for FRAME |
 | 25 | `--export-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL" --export-preview` | also writes `<name>.frame.preview.png` at PNG scale 2; use `--preview-format svg` for SVG |
-| 26 | `--verify-node-contract` | `--contract-dir tmp` | compares frame/component node locks to live Figma (source, tree, kind); needs `FIGMA_API_TOKEN` |
-| 27 | `--verify-node-contract` | `--contract-dir tmp --node-name "$FRAME_NODE_NAME" --json` | verifies one node contract; JSON output only |
-| 28 | `--verify-component-contract` | `--contract-dir tmp` | compares each lock to live Figma (source, tree, variants); needs `FIGMA_API_TOKEN` |
-| 29 | `--verify-component-contract` | `--contract-dir tmp --component-name Cell --json` | verifies one component; JSON output only |
+| 26 | `--export-node-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL" --export-nested-assets --asset-node-id "$NESTED_ASSET_NODE_ID" --asset-format svg --asset-format png` | also writes `<name>.frame.nested-assets.yaml` and `<name>.assets/*.{svg,png}` |
+| 27 | `--verify-node-contract` | `--contract-dir tmp` | compares frame/component node locks to live Figma (source, tree, kind); needs `FIGMA_API_TOKEN` |
+| 28 | `--verify-node-contract` | `--contract-dir tmp --node-name "$FRAME_NODE_NAME" --json` | verifies one node contract; JSON output only |
+| 29 | `--verify-component-contract` | `--contract-dir tmp` | compares each lock to live Figma (source, tree, variants); needs `FIGMA_API_TOKEN` |
+| 30 | `--verify-component-contract` | `--contract-dir tmp --component-name Cell --json` | verifies one component; JSON output only |
 
 Example:
 
@@ -111,6 +114,7 @@ npx . --export-component-set --output-dir tmp --variables "$VARIABLES_PATH" --ur
 npx . --export-component-set --output-dir tmp --variables "$VARIABLES_PATH" --component-set-name "$COMPONENT_SET_NAME" --json
 npx . --export-node-contract --output-dir tmp --variables "$VARIABLES_PATH" --url "$FRAME_NODE_URL"
 npx . --export-contract --output-dir tmp --variables "$VARIABLES_PATH" --url "$FRAME_NODE_URL" --export-preview
+npx . --export-node-contract --output-dir tmp --variables "$VARIABLES_PATH" --url "$FRAME_NODE_URL" --export-nested-assets --asset-node-id "$NESTED_ASSET_NODE_ID" --asset-format svg --asset-format png
 npx . --verify-node-contract --contract-dir tmp
 npx . --verify-node-contract --contract-dir tmp --node-name "$FRAME_NODE_NAME" --json
 npx . --verify-component-contract --contract-dir tmp

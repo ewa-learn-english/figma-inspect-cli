@@ -4,10 +4,11 @@ import {
   downloadRenderedImage,
   getFileImageUrls,
 } from "../../figma-api/get-file-images.js";
-import { FigmaInspectError } from "../errors.js";
 import type { NodeContractKind } from "../node-contract/types.js";
-import { assertExportedSvgBytes } from "./assert-asset-exportable.js";
-import { normalizeExportedSvgBytes } from "./normalize-exported-svg.js";
+import {
+  assertPositiveScale,
+  normalizeRenderedImageBytes,
+} from "./rendered-image-bytes.js";
 
 export const DEFAULT_PREVIEW_SCALE = 2;
 
@@ -32,27 +33,9 @@ export interface ExportNodePreviewResult {
   previewPath: string;
 }
 
-const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
-
-function assertPreviewScale(scale: number): void {
-  if (!Number.isFinite(scale) || scale <= 0) {
-    throw new FigmaInspectError("Preview scale must be a positive number.");
-  }
-}
-
-function assertExportedPngBytes(bytes: Uint8Array, context: string): void {
-  const hasPngSignature = PNG_SIGNATURE.every(
-    (value, index) => bytes[index] === value,
-  );
-
-  if (!hasPngSignature) {
-    throw new FigmaInspectError(`Exported preview for ${context} is not PNG.`);
-  }
-}
-
 function previewScale(preview: ExportPreviewOptions): number | undefined {
   if (preview.format === "png") {
-    assertPreviewScale(preview.scale);
+    assertPositiveScale(preview.scale, "Preview scale");
     return preview.scale;
   }
 
@@ -73,13 +56,12 @@ function normalizePreviewBytes(
   preview: ExportPreviewOptions,
   nodeId: string,
 ): Uint8Array {
-  if (preview.format === "svg") {
-    assertExportedSvgBytes(bytes, `preview ${nodeId}`);
-    return normalizeExportedSvgBytes(bytes);
-  }
-
-  assertExportedPngBytes(bytes, nodeId);
-  return bytes;
+  return normalizeRenderedImageBytes(
+    bytes,
+    preview.format,
+    preview.format === "svg" ? `preview ${nodeId}` : nodeId,
+    "preview",
+  );
 }
 
 export async function exportNodePreview(

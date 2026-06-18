@@ -11,6 +11,15 @@ export { buildComponentSetSpecFromFile } from "./component-set-spec/index.js";
 export { verifyComponentContracts } from "./contract/verify-component-contract.js";
 export { FigmaInspectError } from "./errors.js";
 export {
+  DEFAULT_NESTED_ASSET_SCALE,
+  exportNestedAssets,
+  isNestedAssetNodeType,
+  type NestedAssetFormat,
+  type NestedAssetNodeType,
+  type NestedAssetsOptions,
+  supportedNestedAssetNodeTypes,
+} from "./export/export-nested-assets.js";
+export {
   DEFAULT_PREVIEW_SCALE,
   type ExportPreviewOptions,
   exportNodePreview,

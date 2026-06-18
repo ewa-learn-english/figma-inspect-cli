@@ -20,6 +20,8 @@ describe("writeExportArtifactPaths", () => {
         structureDslPath: "/out/Cell.component-set.structure.dsl",
         previewPath: "/out/Cell.component-set.preview.png",
         assetsDir: "/out/Cell.assets",
+        nestedAssetsDir: "/out/Cell.assets",
+        nestedAssetsManifestPath: "/out/Cell.component-set.nested-assets.yaml",
         importNotesPath: "/out/import-notes.md",
       },
       stdout,
@@ -34,6 +36,7 @@ describe("writeExportArtifactPaths", () => {
         "/out/Cell.component-set.structure.dsl",
         "/out/Cell.component-set.preview.png",
         "/out/Cell.assets",
+        "/out/Cell.component-set.nested-assets.yaml",
         "/out/import-notes.md",
       ].join("\n")}\n`,
     );

@@ -1,6 +1,7 @@
 # figma-inspect-cli
 
-Node.js CLI for inspecting Figma API resources.
+Node.js CLI for inspecting Figma API resources and exporting AI-friendly
+component contracts.
 
 ## Usage
 
@@ -70,6 +71,7 @@ Inspect raw JSON for a node (page, frame, etc.):
 
 ```sh
 npx . --inspect-file-node --file-key <file_key> --node-id <node_id>
+npx . --inspect-file-node --url "https://www.figma.com/design/<file_key>/<name>?node-id=<node_id>"
 ```
 
 Build an AI-friendly spec from a local COMPONENT_SET JSON file:
@@ -80,11 +82,52 @@ npx . --build-component-set-spec --input tmp/Toast.json --variables tmp/cp-ds-st
 npx . --build-component-set-spec --input tmp/Toast.json --variables tmp/cp-ds-styles-variables-local.json --team-components tmp/ComponentSets.json
 ```
 
-Export raw and build JSON for a published component set:
+Export contract files for a Figma URL or node reference:
+
+```sh
+npx . --export-contract --output-dir tmp --variables tmp/cp-ds-styles-variables-local.json --url "https://www.figma.com/design/<file_key>/<name>?node-id=<node_id>"
+```
+
+`--export-contract` auto-detects supported node types:
+
+- `COMPONENT_SET` writes `<Name>.component-set.{visuals,geometry,meta,lock}.yaml`
+  and `<Name>.component-set.structure.dsl`.
+- `FRAME` writes `<Name>.frame.{visuals,geometry,meta,lock}.yaml` and
+  `<Name>.frame.structure.dsl`.
+- standalone `COMPONENT` writes `<Name>.component.{visuals,geometry,meta,lock}.yaml`
+  and `<Name>.component.structure.dsl`.
+
+Export contract files for a published component set:
 
 ```sh
 npx . --export-component-set --output-dir tmp --component-set-name RoadmapHeader --variables tmp/cp-ds-styles-variables-local.json
 ```
+
+Export a root node preview image next to the contract artifacts:
+
+```sh
+npx . --export-contract --output-dir tmp --variables tmp/cp-ds-styles-variables-local.json --url "<figma_url>" --export-preview
+npx . --export-contract --output-dir tmp --variables tmp/cp-ds-styles-variables-local.json --url "<figma_url>" --export-preview --preview-format svg
+```
+
+Export one SVG asset per component-set variant and reference those assets from
+`meta.yaml`:
+
+```sh
+npx . --export-component-set --output-dir tmp --component-set-name ProfileStreakIcon --variables tmp/cp-ds-styles-variables-local.json --export-assets
+```
+
+Export selected nested nodes as sidecar assets for implementation handoff:
+
+```sh
+npx . --export-node-contract --output-dir tmp --variables tmp/cp-ds-styles-variables-local.json --url "<frame_url>" --export-nested-assets --asset-node-id <nested_node_id>
+npx . --export-node-contract --output-dir tmp --variables tmp/cp-ds-styles-variables-local.json --url "<frame_url>" --export-nested-assets --asset-include-regex "icon|logo" --asset-node-types INSTANCE,VECTOR --asset-format svg --asset-format png
+```
+
+Nested asset export writes `<Name>.assets/*.{svg,png}` plus
+`<Name>.<kind>.nested-assets.yaml`. It requires an explicit selector via
+`--asset-node-id` or `--asset-include-regex`; it does not export every visual
+node by default.
 
 For script-friendly output:
 

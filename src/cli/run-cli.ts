@@ -278,6 +278,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         variablesPath: command.variablesPath,
         exportAssets: command.exportAssets,
         assetFormat: command.assetFormat,
+        nestedAssets: command.nestedAssets,
         preview: command.preview,
         format: command.format,
       });
@@ -308,6 +309,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         variablesPath: command.variablesPath,
         exportAssets: command.exportAssets,
         assetFormat: command.assetFormat,
+        nestedAssets: command.nestedAssets,
         preview: command.preview,
         format: command.format,
       });
@@ -336,6 +338,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         nodeId: command.nodeId,
         sourceUrl: command.sourceUrl,
         variablesPath: command.variablesPath,
+        nestedAssets: command.nestedAssets,
         preview: command.preview,
         format: command.format,
       });

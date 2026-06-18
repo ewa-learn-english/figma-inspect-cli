@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   buildComponentSetPseudocodeFromRaw: vi.fn(),
   exportVariantAssets: vi.fn(),
   exportNodePreview: vi.fn(),
+  exportNestedAssets: vi.fn(),
   getComponentSetByKey: vi.fn(),
   listFileComponents: vi.fn(),
   filterFileComponentsForComponentSet: vi.fn(),
@@ -21,6 +22,7 @@ vi.mock("../inspect/index.js", () => ({
   buildComponentSetPseudocodeFromRaw: mocks.buildComponentSetPseudocodeFromRaw,
   exportVariantAssets: mocks.exportVariantAssets,
   exportNodePreview: mocks.exportNodePreview,
+  exportNestedAssets: mocks.exportNestedAssets,
 }));
 
 vi.mock("../figma-api/index.js", () => ({
@@ -108,13 +110,24 @@ describe("exportComponentSet", () => {
       );
       await mkdir(assetsDir, { recursive: true });
       await writeFile(path.join(assetsDir, "default.svg"), "<svg/>", "utf8");
-      return { assetsDir, assets: {} };
+      return { assetsDir, assets: {}, assetSlugs: ["default"] };
     });
     mocks.exportNodePreview.mockImplementation(async (options) => ({
       previewPath: path.join(
         options.outputDir,
         `${options.baseName}.${options.kind}.preview.${options.preview.format}`,
       ),
+    }));
+    mocks.exportNestedAssets.mockImplementation(async (options) => ({
+      nestedAssetsDir: path.join(
+        options.outputDir,
+        `${options.baseName}.assets`,
+      ),
+      nestedAssetsManifestPath: path.join(
+        options.outputDir,
+        `${options.baseName}.${options.kind}.nested-assets.yaml`,
+      ),
+      manifest: {},
     }));
   });
 
@@ -264,6 +277,42 @@ describe("exportComponentSet", () => {
     });
     expect(result.previewPath).toBe(
       path.join(outputDir, "TextInput.component-set.preview.png"),
+    );
+  });
+
+  it("exports selected nested assets when nested asset export is enabled", async () => {
+    const nestedAssets = {
+      nodeIds: ["3971:6470"],
+      formats: ["svg", "png"] as const,
+      scale: 2,
+    };
+
+    const result = await exportComponentSet({
+      token: "token",
+      teamId: "team-id",
+      outputDir,
+      componentSet: { kind: "key", value: "component-set-key" },
+      variablesPath: variablesFixturePath,
+      nestedAssets,
+    });
+
+    expect(mocks.exportNestedAssets).toHaveBeenCalledWith({
+      token: "token",
+      fileKey: "file-key",
+      root: expect.objectContaining({
+        id: "3971:6465",
+        type: "COMPONENT_SET",
+      }),
+      baseName: "TextInput",
+      kind: "component-set",
+      outputDir,
+      nestedAssets,
+    });
+    expect(result.nestedAssetsDir).toBe(
+      path.join(outputDir, "TextInput.assets"),
+    );
+    expect(result.nestedAssetsManifestPath).toBe(
+      path.join(outputDir, "TextInput.component-set.nested-assets.yaml"),
     );
   });
 });

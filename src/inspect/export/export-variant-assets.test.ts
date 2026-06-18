@@ -140,6 +140,17 @@ describe("exportVariantAssets", () => {
       format: "svg",
       path: "ProfileStreakIcon.assets/missed-xl.svg",
     });
+    expect(result.assetSlugs).toEqual(
+      expect.arrayContaining([
+        "active-m",
+        "missed-m",
+        "loading-m",
+        "active-xl",
+        "missed-xl",
+        "loading-xl",
+      ]),
+    );
+    expect(result.assetSlugs).toHaveLength(6);
 
     const activeSvg = await readFile(
       path.join(outputDir, "ProfileStreakIcon.assets/active-m.svg"),

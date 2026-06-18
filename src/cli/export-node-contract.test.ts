@@ -7,6 +7,7 @@ import { parse } from "yaml";
 const mocks = vi.hoisted(() => ({
   buildNodeContractFromRef: vi.fn(),
   exportNodePreview: vi.fn(),
+  exportNestedAssets: vi.fn(),
 }));
 
 vi.mock("../inspect/index.js", async () => {
@@ -17,6 +18,7 @@ vi.mock("../inspect/index.js", async () => {
     ...actual,
     buildNodeContractFromRef: mocks.buildNodeContractFromRef,
     exportNodePreview: mocks.exportNodePreview,
+    exportNestedAssets: mocks.exportNestedAssets,
   };
 });
 
@@ -107,6 +109,17 @@ describe("exportNodeContract", () => {
         `${options.baseName}.${options.kind}.preview.${options.preview.format}`,
       ),
     }));
+    mocks.exportNestedAssets.mockImplementation(async (options) => ({
+      nestedAssetsDir: path.join(
+        options.outputDir,
+        `${options.baseName}.assets`,
+      ),
+      nestedAssetsManifestPath: path.join(
+        options.outputDir,
+        `${options.baseName}.${options.kind}.nested-assets.yaml`,
+      ),
+      manifest: {},
+    }));
   });
 
   afterEach(() => {
@@ -191,6 +204,42 @@ describe("exportNodeContract", () => {
     });
     expect(result.previewPath).toBe(
       path.join(outputDir, "Settings.frame.preview.svg"),
+    );
+  });
+
+  it("exports selected nested assets when nested asset export is enabled", async () => {
+    const nestedAssets = {
+      nodeIds: ["208:44000"],
+      formats: ["svg"] as const,
+      scale: 2,
+    };
+
+    const result = await exportNodeContract({
+      token: "token",
+      outputDir,
+      fileKey: "file-key",
+      nodeId: "208:43935",
+      variablesPath: "vars.json",
+      nestedAssets,
+    });
+
+    expect(mocks.exportNestedAssets).toHaveBeenCalledWith({
+      token: "token",
+      fileKey: "file-key",
+      root: expect.objectContaining({
+        id: "208:43935",
+        type: "FRAME",
+      }),
+      baseName: "Settings",
+      kind: "frame",
+      outputDir,
+      nestedAssets,
+    });
+    expect(result.nestedAssetsDir).toBe(
+      path.join(outputDir, "Settings.assets"),
+    );
+    expect(result.nestedAssetsManifestPath).toBe(
+      path.join(outputDir, "Settings.frame.nested-assets.yaml"),
     );
   });
 });

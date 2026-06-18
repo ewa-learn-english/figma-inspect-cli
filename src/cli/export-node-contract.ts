@@ -7,7 +7,9 @@ import {
 import {
   buildNodeContractFromRef,
   type ExportPreviewOptions,
+  exportNestedAssets,
   exportNodePreview,
+  type NestedAssetsOptions,
   readNodeContractArtifacts,
   resolveNodeContractLockPath,
   resolveNodeGeometryContractPath,
@@ -28,13 +30,20 @@ export interface ExportNodeContractOptions extends FigmaNodeRef {
   outputDir: string;
   sourceUrl?: string;
   variablesPath: string;
+  nestedAssets?: NestedAssetsOptions;
   preview?: ExportPreviewOptions;
   format?: ContractFormat;
 }
 
 export interface ExportNodeContractResult
   extends ExportArtifactPaths,
-    Pick<ExportArtifactPathExtras, "importNotesPath" | "previewPath"> {}
+    Pick<
+      ExportArtifactPathExtras,
+      | "importNotesPath"
+      | "previewPath"
+      | "nestedAssetsDir"
+      | "nestedAssetsManifestPath"
+    > {}
 
 async function writeDataFile(
   filePath: string,
@@ -130,6 +139,17 @@ export async function exportNodeContract(
         })
       ).previewPath
     : undefined;
+  const nestedAssetsResult = options.nestedAssets
+    ? await exportNestedAssets({
+        token: options.token,
+        fileKey: options.fileKey,
+        root: contract.rawNode,
+        baseName: contract.nodeName,
+        kind: contract.kind,
+        outputDir: options.outputDir,
+        nestedAssets: options.nestedAssets,
+      })
+    : undefined;
 
   await writeDataFile(visualsContractPath, contract.visuals, format);
   await writeDataFile(geometryContractPath, contract.geometry, format);
@@ -162,6 +182,8 @@ export async function exportNodeContract(
     lockContractPath,
     structureDslPath,
     previewPath,
+    nestedAssetsDir: nestedAssetsResult?.nestedAssetsDir,
+    nestedAssetsManifestPath: nestedAssetsResult?.nestedAssetsManifestPath,
     importNotesPath,
   };
 }

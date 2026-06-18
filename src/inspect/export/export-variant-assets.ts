@@ -42,6 +42,7 @@ export interface ExportVariantAssetsOptions {
 export interface ExportVariantAssetsResult {
   assetsDir: string;
   assets: AssetContractMap;
+  assetSlugs: string[];
 }
 
 function assetFileName(
@@ -176,9 +177,11 @@ export async function exportVariantAssets(
         });
 
   const entries: AssetBuildEntry[] = [];
+  const assetSlugs: string[] = [];
 
   for (const ref of variantRefs) {
     const fileName = assetFileName(ref.when, variantAxes);
+    assetSlugs.push(fileName.slice(0, -".svg".length));
     const relativePath = path.posix.join(
       `${options.baseName}.assets`,
       fileName,
@@ -205,5 +208,6 @@ export async function exportVariantAssets(
   return {
     assetsDir,
     assets: buildNestedAssetMap(entries, variantAxes),
+    assetSlugs,
   };
 }

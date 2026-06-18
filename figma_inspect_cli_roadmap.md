@@ -377,6 +377,76 @@ Exclude or normalize:
 - Backward compatibility with lock v1 read is preserved.
 - `npm run check` + `npm run build` проходят.
 
+## P2.5 — Nested node asset export
+
+Статус: сделано.
+
+Цель: закрыть legacy gap для импорта компонентов, где часть дизайна должна быть перенесена в TypeScript как локальный visual asset: иконка, иллюстрация, сложная vector/group/frame-нода или вложенный instance.
+
+Это не compatibility layer для старого `component.contract.json`; импорт и валидация идут по новым `dsl/yaml/lock/preview` контрактам.
+
+### CLI/API
+
+Добавлен отдельный sidecar export, не смешанный с текущим asset-backed component-set mode:
+
+```bash
+figma-inspect --export-contract --url "<figma-url>" --output-dir ... --variables ... \
+  --export-nested-assets \
+  --asset-node-id <nested-node-id> \
+  --asset-format svg
+```
+
+Опции:
+
+- `--export-nested-assets` — экспортировать выбранные nested nodes как sidecar assets;
+- `--asset-node-id <id>` — explicit nested node id, repeatable;
+- `--asset-include-regex <regex>` — выбрать candidates по имени/path;
+- `--asset-node-types <csv>` — ограничить candidate types, например `INSTANCE,VECTOR,FRAME`;
+- `--asset-max <number>` — fail-fast guard против случайного массового экспорта;
+- `--asset-format svg|png` — repeatable, default `svg`;
+- `--asset-scale <number>` — PNG scale, default `2`.
+
+Текущий `--export-assets` остается про component-set variant assets, где SVG variants становятся частью `meta.assets` и `structure.dsl`.
+
+### Semantics
+
+- Работает для `COMPONENT_SET`, standalone `COMPONENT`, `FRAME`.
+- По умолчанию не экспортирует все подряд: нужен explicit id или фильтр.
+- Candidate discovery использует conservative heuristic:
+   - visual node types: `INSTANCE`, `COMPONENT`, `COMPONENT_SET`, `FRAME`, `GROUP`, `BOOLEAN_OPERATION`, `VECTOR`;
+   - visual keywords in name/path: `icon`, `logo`, `asset`, `image`, `illustration`, `avatar`, `photo`, `thumb`, `thumbnail`, `badge`, `mark`, `glyph`, `symbol`, `spinner`, `loader`.
+- Files:
+   - `<Name>.assets/<slug>.svg`
+   - `<Name>.assets/<slug>.png`
+   - `<Name>.<kind>.nested-assets.yaml`
+- Manifest содержит:
+   - source node id/name/type/path;
+   - reasons/selection criteria;
+   - exported file paths/formats/scale;
+   - warnings для non-exported candidates.
+- SVG root `width/height` нормализуются, PNG валидируется по signature.
+- Nested assets не должны автоматически менять structure DSL; handoff должен явно подсказать, какие assets copy/use.
+- Nested asset manifest сейчас является sidecar artifact и не меняет lock fingerprints; если nested assets станут committed implementation assets, следующим шагом нужен отдельный verify/hash path, чтобы drift не прятался.
+
+### Реализация
+
+- `--export-nested-assets` доступен для `--export-contract`, `--export-component-set`, `--export-node-contract`.
+- Требует `--asset-node-id` и/или `--asset-include-regex`; массовый экспорт без selector не включается.
+- `--asset-node-id` repeatable и принимает URL-style ids с `-`.
+- `--asset-format` repeatable: `svg|png` для nested assets; `--export-assets` по-прежнему поддерживает только `svg`.
+- Пишет `<Name>.assets/*.{svg,png}` и `<Name>.<kind>.nested-assets.yaml`.
+- Manifest содержит source, criteria, candidates, exports, warnings.
+- Existing component-set variant asset lock fingerprints ограничены variant SVG slugs, чтобы nested sidecar files в той же папке не попадали в variant lock случайно.
+
+### Acceptance criteria
+
+- Можно экспортировать explicit nested `INSTANCE`/`VECTOR` по `--asset-node-id`.
+- Можно экспортировать candidates по regex/type с `--asset-max`.
+- Поддержаны SVG и PNG.
+- Выводится deterministic manifest для LLM handoff.
+- `--export-assets` component-set behavior не меняется.
+- `npm run check` + `npm run build` проходят.
+
 ## P3 — Verified manifest and bulk registry
 
 Цель: управлять 250+ компонентами без ручного запуска CLI по одному.
@@ -447,11 +517,12 @@ artifacts/figma-components/<Name>/implementation-plan.md
 - props/variant axes;
 - node kind: component-set/component/frame;
 - structural vs asset-backed recommendation;
-- token gaps;
+- token gaps from new contract/token resolution only; ewa-specific token-registry/global-css diagnostics stay outside core CLI as a repo adapter script if needed;
 - assets to copy;
 - known unsupported Figma features;
 - paths to DSL/YAML files;
 - explicit forbidden actions: do not hardcode tokens, do not add story-only props, do not use lock as design prompt.
+- no legacy `.figma.contract.json` compatibility output; new imports are validated from new contract artifacts.
 
 ### Acceptance criteria
 
@@ -464,6 +535,7 @@ artifacts/figma-components/<Name>/implementation-plan.md
 
 - Добавить `.env.example`.
 - Проверить, что `.env.local` никогда не попадает в package/artifacts.
+- Если shell/wrapper не прокидывает `.env.local`, добавить non-secret CLI override для `--team-id`; пока `FIGMA_TEAM_ID` из env остается основным путем.
 - CI variables only для tokens.
 - No token echo in logs.
 

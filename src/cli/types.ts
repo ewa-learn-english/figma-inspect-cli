@@ -1,5 +1,8 @@
 import type { ContractFormat } from "../inspect/contract/contract-format.js";
-import type { ExportPreviewOptions } from "../inspect/index.js";
+import type {
+  ExportPreviewOptions,
+  NestedAssetsOptions,
+} from "../inspect/index.js";
 import type {
   ComponentSetLookup,
   ComponentSetTarget,
@@ -85,6 +88,7 @@ export type CliCommand =
       variablesPath: string;
       exportAssets?: boolean;
       assetFormat?: "svg";
+      nestedAssets?: NestedAssetsOptions;
       preview?: ExportPreviewOptions;
       format: ContractFormat;
     }
@@ -95,6 +99,7 @@ export type CliCommand =
       variablesPath: string;
       exportAssets?: boolean;
       assetFormat?: "svg";
+      nestedAssets?: NestedAssetsOptions;
       preview?: ExportPreviewOptions;
       format: ContractFormat;
     } & FigmaNodeRef)
@@ -103,6 +108,7 @@ export type CliCommand =
       outputDir: string;
       sourceUrl?: string;
       variablesPath: string;
+      nestedAssets?: NestedAssetsOptions;
       preview?: ExportPreviewOptions;
       format: ContractFormat;
     } & FigmaNodeRef);
