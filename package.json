@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "postbuild": "chmod +x dist/bin/figma-inspect.js",
     "start": "node ./dist/bin/figma-inspect.js",
     "dev": "tsx ./src/bin/figma-inspect.ts",
     "lint": "biome lint .",
