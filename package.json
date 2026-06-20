@@ -4,7 +4,7 @@
   "description": "Small CLI for inspecting Figma API resources.",
   "type": "module",
   "bin": {
-    "figma-inspect": "./dist/bin/figma-inspect.js"
+    "figma-inspect": "dist/bin/figma-inspect.js"
   },
   "files": [
     "dist"

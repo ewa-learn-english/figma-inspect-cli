@@ -122,6 +122,7 @@ Project skills live in `.agents/skills/`.
 
 - **live-test** — live end-to-end CLI checks. Invoke explicitly (`/live-test`). When CLI commands or flags change, update `.agents/skills/live-test/SKILL.md` in the same change. Keep aligned with `src/cli/usage.ts`.
 - **deslopify** — code quality cleanup in scoped files. Ralph-loop agents: read skill, fix root causes, run `npm run check` + `npm run build`, commit (never commit `.agents/skills/deslopify/MEMORY.md`).
+- **npm-publish** — publish or update the npm-distributed CLI package. Use for release/version bumps, `npm publish`, npmjs access checks, and post-publish verification from another repository.
 
 ## Commits
 

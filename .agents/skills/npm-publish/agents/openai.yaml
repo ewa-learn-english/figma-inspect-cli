@@ -1,0 +1,4 @@
+interface:
+  display_name: "Npm Publish"
+  short_description: "Publish figma-inspect-cli to npm safely"
+  default_prompt: "Use $npm-publish to publish a new figma-inspect-cli version to npm."
