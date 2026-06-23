@@ -18,33 +18,55 @@ binary is `figma-inspect`.
 
 ## Workflow
 
-1. Inspect local state first:
+1. Inspect local state and npm access first:
 
    ```sh
    git status --short
    npm whoami
-   npm view figma-inspect-cli version bin dist-tags --json
    ```
 
    If `npm whoami` returns `E401`, run `npm login --auth-type=web` and let the
    user complete the browser flow. Never ask for or print npm tokens.
 
-2. Choose the version before publishing.
+2. Validate and commit all release-intended changes before choosing the version:
+
+   ```sh
+   npm run check
+   npm run build
+   git status --short
+   git add <release files>
+   git commit -m "Update ..."
+   git status --short
+   ```
+
+   The working tree must be clean before the version is selected or tagged. If
+   unrelated user changes are present, do not stage or revert them; either leave
+   them out of the release commit or ask the user how to proceed if a clean tree
+   is impossible. If there are no release-intended changes and `git status
+   --short` is already empty, skip the commit and continue.
+
+3. Choose the next version.
 
    Do not republish an already-published version. If the user did not specify a
    version, use normal semver judgment: patch for fixes/docs/packaging, minor for
    new CLI behavior, major for breaking CLI or artifact contract changes.
 
-   Prefer a non-tagging bump unless the user asked for a git release:
+   Check both npm and local git tags before deciding:
 
    ```sh
-   npm version patch --no-git-tag-version
+   npm view figma-inspect-cli version bin dist-tags --json
+   node -p "require('./package.json').version"
+   git tag --list "v*" --sort=-v:refname
    ```
 
-3. Run required validation from the repo root:
+4. Apply the version, run final package validation, then commit and tag the
+   release.
+
+   Update package version files without creating a tag yet, because the final
+   build and dry-run must be part of the release state:
 
    ```sh
-   npm run check
+   npm version <next-version> --no-git-tag-version
    npm run build
    npm pack --dry-run --json
    ```
@@ -53,7 +75,21 @@ binary is `figma-inspect`.
    and that `dist/bin/figma-inspect.js` is executable. Source maps are currently
    included; do not change packaging unless the user asks.
 
-4. Publish:
+   ```sh
+   git status --short
+   git add package.json package-lock.json
+   git commit -m "Release v<next-version>"
+   git tag v<next-version>
+   git status --short
+   git tag --points-at HEAD
+   ```
+
+   `dist/` is intentionally ignored by git, but must be current on disk for
+   `npm pack` and `npm publish`. The tag must be a semver tag in `vX.Y.Z` form,
+   such as `v0.1.2`, and must point at the release commit. If `git status
+   --short` is not clean after tagging, resolve that before publishing.
+
+5. Publish only after the release commit and `vX.Y.Z` tag exist locally:
 
    ```sh
    npm publish
@@ -62,7 +98,7 @@ binary is `figma-inspect`.
    npm may prompt for web authentication or 2FA with a URL. Press Enter to open
    the browser flow if needed, then wait for the same publish process to finish.
 
-5. Verify the published package:
+6. Verify the published package:
 
    ```sh
    npm view figma-inspect-cli@<version> name version bin dist-tags --json
