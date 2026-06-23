@@ -65,12 +65,6 @@ export async function exportContract(
     });
   }
 
-  if (options.exportAssets) {
-    throw new CliError(
-      "--export-assets is only supported when --export-contract targets a COMPONENT_SET.",
-    );
-  }
-
   return exportNodeContract({
     token: options.token,
     outputDir: options.outputDir,

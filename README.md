@@ -63,7 +63,8 @@ Common optional flags:
   write a root preview image next to exported contracts.
 - `--export-assets` writes one SVG per component-set variant. It is supported by
   `--export-component-set` and by `--export-contract` when the target is a
-  `COMPONENT_SET`.
+  `COMPONENT_SET`. With `--export-contract`, it is ignored for `FRAME` and
+  standalone `COMPONENT` targets.
 - `--export-nested-assets` writes selected nested nodes as sidecar assets. Use
   `--asset-node-id <id>` or `--asset-include-regex <regex>` to choose nodes.
   `--asset-format svg|png`, `--asset-scale <scale>`, `--asset-node-types <csv>`,

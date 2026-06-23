@@ -131,22 +131,37 @@ describe("exportContract", () => {
     );
   });
 
-  it("rejects assets for node targets", async () => {
+  it("ignores variant asset export for node targets", async () => {
     mocks.resolveExportContractTarget.mockResolvedValue({
       kind: "node",
       fileKey: "file-key",
       nodeId: "208:43935",
     });
 
-    await expect(
-      exportContract({
-        token: "token",
-        outputDir: "out",
-        fileKey: "file-key",
-        nodeId: "208:43935",
-        variablesPath: "vars.json",
+    mocks.exportNodeContract.mockResolvedValue({
+      visualsContractPath: "/out/Settings.frame.visuals.yaml",
+      geometryContractPath: "/out/Settings.frame.geometry.yaml",
+      metaContractPath: "/out/Settings.frame.meta.yaml",
+      lockContractPath: "/out/Settings.frame.lock.yaml",
+      structureDslPath: "/out/Settings.frame.structure.dsl",
+    });
+
+    await exportContract({
+      token: "token",
+      outputDir: "out",
+      fileKey: "file-key",
+      nodeId: "208:43935",
+      variablesPath: "vars.json",
+      exportAssets: true,
+      assetFormat: "svg",
+    });
+
+    expect(mocks.exportNodeContract).toHaveBeenCalledWith(
+      expect.not.objectContaining({
         exportAssets: true,
+        assetFormat: "svg",
       }),
-    ).rejects.toThrow(/COMPONENT_SET/);
+    );
+    expect(mocks.exportComponentSet).not.toHaveBeenCalled();
   });
 });

@@ -45,7 +45,7 @@ Options:
   --export-preview                Export one root node preview image next to contract artifacts; writes <Name>.<node-type>.preview.png by default
   --preview-format <format>       Preview export format; supports png or svg (default: png)
   --preview-scale <scale>         PNG preview scale for the Figma Images API (default: 2)
-  --export-assets                 Export one SVG asset per component variant via the Figma Images API (with --export-component-set or --export-contract targeting a COMPONENT_SET; variant props only, no TEXT layers)
+  --export-assets                 Export one SVG asset per component variant via the Figma Images API (with --export-component-set or --export-contract targeting a COMPONENT_SET; ignored by --export-contract for FRAME/COMPONENT targets; variant props only, no TEXT layers)
   --export-nested-assets          Export selected nested nodes as sidecar assets and write <Name>.<kind>.nested-assets.yaml
   --asset-node-id <id>            Nested asset node id to export; repeatable; URL-style ids such as 208-43935 are accepted
   --asset-include-regex <regex>   Select nested asset nodes whose name or path matches the regex
