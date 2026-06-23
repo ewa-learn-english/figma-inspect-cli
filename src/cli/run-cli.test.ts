@@ -107,11 +107,21 @@ function createIo(env: NodeJS.ProcessEnv = {}): {
     stderr: NodeJS.WriteStream;
   };
   output: () => string;
+  stderrOutput: () => string;
 } {
-  let text = "";
+  let stdoutText = "";
+  let stderrText = "";
   const stdout = {
     write(chunk: string | Uint8Array): boolean {
-      text += typeof chunk === "string" ? chunk : Buffer.from(chunk).toString();
+      stdoutText +=
+        typeof chunk === "string" ? chunk : Buffer.from(chunk).toString();
+      return true;
+    },
+  } as NodeJS.WriteStream;
+  const stderr = {
+    write(chunk: string | Uint8Array): boolean {
+      stderrText +=
+        typeof chunk === "string" ? chunk : Buffer.from(chunk).toString();
       return true;
     },
   } as NodeJS.WriteStream;
@@ -120,9 +130,10 @@ function createIo(env: NodeJS.ProcessEnv = {}): {
     io: {
       env: { FIGMA_API_TOKEN: "token", FIGMA_TEAM_ID: "team", ...env },
       stdout,
-      stderr: stdout,
+      stderr,
     },
-    output: () => text,
+    output: () => stdoutText,
+    stderrOutput: () => stderrText,
   };
 }
 
@@ -478,6 +489,42 @@ describe("runCli", () => {
     );
     expect(output()).toBe(
       "/out/a.yaml\n/out/b.yaml\n/out/c.yaml\n/out/d.yaml\n/out/e.dsl\n/out/Settings.frame.preview.png\n/out/import-notes.md\n",
+    );
+  });
+
+  it("writes export-contract warnings to stderr", async () => {
+    mocks.exportContract.mockResolvedValue({
+      visualsContractPath: "/out/a.yaml",
+      geometryContractPath: "/out/b.yaml",
+      metaContractPath: "/out/c.yaml",
+      lockContractPath: "/out/d.yaml",
+      structureDslPath: "/out/e.dsl",
+      assetExportWarning:
+        "Variant SVG assets skipped for Chip: Component set is not asset-exportable: icon (instance).",
+    });
+    const { io, output, stderrOutput } = createIo();
+
+    await runCli(
+      [
+        "--export-contract",
+        "--output-dir",
+        "out",
+        "--variables",
+        "vars.json",
+        "--file-key",
+        "file-key",
+        "--node-id",
+        "242:960",
+        "--export-assets",
+      ],
+      io,
+    );
+
+    expect(output()).toBe(
+      "/out/a.yaml\n/out/b.yaml\n/out/c.yaml\n/out/d.yaml\n/out/e.dsl\n",
+    );
+    expect(stderrOutput()).toBe(
+      "warning: Variant SVG assets skipped for Chip: Component set is not asset-exportable: icon (instance).\n",
     );
   });
 

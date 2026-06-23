@@ -61,10 +61,12 @@ Common optional flags:
 - `--team-components <path>` is supported by local component-set build commands.
 - `--export-preview`, `--preview-format png|svg`, and `--preview-scale <scale>`
   write a root preview image next to exported contracts.
-- `--export-assets` writes one SVG per component-set variant. It is supported by
-  `--export-component-set` and by `--export-contract` when the target is a
-  `COMPONENT_SET`. With `--export-contract`, it is ignored for `FRAME` and
-  standalone `COMPONENT` targets.
+- `--export-assets` attempts to write one SVG per component-set variant. It is
+  supported by `--export-component-set` and by `--export-contract` when the
+  target is a `COMPONENT_SET`. Runtime component sets with text, boolean, or
+  instance-swap props are exported as normal contracts and print a warning
+  instead of failing. With `--export-contract`, the flag is ignored for `FRAME`
+  and standalone `COMPONENT` targets.
 - `--export-nested-assets` writes selected nested nodes as sidecar assets. Use
   `--asset-node-id <id>` or `--asset-include-regex <regex>` to choose nodes.
   `--asset-format svg|png`, `--asset-scale <scale>`, `--asset-node-types <csv>`,
@@ -144,7 +146,8 @@ npx . --export-node-contract --output-dir tmp --variables tmp/cp-ds-styles-varia
 ```
 
 Variant asset export writes `<Name>.assets/*.svg` and references those paths from
-`meta.assets`. Nested asset export writes `<Name>.assets/*.{svg,png}` plus
+`meta.assets` when the component set can be flattened to variant SVGs. Nested
+asset export writes `<Name>.assets/*.{svg,png}` plus
 `<Name>.<kind>.nested-assets.yaml`.
 
 ## Verify

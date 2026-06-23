@@ -31,7 +31,10 @@ import { CliError } from "./errors.js";
 import { exportComponentSet } from "./export-component-set.js";
 import { exportContract } from "./export-contract.js";
 import { exportNodeContract } from "./export-node-contract.js";
-import { writeExportArtifactPaths } from "./export-result.js";
+import {
+  writeExportArtifactPaths,
+  writeExportWarnings,
+} from "./export-result.js";
 import { exportTeamIndex } from "./export-team-index.js";
 import {
   writeComponentSetProperties,
@@ -314,6 +317,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         preview: command.preview,
         format: command.format,
       });
+      writeExportWarnings(result, io.stderr);
       writeExportArtifactPaths(result, io.stdout);
     } catch (error) {
       if (
@@ -345,6 +349,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         preview: command.preview,
         format: command.format,
       });
+      writeExportWarnings(result, io.stderr);
       writeExportArtifactPaths(result, io.stdout);
     } catch (error) {
       if (
@@ -374,6 +379,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         preview: command.preview,
         format: command.format,
       });
+      writeExportWarnings(result, io.stderr);
       writeExportArtifactPaths(result, io.stdout);
     } catch (error) {
       if (

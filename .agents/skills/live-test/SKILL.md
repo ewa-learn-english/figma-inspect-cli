@@ -4,7 +4,6 @@ description: >-
   Run live end-to-end tests of figma-inspect CLI commands against the Figma API.
   Use only when the user explicitly asks for live-test, live test, or to verify
   CLI commands against real Figma data.
-disable-model-invocation: true
 ---
 
 # Live Test CLI
@@ -78,7 +77,7 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 20 | `--export-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL"` | preferred URL-first variant; auto-detects `FRAME`; writes `<name>.frame.{visuals,geometry,meta,lock}.yaml` and `<name>.frame.structure.dsl` |
 | 21 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME` | explicit component-set variant; writes `<name>.component-set.{visuals,geometry,meta,lock}.yaml`, and `<name>.component-set.structure.dsl`; needs `FIGMA_TEAM_ID` |
 | 22 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FIGMA_NODE_URL"` | explicit component-set URL variant; also writes `import-notes.md`; needs `FIGMA_TEAM_ID` |
-| 23 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name ProfileStreakIcon --export-assets` | also writes `<name>.assets/*.svg`, stores asset paths in `meta.yaml`, and asset-backed contracts; needs `FIGMA_API_TOKEN` + `FIGMA_TEAM_ID` |
+| 23 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name ProfileStreakIcon --export-assets` | attempts variant SVG assets; asset-exportable sets write `<name>.assets/*.svg`, store paths in `meta.yaml`, and use asset-backed contracts; runtime-prop sets warn and fall back to runtime contracts; needs `FIGMA_API_TOKEN` + `FIGMA_TEAM_ID` |
 | 24 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME --json` | same as row 21 but writes `.json` files instead of `.yaml` |
 | 25 | `--export-node-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL"` | explicit node-contract URL variant for FRAME |
 | 26 | `--export-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL" --export-preview` | also writes `<name>.frame.preview.png` at PNG scale 2; use `--preview-format svg` for SVG |

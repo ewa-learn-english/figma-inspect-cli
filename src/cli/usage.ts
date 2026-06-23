@@ -40,12 +40,12 @@ Options:
   --verify-component-contract     Compare lock files to live Figma via the API; validates local contract schema
   --verify-node-contract          Compare frame/component node lock files to live Figma via the API; validates local node contract schema
   --export-contract               Export contract files for a Figma URL or node ref; auto-detects COMPONENT_SET, FRAME, or standalone COMPONENT
-  --export-component-set          Export component contract files for a published team component set as YAML; writes <ComponentName>.component-set.lock.yaml; with --export-assets also writes <ComponentName>.assets/*.svg and stores asset paths in meta.yaml
+  --export-component-set          Export component contract files for a published team component set as YAML; writes <ComponentName>.component-set.lock.yaml; with --export-assets attempts variant SVG assets and falls back to a runtime contract when the set has runtime props
   --export-node-contract          Export FRAME or standalone COMPONENT node contract files as YAML; writes <Name>.frame.* or <Name>.component.* plus lock
   --export-preview                Export one root node preview image next to contract artifacts; writes <Name>.<node-type>.preview.png by default
   --preview-format <format>       Preview export format; supports png or svg (default: png)
   --preview-scale <scale>         PNG preview scale for the Figma Images API (default: 2)
-  --export-assets                 Export one SVG asset per component variant via the Figma Images API (with --export-component-set or --export-contract targeting a COMPONENT_SET; ignored by --export-contract for FRAME/COMPONENT targets; variant props only, no TEXT layers)
+  --export-assets                 Attempt one SVG asset per component variant via the Figma Images API (with --export-component-set or --export-contract targeting a COMPONENT_SET; skipped with warning when the set has runtime props; ignored by --export-contract for FRAME/COMPONENT targets)
   --export-nested-assets          Export selected nested nodes as sidecar assets and write <Name>.<kind>.nested-assets.yaml
   --asset-node-id <id>            Nested asset node id to export; repeatable; URL-style ids such as 208-43935 are accepted
   --asset-include-regex <regex>   Select nested asset nodes whose name or path matches the regex

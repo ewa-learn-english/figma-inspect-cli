@@ -12,6 +12,7 @@ export interface ExportArtifactPathExtras {
   nestedAssetsDir?: string;
   nestedAssetsManifestPath?: string;
   importNotesPath?: string;
+  assetExportWarning?: string;
 }
 
 export type ExportArtifactPathResult = ExportArtifactPaths &
@@ -41,4 +42,13 @@ export function writeExportArtifactPaths(
   }
 
   stdout.write(`${lines.join("\n")}\n`);
+}
+
+export function writeExportWarnings(
+  result: ExportArtifactPathResult,
+  stderr: NodeJS.WriteStream,
+): void {
+  if (result.assetExportWarning) {
+    stderr.write(`warning: ${result.assetExportWarning}\n`);
+  }
 }

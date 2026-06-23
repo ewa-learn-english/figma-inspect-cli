@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { writeExportArtifactPaths } from "./export-result.js";
+import {
+  writeExportArtifactPaths,
+  writeExportWarnings,
+} from "./export-result.js";
 
 describe("writeExportArtifactPaths", () => {
   it("writes shared export paths and optional extras in the CLI output order", () => {
@@ -40,5 +43,29 @@ describe("writeExportArtifactPaths", () => {
         "/out/import-notes.md",
       ].join("\n")}\n`,
     );
+  });
+
+  it("writes export warnings to stderr without adding them to stdout paths", () => {
+    let output = "";
+    const stderr = {
+      write(chunk: string): boolean {
+        output += chunk;
+        return true;
+      },
+    } as NodeJS.WriteStream;
+
+    writeExportWarnings(
+      {
+        visualsContractPath: "/out/Cell.component-set.visuals.yaml",
+        geometryContractPath: "/out/Cell.component-set.geometry.yaml",
+        metaContractPath: "/out/Cell.component-set.meta.yaml",
+        lockContractPath: "/out/Cell.component-set.lock.yaml",
+        structureDslPath: "/out/Cell.component-set.structure.dsl",
+        assetExportWarning: "Variant SVG assets skipped for Cell.",
+      },
+      stderr,
+    );
+
+    expect(output).toBe("warning: Variant SVG assets skipped for Cell.\n");
   });
 });

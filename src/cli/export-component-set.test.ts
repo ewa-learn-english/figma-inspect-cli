@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { parse } from "yaml";
+import { FigmaInspectError } from "../inspect/errors.js";
 
 const mocks = vi.hoisted(() => ({
   resolveTeamComponentSetScope: vi.fn(),
@@ -254,6 +255,62 @@ describe("exportComponentSet", () => {
       fingerprints: { assets?: Record<string, string> };
     };
     expect(lock.fingerprints.assets?.default).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it("falls back to a runtime contract when variant asset export is not supported", async () => {
+    mocks.exportVariantAssets.mockRejectedValueOnce(
+      new FigmaInspectError(
+        "Component set is not asset-exportable: icon (instance), label (text). --export-assets supports component sets with variant props only.",
+      ),
+    );
+
+    const result = await exportComponentSet({
+      token: "token",
+      teamId: "team-id",
+      outputDir,
+      componentSet: { kind: "key", value: "component-set-key" },
+      variablesPath: variablesFixturePath,
+      exportAssets: true,
+      assetFormat: "svg",
+    });
+
+    expect(result.assetsDir).toBeUndefined();
+    expect(result.assetExportWarning).toContain(
+      "Variant SVG assets skipped for TextInput",
+    );
+    expect(result.assetExportWarning).toContain(
+      "Component contract was exported as a runtime contract.",
+    );
+    expect(mocks.buildComponentSetPseudocodeFromRaw).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "TextInput", type: "COMPONENT_SET" }),
+      expect.objectContaining({
+        assetBacked: false,
+        assets: undefined,
+      }),
+    );
+
+    const lock = parse(await readFile(result.lockContractPath, "utf8")) as {
+      fingerprints: { assets?: Record<string, string> };
+    };
+    expect(lock.fingerprints.assets).toBeUndefined();
+  });
+
+  it("keeps unexpected variant asset export errors fatal", async () => {
+    mocks.exportVariantAssets.mockRejectedValueOnce(
+      new FigmaInspectError("Exported asset for State=Default is not SVG."),
+    );
+
+    await expect(
+      exportComponentSet({
+        token: "token",
+        teamId: "team-id",
+        outputDir,
+        componentSet: { kind: "key", value: "component-set-key" },
+        variablesPath: variablesFixturePath,
+        exportAssets: true,
+        assetFormat: "svg",
+      }),
+    ).rejects.toThrow("Exported asset for State=Default is not SVG.");
   });
 
   it("exports a root preview when preview is enabled", async () => {

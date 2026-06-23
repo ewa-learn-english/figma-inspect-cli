@@ -31,6 +31,7 @@ import {
   fingerprintContracts,
   fingerprintTree,
 } from "../inspect/contract/fingerprint.js";
+import { FigmaInspectError } from "../inspect/errors.js";
 import {
   buildComponentSetPseudocodeFromRaw,
   type ExportPreviewOptions,
@@ -120,6 +121,13 @@ async function writeImportNotes(options: {
   return notesPath;
 }
 
+function isAssetExportabilityError(error: unknown): error is FigmaInspectError {
+  return (
+    error instanceof FigmaInspectError &&
+    error.message.startsWith("Component set is not asset-exportable:")
+  );
+}
+
 export async function exportComponentSet(
   options: ExportComponentSetOptions,
 ): Promise<ExportComponentSetResult> {
@@ -186,18 +194,31 @@ export async function exportComponentSet(
   let exportedAssets:
     | Awaited<ReturnType<typeof exportVariantAssets>>
     | undefined;
+  let assetExportWarning: string | undefined;
 
   if (options.exportAssets) {
-    exportedAssets = await exportVariantAssets({
-      token: options.token,
-      fileKey: scope.fileKey,
-      componentSet: raw,
-      baseName,
-      outputDir: options.outputDir,
-      format: options.assetFormat ?? "svg",
-      skipNodeIds,
-    });
-    assetsDir = exportedAssets.assetsDir;
+    try {
+      exportedAssets = await exportVariantAssets({
+        token: options.token,
+        fileKey: scope.fileKey,
+        componentSet: raw,
+        baseName,
+        outputDir: options.outputDir,
+        format: options.assetFormat ?? "svg",
+        skipNodeIds,
+      });
+      assetsDir = exportedAssets.assetsDir;
+    } catch (error) {
+      if (!isAssetExportabilityError(error)) {
+        throw error;
+      }
+
+      assetExportWarning = [
+        `Variant SVG assets skipped for ${baseName}: ${error.message}`,
+        "Component contract was exported as a runtime contract.",
+        "Use --export-nested-assets with --asset-node-id when a slot/default nested icon asset is needed.",
+      ].join(" ");
+    }
   }
 
   const previewPath = options.preview
@@ -227,7 +248,7 @@ export async function exportComponentSet(
 
   const contractResult = await buildComponentSetPseudocodeFromRaw(raw, {
     variablesPath: options.variablesPath,
-    assetBacked: options.exportAssets,
+    assetBacked: exportedAssets !== undefined,
     assets: exportedAssets?.assets,
     format,
     metaContext: {
@@ -300,5 +321,6 @@ export async function exportComponentSet(
     nestedAssetsDir: nestedAssetsResult?.nestedAssetsDir,
     nestedAssetsManifestPath: nestedAssetsResult?.nestedAssetsManifestPath,
     importNotesPath,
+    assetExportWarning,
   };
 }
