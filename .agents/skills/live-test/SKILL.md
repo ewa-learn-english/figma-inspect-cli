@@ -59,7 +59,7 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 1 | `--list-team-projects` | | needs `FIGMA_TEAM_ID` |
 | 2 | `--list-project-files` | `--project-id $PROJECT_ID` | |
 | 3 | `--list-team-project-files` | | needs `FIGMA_TEAM_ID` |
-| 4 | `--export-team-index` | `--output-dir $TEAM_INDEX_DIR` | writes `team.index.yaml` plus one sibling `*.index.yaml` per Figma file; needs `FIGMA_TEAM_ID` |
+| 4 | `--export-team-index` | `--output-dir $TEAM_INDEX_DIR` | writes `figma-index.sqlite3`; needs `FIGMA_TEAM_ID` |
 | 5 | `--list-component-set-usages` | `--index-dir $TEAM_INDEX_DIR --component-set-name $COMPONENT_SET_NAME` | local index lookup; no Figma API call |
 | 6 | `--inspect-component-set-responsive-usage` | `--index-dir $TEAM_INDEX_DIR --component-set-name $COMPONENT_SET_NAME` | local responsive usage/risk lookup; no Figma API call |
 | 7 | `--list-team-component-sets` | | needs `FIGMA_TEAM_ID`; published sets only |

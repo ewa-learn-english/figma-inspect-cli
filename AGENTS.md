@@ -54,7 +54,7 @@ One command per invocation. Source of truth: `src/cli/usage.ts` and `src/cli/par
 | `--list-team-projects` | yes | yes | |
 | `--list-project-files` | yes | | `--project-id` |
 | `--list-team-project-files` | yes | yes | |
-| `--export-team-index` | yes | yes | `--output-dir`; optional screen grouping thresholds |
+| `--export-team-index` | yes | yes | `--output-dir`; writes `figma-index.sqlite3`; optional screen grouping thresholds |
 | `--list-team-component-sets` | yes | yes | |
 | `--list-component-set-usages` | | | local `--index-dir`; component set key/name; optional `--screen-group` |
 | `--inspect-component-set-responsive-usage` | | | local `--index-dir`; component set key/name; optional `--screen-group` |
@@ -74,7 +74,8 @@ One command per invocation. Source of truth: `src/cli/usage.ts` and `src/cli/par
 
 `--json` on verify affects **stdout format only**. Export commands write JSON
 data artifacts when `--json` is set, but lock files stay YAML and structure
-files stay DSL. `--json` is not supported with `--export-team-index`.
+files stay DSL. `--json` is not supported with `--export-team-index`; the local
+team index is always `figma-index.sqlite3`.
 
 ### Contract artifacts
 

@@ -1,8 +1,8 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { parse } from "yaml";
 import { exportTeamIndex } from "./export-team-index.js";
 
 const previousCache = process.env.FIGMA_CACHE;
@@ -29,7 +29,7 @@ describe("exportTeamIndex", () => {
     vi.restoreAllMocks();
   });
 
-  it("writes team and per-file YAML indexes", async () => {
+  it("writes a SQLite team index", async () => {
     const fetchImpl = vi.fn(async (input: string | URL | Request) => {
       const url = String(input);
       if (url.endsWith("/teams/team/projects")) {
@@ -98,59 +98,40 @@ describe("exportTeamIndex", () => {
       componentCount: 0,
       screenCount: 1,
     });
-    const teamIndexYaml = await readFile(result.teamIndexPath, "utf8");
-    expect(teamIndexYaml).toContain("files:\n  - key: file-key\n");
-    const teamIndex = parse(teamIndexYaml);
-    expect(teamIndex).toEqual({
-      version: 1,
-      kind: "figma-team-index",
-      team: "team",
-      files: [
-        {
-          key: "file-key",
-          name: "Settings",
-          lastModified: "2026-06-17T12:43:44Z",
-          projectId: "profile-project",
-          projectName: "Profile",
-          index: "Profile.Settings.file-key.index.yaml",
-          componentSets: 0,
-          components: 0,
-          screens: 1,
-        },
-      ],
-    });
+    expect(path.basename(result.databasePath)).toBe("figma-index.sqlite3");
 
-    const fileIndexYaml = await readFile(
-      result.fileIndexPaths[0] ?? "",
-      "utf8",
-    );
-    expect(fileIndexYaml).toContain("file:\n  key: file-key\n");
-    expect(fileIndexYaml).toContain("screens:\n  - id: 1:1\n");
-    const fileIndex = parse(fileIndexYaml);
-    expect(fileIndex).toEqual({
-      version: 1,
-      kind: "figma-file-index",
-      file: {
-        key: "file-key",
-        name: "Settings",
-        lastModified: "2026-06-17T12:43:44Z",
-        projectId: "profile-project",
-        projectName: "Profile",
-      },
-      componentSets: [],
-      components: [],
-      screens: [
+    const database = new DatabaseSync(result.databasePath, { readOnly: true });
+    try {
+      expect(
+        database
+          .prepare("SELECT value FROM metadata WHERE name = ?")
+          .get("kind"),
+      ).toEqual({ value: "figma-team-index" });
+      expect(database.prepare("SELECT * FROM files").all()).toEqual([
         {
-          id: "1:1",
+          file_key: "file-key",
+          name: "Settings",
+          last_modified: "2026-06-17T12:43:44Z",
+          project_id: "profile-project",
+          project_name: "Profile",
+          component_set_count: 0,
+          component_count: 0,
+          screen_count: 1,
+        },
+      ]);
+      expect(database.prepare("SELECT * FROM screens").all()).toEqual([
+        {
+          file_key: "file-key",
+          screen_id: "1:1",
           name: "Settings / Phone",
           size: "390x844",
-          group: null,
-          lastModified: "2026-06-17T12:43:44Z",
+          group_id: null,
+          last_modified: "2026-06-17T12:43:44Z",
           url: "https://www.figma.com/design/file-key/Settings?node-id=1-1&m=dev",
         },
-      ],
-      screenGroups: [],
-      componentUsages: [],
-    });
+      ]);
+    } finally {
+      database.close();
+    }
   });
 });

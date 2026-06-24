@@ -326,9 +326,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         screenSimilarityThreshold: command.screenSimilarityThreshold,
         screenSizeTolerance: command.screenSizeTolerance,
       });
-      io.stdout.write(
-        `${[result.teamIndexPath, ...result.fileIndexPaths].join("\n")}\n`,
-      );
+      io.stdout.write(`${result.databasePath}\n`);
     } catch (error) {
       if (
         error instanceof FigmaApiError ||

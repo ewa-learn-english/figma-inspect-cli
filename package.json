@@ -6,6 +6,9 @@
   "bin": {
     "figma-inspect": "dist/bin/figma-inspect.js"
   },
+  "engines": {
+    "node": ">=24"
+  },
   "files": [
     "dist"
   ],

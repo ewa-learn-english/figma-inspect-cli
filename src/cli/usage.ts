@@ -31,7 +31,7 @@ Options:
   --list-team-projects            List projects in a Figma team
   --list-project-files            List files in a Figma project
   --list-team-project-files       List files in all team projects
-  --export-team-index             Write a deterministic team inventory index as YAML: team.index.yaml plus one sibling *.index.yaml per Figma file
+  --export-team-index             Write a deterministic team inventory index as SQLite: figma-index.sqlite3
   --list-team-component-sets      List published component sets in a Figma team
   --list-component-set-usages     Read a local team index and list screens where a component set is used
   --inspect-component-set-responsive-usage Read a local team index and group component-set usages by responsive screen group with layout risks

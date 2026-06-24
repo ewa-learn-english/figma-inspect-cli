@@ -121,7 +121,7 @@ export interface TeamIndexFile {
   componentUsages: TeamIndexComponentUsage[];
 }
 
-export interface TeamIndex {
+interface TeamIndex {
   version: 1;
   kind: "figma-team-index";
   team: string;

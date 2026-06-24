@@ -38,7 +38,7 @@ team-scoped commands, `--export-team-index`, `--export-component-set`, and
 | `--list-team-projects` | none | Team projects |
 | `--list-project-files` | `--project-id <id>` | Files in one project |
 | `--list-team-project-files` | none | Files across team projects |
-| `--export-team-index` | `--output-dir <dir>` | `team.index.yaml` plus per-file `*.index.yaml` |
+| `--export-team-index` | `--output-dir <dir>` | `figma-index.sqlite3` |
 | `--list-team-component-sets` | none | Published team component sets |
 | `--list-component-set-usages` | `--index-dir <dir>` plus component set key/name | Screens where a component set is used |
 | `--inspect-component-set-responsive-usage` | `--index-dir <dir>` plus component set key/name | Responsive usage groups and layout risks |
@@ -94,11 +94,18 @@ npx . --list-file-pages --file-key <file_key>
 npx . --list-file-component-sets --file-key <file_key>
 ```
 
-`--export-team-index` writes a compact `team.index.yaml` router plus one sibling
-`*.index.yaml` per Figma file. Per-file indexes include component sets,
+`--export-team-index` writes a compact SQLite database at
+`<output-dir>/figma-index.sqlite3`. The database includes component sets,
 standalone components, screens, screen groups, component-set usages, ancestor
-layout context, and layout risks. Detailed contracts are exported later with
-`--export-contract`, `--export-component-set`, or `--export-node-contract`.
+layout context, and layout risks, with indexes optimized for local lookup
+commands. If the file is committed in a consuming repo, store it in Git LFS:
+
+```gitattributes
+.agents/design/figma-index/*.sqlite3 filter=lfs diff=lfs merge=lfs -text
+```
+
+Detailed contracts are exported later with `--export-contract`,
+`--export-component-set`, or `--export-node-contract`.
 Component-set exports also write
 `<Name>.component-set.layout-risks.{yaml,json}` when the exported set contains
 constrained fill/stretch patterns that need manual layout review.

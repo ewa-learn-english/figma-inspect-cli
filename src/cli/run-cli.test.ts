@@ -194,10 +194,7 @@ describe("runCli", () => {
 
   it("exports a team index and writes artifact paths", async () => {
     mocks.exportTeamIndex.mockResolvedValue({
-      teamIndexPath: "tmp/figma-index/team.index.yaml",
-      fileIndexPaths: [
-        "tmp/figma-index/files/Profile.Settings.file-key.index.yaml",
-      ],
+      databasePath: "tmp/figma-index/figma-index.sqlite3",
       fileCount: 1,
       componentSetCount: 2,
       componentCount: 1,
@@ -225,9 +222,7 @@ describe("runCli", () => {
       screenSimilarityThreshold: 0.91,
       screenSizeTolerance: 4,
     });
-    expect(output()).toBe(
-      "tmp/figma-index/team.index.yaml\ntmp/figma-index/files/Profile.Settings.file-key.index.yaml\n",
-    );
+    expect(output()).toBe("tmp/figma-index/figma-index.sqlite3\n");
   });
 
   it("runs local component usage lookup without API credentials", async () => {

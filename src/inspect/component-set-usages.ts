@@ -1,8 +1,9 @@
-import { readdir, readFile } from "node:fs/promises";
-import path from "node:path";
-import { parse } from "yaml";
 import { FigmaInspectError } from "./errors.js";
 import type { TeamIndexComponentUsage, TeamIndexFile } from "./team-index.js";
+import {
+  readComponentUsageRecords,
+  type TeamIndexUsageRecord,
+} from "./team-index-database.js";
 import type { ComponentSetLookup } from "./types.js";
 
 export interface IndexedComponentSetUsage extends TeamIndexComponentUsage {
@@ -46,64 +47,6 @@ export interface ComponentSetResponsiveUsageReport {
   groups: ResponsiveUsageGroup[];
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function isTeamIndexFile(value: unknown): value is TeamIndexFile {
-  return (
-    isRecord(value) &&
-    value.kind === "figma-file-index" &&
-    isRecord(value.file) &&
-    Array.isArray(value.componentUsages)
-  );
-}
-
-async function indexFilePaths(indexDir: string): Promise<string[]> {
-  const entries = await readdir(indexDir, { withFileTypes: true });
-  return entries
-    .filter((entry) => entry.isFile())
-    .map((entry) => entry.name)
-    .filter(
-      (name) => name.endsWith(".index.yaml") && name !== "team.index.yaml",
-    )
-    .sort()
-    .map((name) => path.join(indexDir, name));
-}
-
-async function readIndexFile(filePath: string): Promise<TeamIndexFile> {
-  const parsed = parse(await readFile(filePath, "utf8"), {
-    maxAliasCount: -1,
-  });
-  if (!isTeamIndexFile(parsed)) {
-    throw new FigmaInspectError(
-      `Invalid Figma file index ${path.basename(filePath)}.`,
-    );
-  }
-
-  return parsed;
-}
-
-async function readIndexFiles(indexDir: string): Promise<TeamIndexFile[]> {
-  const paths = await indexFilePaths(indexDir);
-  if (paths.length === 0) {
-    throw new FigmaInspectError(`No *.index.yaml files found in ${indexDir}.`);
-  }
-
-  return Promise.all(paths.map(readIndexFile));
-}
-
-function componentSetMatches(
-  usage: TeamIndexComponentUsage,
-  lookup: ComponentSetLookup,
-): boolean {
-  if (lookup.kind === "key") {
-    return usage.componentSet.key === lookup.value;
-  }
-
-  return usage.componentSet.name === lookup.value;
-}
-
 function sharedScreenPrefix(names: readonly string[]): string | undefined {
   const prefixes = names
     .map((name) => name.split("/")[0]?.trim())
@@ -117,7 +60,7 @@ function sharedScreenPrefix(names: readonly string[]): string | undefined {
 }
 
 function screenGroupLabel(
-  file: TeamIndexFile,
+  file: Pick<TeamIndexUsageRecord, "screenGroups">,
   groupId: string | null,
   fallbackScreenName: string,
 ): string {
@@ -136,7 +79,7 @@ function screenGroupLabel(
 }
 
 function screenGroupMatches(
-  file: TeamIndexFile,
+  file: Pick<TeamIndexUsageRecord, "screenGroups">,
   usage: TeamIndexComponentUsage,
   expected: string | undefined,
 ): boolean {
@@ -165,11 +108,11 @@ function screenGroupMatches(
 }
 
 function withFile(
-  file: TeamIndexFile,
+  record: Pick<TeamIndexUsageRecord, "file">,
   usage: TeamIndexComponentUsage,
 ): IndexedComponentSetUsage {
   return {
-    file: file.file,
+    file: record.file,
     ...usage,
   };
 }
@@ -179,14 +122,10 @@ export async function listComponentSetUsages({
   componentSet,
   screenGroup,
 }: ListComponentSetUsagesOptions): Promise<IndexedComponentSetUsage[]> {
-  const files = await readIndexFiles(indexDir);
-  return files
-    .flatMap((file) =>
-      file.componentUsages
-        .filter((usage) => componentSetMatches(usage, componentSet))
-        .filter((usage) => screenGroupMatches(file, usage, screenGroup))
-        .map((usage) => withFile(file, usage)),
-    )
+  const records = await readComponentUsageRecords({ indexDir, componentSet });
+  return records
+    .filter((record) => screenGroupMatches(record, record.usage, screenGroup))
+    .map((record) => withFile(record, record.usage))
     .sort((left, right) => {
       const byFile = left.file.key.localeCompare(right.file.key);
       if (byFile !== 0) {
@@ -210,7 +149,7 @@ function uniqueSorted(values: readonly string[]): string[] {
 }
 
 function groupScreens(
-  file: TeamIndexFile,
+  file: Pick<TeamIndexUsageRecord, "screenGroups">,
   groupId: string | null,
   usage: TeamIndexComponentUsage,
 ): ResponsiveUsageGroup["screens"] {
@@ -251,35 +190,34 @@ function responsiveRisk(
 export async function inspectComponentSetResponsiveUsage(
   options: ListComponentSetUsagesOptions,
 ): Promise<ComponentSetResponsiveUsageReport> {
-  const files = await readIndexFiles(options.indexDir);
+  const records = await readComponentUsageRecords({
+    indexDir: options.indexDir,
+    componentSet: options.componentSet,
+  });
   const groups = new Map<
     string,
     {
-      file: TeamIndexFile;
+      file: Pick<TeamIndexUsageRecord, "file" | "screenGroups">;
       usages: IndexedComponentSetUsage[];
       groupId: string | null;
     }
   >();
 
-  for (const file of files) {
-    for (const usage of file.componentUsages) {
-      if (
-        !componentSetMatches(usage, options.componentSet) ||
-        !screenGroupMatches(file, usage, options.screenGroup)
-      ) {
-        continue;
-      }
-
-      const groupId = usage.screen.group;
-      const key = `${file.file.key}#${groupId ?? usage.screen.id}`;
-      const current = groups.get(key) ?? {
-        file,
-        usages: [],
-        groupId,
-      };
-      current.usages.push(withFile(file, usage));
-      groups.set(key, current);
+  for (const record of records) {
+    const usage = record.usage;
+    if (!screenGroupMatches(record, usage, options.screenGroup)) {
+      continue;
     }
+
+    const groupId = usage.screen.group;
+    const key = `${record.file.key}#${groupId ?? usage.screen.id}`;
+    const current = groups.get(key) ?? {
+      file: record,
+      usages: [],
+      groupId,
+    };
+    current.usages.push(withFile(record, usage));
+    groups.set(key, current);
   }
 
   const reportGroups = [...groups.entries()]

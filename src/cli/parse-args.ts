@@ -621,7 +621,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
 
       if (flags.json) {
         throw new CliError(
-          "--json is not supported with --export-team-index; team index files are YAML.",
+          "--json is not supported with --export-team-index; team index files are SQLite.",
         );
       }
 
