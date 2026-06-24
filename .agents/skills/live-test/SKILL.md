@@ -60,8 +60,8 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 2 | `--list-project-files` | `--project-id $PROJECT_ID` | |
 | 3 | `--list-team-project-files` | | needs `FIGMA_TEAM_ID` |
 | 4 | `--export-team-index` | `--output-dir $TEAM_INDEX_DIR` | writes `figma-index.sqlite3`; needs `FIGMA_TEAM_ID` |
-| 5 | `--list-component-set-usages` | `--index-dir $TEAM_INDEX_DIR --component-set-name $COMPONENT_SET_NAME` | local index lookup; no Figma API call |
-| 6 | `--inspect-component-set-responsive-usage` | `--index-dir $TEAM_INDEX_DIR --component-set-name $COMPONENT_SET_NAME` | local responsive usage/risk lookup; no Figma API call |
+| 5 | `--list-component-set-usages` | `--index-dir $TEAM_INDEX_DIR --component-set-name $COMPONENT_SET_NAME` | compact local index lookup; no Figma API call; add `--full` for raw records |
+| 6 | `--inspect-component-set-responsive-usage` | `--index-dir $TEAM_INDEX_DIR --component-set-name $COMPONENT_SET_NAME` | compact local responsive usage/risk lookup; no Figma API call; add `--full` for raw records |
 | 7 | `--list-team-component-sets` | | needs `FIGMA_TEAM_ID`; published sets only |
 | 8 | `--list-file-pages` | `--file-key $FILE_KEY` | |
 | 9 | `--list-file-component-sets` | `--file-key $FILE_KEY` | |

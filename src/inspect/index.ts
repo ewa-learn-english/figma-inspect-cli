@@ -9,6 +9,8 @@ export {
 } from "./component-set-pseudocode/index.js";
 export { buildComponentSetSpecFromFile } from "./component-set-spec/index.js";
 export {
+  compactComponentSetResponsiveUsage,
+  compactComponentSetUsages,
   inspectComponentSetResponsiveUsage,
   listComponentSetUsages,
 } from "./component-set-usages.js";

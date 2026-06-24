@@ -17,7 +17,9 @@ const mocks = vi.hoisted(() => ({
   exportNodeContract: vi.fn(),
   exportTeamIndex: vi.fn(),
   listComponentSetUsages: vi.fn(),
+  compactComponentSetUsages: vi.fn(),
   inspectComponentSetResponsiveUsage: vi.fn(),
+  compactComponentSetResponsiveUsage: vi.fn(),
   listProjectFiles: vi.fn(),
   getFileNode: vi.fn(),
   getNodeComponentSetByRef: vi.fn(),
@@ -51,6 +53,8 @@ vi.mock("../inspect/index.js", () => ({
   getNodeComponentSet: vi.fn(),
   getNodeComponentSetByRef: mocks.getNodeComponentSetByRef,
   inspectComponentSetResponsiveUsage: mocks.inspectComponentSetResponsiveUsage,
+  compactComponentSetResponsiveUsage: mocks.compactComponentSetResponsiveUsage,
+  compactComponentSetUsages: mocks.compactComponentSetUsages,
   listAllComponentSets: vi.fn(),
   listComponentSetUsages: mocks.listComponentSetUsages,
   listComponentSetProperties: vi.fn(),
@@ -226,7 +230,7 @@ describe("runCli", () => {
   });
 
   it("runs local component usage lookup without API credentials", async () => {
-    mocks.listComponentSetUsages.mockResolvedValue([
+    const usages = [
       {
         file: { key: "file-key", name: "Leagues" },
         componentSet: { id: "10:1", key: "set-key", name: "RatingsDivider" },
@@ -238,7 +242,41 @@ describe("runCli", () => {
         },
         ancestorChain: [],
       },
-    ]);
+    ];
+    const compact = {
+      componentSet: { id: "10:1", key: "set-key", name: "RatingsDivider" },
+      usageCount: 1,
+      files: [
+        {
+          key: "file-key",
+          name: "Leagues",
+          projectName: "Cross-feature",
+          groups: [
+            {
+              id: "20:1",
+              label: "Leagues scroll",
+              sizes: ["1194x834"],
+              screens: [
+                {
+                  name: "Leagues scroll",
+                  size: "1194x834",
+                  url: "https://www.figma.com/design/file-key/Leagues?node-id=20-1&m=dev",
+                },
+              ],
+              usages: [
+                {
+                  screen: "1194x834",
+                  screenName: "Leagues scroll",
+                  path: "usersList.ratingsDivider",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    mocks.listComponentSetUsages.mockResolvedValue(usages);
+    mocks.compactComponentSetUsages.mockReturnValue(compact);
     const { io, output } = createIo({
       FIGMA_API_TOKEN: undefined,
       FIGMA_TEAM_ID: undefined,
@@ -261,7 +299,110 @@ describe("runCli", () => {
       componentSet: { kind: "name", value: "RatingsDivider" },
       screenGroup: undefined,
     });
+    expect(mocks.compactComponentSetUsages).toHaveBeenCalledWith({
+      componentSet: { kind: "name", value: "RatingsDivider" },
+      usages,
+    });
+    expect(output()).toContain('"usageCount": 1');
     expect(output()).toContain('"path": "usersList.ratingsDivider"');
+  });
+
+  it("prints full local component usage records when requested", async () => {
+    mocks.listComponentSetUsages.mockResolvedValue([
+      {
+        file: { key: "file-key", name: "Leagues" },
+        componentSet: { id: "10:1", key: "set-key", name: "RatingsDivider" },
+        screen: { id: "20:1", name: "Leagues scroll", size: "1194x834" },
+        instance: {
+          id: "20:2",
+          name: "RatingsDivider",
+          path: "usersList.ratingsDivider",
+        },
+        ancestorChain: [
+          { path: "root", name: "Leagues scroll", type: "FRAME" },
+        ],
+      },
+    ]);
+    const { io, output } = createIo({
+      FIGMA_API_TOKEN: undefined,
+      FIGMA_TEAM_ID: undefined,
+    });
+
+    await runCli(
+      [
+        "--list-component-set-usages",
+        "--index-dir",
+        "tmp/figma-index",
+        "--component-set-name",
+        "RatingsDivider",
+        "--full",
+        "--json",
+      ],
+      io,
+    );
+
+    expect(mocks.compactComponentSetUsages).not.toHaveBeenCalled();
+    expect(output()).toContain('"ancestorChain"');
+  });
+
+  it("runs responsive usage lookup with compact output by default", async () => {
+    const report = {
+      componentSet: { kind: "name", value: "RatingsDivider" },
+      groups: [
+        {
+          id: "file-key#20:1",
+          label: "Leagues scroll",
+          sizes: ["1194x834"],
+          widths: [1194],
+          screens: [],
+          usages: [],
+          layoutRisks: [],
+        },
+      ],
+    };
+    const compact = {
+      componentSet: { name: "RatingsDivider" },
+      groups: [
+        {
+          id: "file-key#20:1",
+          label: "Leagues scroll",
+          sizes: ["1194x834"],
+          widths: [1194],
+          screens: [],
+          usageCount: 0,
+          instances: [],
+          risks: [],
+        },
+      ],
+    };
+    mocks.inspectComponentSetResponsiveUsage.mockResolvedValue(report);
+    mocks.compactComponentSetResponsiveUsage.mockReturnValue(compact);
+    const { io, output } = createIo({
+      FIGMA_API_TOKEN: undefined,
+      FIGMA_TEAM_ID: undefined,
+    });
+
+    await runCli(
+      [
+        "--inspect-component-set-responsive-usage",
+        "--index-dir",
+        "tmp/figma-index",
+        "--component-set-name",
+        "RatingsDivider",
+        "--json",
+      ],
+      io,
+    );
+
+    expect(mocks.inspectComponentSetResponsiveUsage).toHaveBeenCalledWith({
+      indexDir: "tmp/figma-index",
+      componentSet: { kind: "name", value: "RatingsDivider" },
+      screenGroup: undefined,
+    });
+    expect(mocks.compactComponentSetResponsiveUsage).toHaveBeenCalledWith(
+      report,
+    );
+    expect(output()).toContain('"usageCount": 0');
   });
 
   it("writes yaml verify results and fails when status is not ok", async () => {

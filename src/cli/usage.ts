@@ -5,8 +5,8 @@ export const usage = `Usage:
   figma-inspect --list-team-project-files [--json]
   figma-inspect --export-team-index --output-dir <dir> [--screen-similarity-threshold <number>] [--screen-size-tolerance <px>]
   figma-inspect --list-team-component-sets [--json]
-  figma-inspect --list-component-set-usages --index-dir <dir> (--component-set-key <key> | --component-set-name <name>) [--screen-group <name-or-id>] [--json]
-  figma-inspect --inspect-component-set-responsive-usage --index-dir <dir> (--component-set-key <key> | --component-set-name <name>) [--screen-group <name-or-id>] [--json]
+  figma-inspect --list-component-set-usages --index-dir <dir> (--component-set-key <key> | --component-set-name <name>) [--screen-group <name-or-id>] [--full] [--json]
+  figma-inspect --inspect-component-set-responsive-usage --index-dir <dir> (--component-set-key <key> | --component-set-name <name>) [--screen-group <name-or-id>] [--full] [--json]
   figma-inspect --list-file-pages --file-key <key> [--json]
   figma-inspect --list-file-component-sets --file-key <key> [--json]
   figma-inspect --inspect-component-set-properties (--url <figma-url> | --file-key <key> --node-id <id> (--component-set-key <key> | --component-set-name <name>)) [--json]
@@ -33,8 +33,8 @@ Options:
   --list-team-project-files       List files in all team projects
   --export-team-index             Write a deterministic team inventory index as SQLite: figma-index.sqlite3
   --list-team-component-sets      List published component sets in a Figma team
-  --list-component-set-usages     Read a local team index and list screens where a component set is used
-  --inspect-component-set-responsive-usage Read a local team index and group component-set usages by responsive screen group with layout risks
+  --list-component-set-usages     Read a local team index and list compact screens/usages where a component set is used
+  --inspect-component-set-responsive-usage Read a local team index and group compact component-set usages by responsive screen group with layout risks
   --list-file-pages               List pages in a Figma file
   --list-file-component-sets      List component sets in a Figma file
   --inspect-component-set-properties List nested component sets exposed in a component set
@@ -63,6 +63,7 @@ Options:
   --screen-size-tolerance <px>     Screen frame size tolerance in pixels for --export-team-index (default: 2)
   --index-dir <dir>               Local team index directory (required with --list-component-set-usages and --inspect-component-set-responsive-usage)
   --screen-group <name-or-id>      Filter local component-set usage lookup to a screen group id or shared screen name prefix
+  --full                          Print full local usage records instead of compact LLM-friendly summaries
   --input <path>                  Input JSON file path (required with --build-component-set-spec and --build-component-set-pseudocode)
   --output-dir <dir>              Output directory (optional with --build-component-set-pseudocode; defaults to the input file directory)
   --contract-dir <dir>            Contract directory (required with --verify-component-contract and --verify-node-contract)

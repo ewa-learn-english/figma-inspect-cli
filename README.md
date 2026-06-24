@@ -40,8 +40,8 @@ team-scoped commands, `--export-team-index`, `--export-component-set`, and
 | `--list-team-project-files` | none | Files across team projects |
 | `--export-team-index` | `--output-dir <dir>` | `figma-index.sqlite3` |
 | `--list-team-component-sets` | none | Published team component sets |
-| `--list-component-set-usages` | `--index-dir <dir>` plus component set key/name | Screens where a component set is used |
-| `--inspect-component-set-responsive-usage` | `--index-dir <dir>` plus component set key/name | Responsive usage groups and layout risks |
+| `--list-component-set-usages` | `--index-dir <dir>` plus component set key/name | Compact screens/usages where a component set is used |
+| `--inspect-component-set-responsive-usage` | `--index-dir <dir>` plus component set key/name | Compact responsive usage groups and layout risks |
 | `--list-file-pages` | `--file-key <key>` | Pages in one file |
 | `--list-file-component-sets` | `--file-key <key>` | Component sets in one file |
 | `--inspect-component-set-properties` | `--url <figma-url>` or `--file-key <key> --node-id <id>` plus component set key/name | Nested component-set properties |
@@ -79,6 +79,9 @@ Common optional flags:
 - `--index-dir <dir>` is required by local component usage lookup commands.
 - `--screen-group <name-or-id>` filters local usage lookup to one responsive
   screen group.
+- `--full` prints full local usage records for lookup commands. By default,
+  lookup output is compacted for LLM context and omits verbose ancestor chains
+  and risk evidence messages.
 
 ## Discovery
 
@@ -98,7 +101,9 @@ npx . --list-file-component-sets --file-key <file_key>
 `<output-dir>/figma-index.sqlite3`. The database includes component sets,
 standalone components, screens, screen groups, component-set usages, ancestor
 layout context, and layout risks, with indexes optimized for local lookup
-commands. If the file is committed in a consuming repo, store it in Git LFS:
+commands. Local lookup commands print compact summaries by default; pass
+`--full` when you need the raw stored usage records. If the file is committed in
+a consuming repo, store it in Git LFS:
 
 ```gitattributes
 .agents/design/figma-index/*.sqlite3 filter=lfs diff=lfs merge=lfs -text

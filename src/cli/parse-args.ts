@@ -75,6 +75,7 @@ interface ParsedFlags {
   contractDir: string | undefined;
   componentName: string | undefined;
   nodeName: string | undefined;
+  full: boolean;
   json: boolean;
 }
 
@@ -135,6 +136,7 @@ function emptyFlags(): ParsedFlags {
     contractDir: undefined,
     componentName: undefined,
     nodeName: undefined,
+    full: false,
     json: false,
   };
 }
@@ -597,10 +599,12 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
   if (
     command !== "list-component-set-usages" &&
     command !== "inspect-component-set-responsive-usage" &&
-    (flags.indexDir !== undefined || flags.screenGroup !== undefined)
+    (flags.indexDir !== undefined ||
+      flags.screenGroup !== undefined ||
+      flags.full)
   ) {
     throw new CliError(
-      "--index-dir and --screen-group require --list-component-set-usages or --inspect-component-set-responsive-usage.",
+      "--index-dir, --screen-group, and --full require --list-component-set-usages or --inspect-component-set-responsive-usage.",
     );
   }
 
@@ -653,6 +657,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
           "--list-component-set-usages",
         ),
         screenGroup: flags.screenGroup,
+        ...(flags.full ? { full: true } : {}),
         format: resolveOutputFormat(flags),
       };
     }
@@ -672,6 +677,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
           "--inspect-component-set-responsive-usage",
         ),
         screenGroup: flags.screenGroup,
+        ...(flags.full ? { full: true } : {}),
         format: resolveOutputFormat(flags),
       };
     }
@@ -1194,6 +1200,11 @@ export function parseCommand(argv: string[]): CliCommand {
 
     if (arg === "--json") {
       flags.json = true;
+      continue;
+    }
+
+    if (arg === "--full") {
+      flags.full = true;
       continue;
     }
 

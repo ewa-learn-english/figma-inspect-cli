@@ -35,6 +35,7 @@ describe("parseCommand", () => {
         "RatingsDivider",
         "--screen-group",
         "Leagues scroll",
+        "--full",
         "--json",
       ]),
     ).toEqual({
@@ -42,6 +43,7 @@ describe("parseCommand", () => {
       indexDir: "tmp/figma-index",
       componentSet: { kind: "name", value: "RatingsDivider" },
       screenGroup: "Leagues scroll",
+      full: true,
       format: "json",
     });
     expect(
@@ -638,6 +640,9 @@ describe("parseCommand", () => {
         "tmp/figma-index",
       ]),
     ).toThrow(/require --list-component-set-usages/);
+    expect(() =>
+      parseCommand(["--list-team-component-sets", "--full"]),
+    ).toThrow(/--full require --list-component-set-usages/);
     expect(() =>
       parseCommand([
         "--export-team-index",

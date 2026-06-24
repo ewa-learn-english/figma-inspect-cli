@@ -3,6 +3,8 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+  compactComponentSetResponsiveUsage,
+  compactComponentSetUsages,
   inspectComponentSetResponsiveUsage,
   listComponentSetUsages,
 } from "./component-set-usages.js";
@@ -250,6 +252,65 @@ describe("component set usages", () => {
     });
   });
 
+  it("compacts usage lists for LLM output", async () => {
+    const usages = await listComponentSetUsages({
+      indexDir: indexDir ?? "",
+      componentSet: { kind: "name", value: "RatingsDivider" },
+      screenGroup: "Leagues scroll",
+    });
+
+    const summary = compactComponentSetUsages({
+      componentSet: { kind: "name", value: "RatingsDivider" },
+      usages,
+    });
+
+    expect(summary).toMatchObject({
+      componentSet: {
+        id: "30:1",
+        key: "ratings-divider-key",
+        name: "RatingsDivider",
+      },
+      usageCount: 1,
+      files: [
+        {
+          key: "file-key",
+          name: "Leagues",
+          projectName: "Cross-feature",
+          groups: [
+            {
+              id: "file-key#40:1,41:1",
+              label: "Leagues scroll",
+              sizes: ["1194x834"],
+              screens: [
+                {
+                  name: "Leagues scroll / iPad Landscape",
+                  size: "1194x834",
+                  url: "https://www.figma.com/design/file-key/Leagues?node-id=41-1&m=dev",
+                },
+              ],
+              usages: [
+                {
+                  screen: "1194x834",
+                  screenName: "Leagues scroll / iPad Landscape",
+                  path: "usersList.ratingsDivider",
+                  risks: [
+                    {
+                      type: "wide-breakpoint-sensitive",
+                      severity: "high",
+                      nodePath: "usersList.ratingsDivider.text",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    expect(JSON.stringify(summary)).not.toContain("ancestorChain");
+    expect(JSON.stringify(summary)).not.toContain("maxWidth constraint");
+  });
+
   it("groups responsive usage evidence and risks", async () => {
     const report = await inspectComponentSetResponsiveUsage({
       indexDir: indexDir ?? "",
@@ -270,6 +331,46 @@ describe("component set usages", () => {
         ],
       }),
     ]);
+  });
+
+  it("compacts responsive reports by instance and risk type", async () => {
+    const report = await inspectComponentSetResponsiveUsage({
+      indexDir: indexDir ?? "",
+      componentSet: { kind: "key", value: "ratings-divider-key" },
+    });
+
+    const compact = compactComponentSetResponsiveUsage(report);
+
+    expect(compact.groups).toEqual([
+      expect.objectContaining({
+        label: "Leagues scroll",
+        sizes: ["1194x834", "375x812"],
+        usageCount: 1,
+        instances: [
+          {
+            path: "usersList.ratingsDivider",
+            screens: ["1194x834"],
+            risks: [
+              {
+                type: "wide-breakpoint-sensitive",
+                severity: "high",
+                nodePath: "usersList.ratingsDivider.text",
+              },
+            ],
+          },
+        ],
+        risks: [
+          {
+            type: "wide-breakpoint-sensitive",
+            severity: "high",
+            count: 1,
+            nodePaths: ["usersList.ratingsDivider.text"],
+          },
+        ],
+      }),
+    ]);
+    expect(JSON.stringify(compact)).not.toContain("ancestorChain");
+    expect(JSON.stringify(compact)).not.toContain("maxWidth constraint");
   });
 
   it("rejects removed YAML team indexes", async () => {

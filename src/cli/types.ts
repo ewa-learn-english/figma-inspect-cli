@@ -37,6 +37,7 @@ export type CliCommand =
       indexDir: string;
       componentSet: ComponentSetLookup;
       screenGroup?: string;
+      full?: boolean;
       format: ContractFormat;
     }
   | {
@@ -44,6 +45,7 @@ export type CliCommand =
       indexDir: string;
       componentSet: ComponentSetLookup;
       screenGroup?: string;
+      full?: boolean;
       format: ContractFormat;
     }
   | { kind: "list-file-pages"; fileKey: string; format: ContractFormat }

@@ -13,6 +13,8 @@ import { serializeContractData } from "../inspect/contract/contract-format.js";
 import {
   buildComponentSetPseudocodeFromFile,
   buildComponentSetSpecFromFile,
+  compactComponentSetResponsiveUsage,
+  compactComponentSetUsages,
   FigmaInspectError,
   getNodeComponentSet,
   getNodeComponentSetByRef,
@@ -276,7 +278,16 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         componentSet: command.componentSet,
         screenGroup: command.screenGroup,
       });
-      writeData(usages, command.format, io.stdout);
+      writeData(
+        command.full
+          ? usages
+          : compactComponentSetUsages({
+              componentSet: command.componentSet,
+              usages,
+            }),
+        command.format,
+        io.stdout,
+      );
     } catch (error) {
       if (error instanceof FigmaInspectError) {
         throw new CliError(error.message);
@@ -295,7 +306,11 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         componentSet: command.componentSet,
         screenGroup: command.screenGroup,
       });
-      writeData(report, command.format, io.stdout);
+      writeData(
+        command.full ? report : compactComponentSetResponsiveUsage(report),
+        command.format,
+        io.stdout,
+      );
     } catch (error) {
       if (error instanceof FigmaInspectError) {
         throw new CliError(error.message);
