@@ -16,9 +16,11 @@ import {
   FigmaInspectError,
   getNodeComponentSet,
   getNodeComponentSetByRef,
+  inspectComponentSetResponsiveUsage,
   listAllComponentSets,
   listComponentSetProperties,
   listComponentSetPropertiesByRef,
+  listComponentSetUsages,
   resolveGeometryContractPath,
   resolveMetaContractPath,
   resolveStructureDslPath,
@@ -250,6 +252,44 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
           structureDslPath,
         ].join("\n")}\n`,
       );
+    } catch (error) {
+      if (error instanceof FigmaInspectError) {
+        throw new CliError(error.message);
+      }
+
+      throw error;
+    }
+
+    return;
+  }
+
+  if (command.kind === "list-component-set-usages") {
+    try {
+      const usages = await listComponentSetUsages({
+        indexDir: command.indexDir,
+        componentSet: command.componentSet,
+        screenGroup: command.screenGroup,
+      });
+      writeData(usages, command.format, io.stdout);
+    } catch (error) {
+      if (error instanceof FigmaInspectError) {
+        throw new CliError(error.message);
+      }
+
+      throw error;
+    }
+
+    return;
+  }
+
+  if (command.kind === "inspect-component-set-responsive-usage") {
+    try {
+      const report = await inspectComponentSetResponsiveUsage({
+        indexDir: command.indexDir,
+        componentSet: command.componentSet,
+        screenGroup: command.screenGroup,
+      });
+      writeData(report, command.format, io.stdout);
     } catch (error) {
       if (error instanceof FigmaInspectError) {
         throw new CliError(error.message);

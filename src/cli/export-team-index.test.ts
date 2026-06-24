@@ -150,6 +150,7 @@ describe("exportTeamIndex", () => {
         },
       ],
       screenGroups: [],
+      componentUsages: [],
     });
   });
 });

@@ -30,6 +30,8 @@ interface ParsedFlags {
   listTeamProjectFiles: boolean;
   exportTeamIndex: boolean;
   listTeamComponentSets: boolean;
+  listComponentSetUsages: boolean;
+  inspectComponentSetResponsiveUsage: boolean;
   listFilePages: boolean;
   listFileComponentSets: boolean;
   inspectComponentSetProperties: boolean;
@@ -58,6 +60,8 @@ interface ParsedFlags {
   inputPath: string | undefined;
   outputPath: string | undefined;
   outputDir: string | undefined;
+  indexDir: string | undefined;
+  screenGroup: string | undefined;
   screenSimilarityThreshold: number | undefined;
   screenSizeTolerance: number | undefined;
   variablesPath: string | undefined;
@@ -85,6 +89,8 @@ function emptyFlags(): ParsedFlags {
     listTeamProjectFiles: false,
     exportTeamIndex: false,
     listTeamComponentSets: false,
+    listComponentSetUsages: false,
+    inspectComponentSetResponsiveUsage: false,
     listFilePages: false,
     listFileComponentSets: false,
     inspectComponentSetProperties: false,
@@ -113,6 +119,8 @@ function emptyFlags(): ParsedFlags {
     inputPath: undefined,
     outputPath: undefined,
     outputDir: undefined,
+    indexDir: undefined,
+    screenGroup: undefined,
     screenSimilarityThreshold: undefined,
     screenSizeTolerance: undefined,
     variablesPath: undefined,
@@ -528,6 +536,12 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
     flags.listTeamComponentSets
       ? ("list-team-component-sets" as const)
       : undefined,
+    flags.listComponentSetUsages
+      ? ("list-component-set-usages" as const)
+      : undefined,
+    flags.inspectComponentSetResponsiveUsage
+      ? ("inspect-component-set-responsive-usage" as const)
+      : undefined,
     flags.listFilePages ? ("list-file-pages" as const) : undefined,
     flags.listFileComponentSets
       ? ("list-file-component-sets" as const)
@@ -557,7 +571,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
 
   if (selected.length === 0) {
     throw new CliError(
-      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --export-team-index, --list-team-component-sets, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, --build-component-set-spec, --build-component-set-pseudocode, --verify-component-contract, --verify-node-contract, --export-contract, --export-component-set, or --export-node-contract.\n\n" +
+      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --export-team-index, --list-team-component-sets, --list-component-set-usages, --inspect-component-set-responsive-usage, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, --build-component-set-spec, --build-component-set-pseudocode, --verify-component-contract, --verify-node-contract, --export-contract, --export-component-set, or --export-node-contract.\n\n" +
         usage,
     );
   }
@@ -574,6 +588,16 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
   ) {
     throw new CliError(
       "--screen-similarity-threshold and --screen-size-tolerance require --export-team-index.",
+    );
+  }
+
+  if (
+    command !== "list-component-set-usages" &&
+    command !== "inspect-component-set-responsive-usage" &&
+    (flags.indexDir !== undefined || flags.screenGroup !== undefined)
+  ) {
+    throw new CliError(
+      "--index-dir and --screen-group require --list-component-set-usages or --inspect-component-set-responsive-usage.",
     );
   }
 
@@ -608,6 +632,44 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         kind: "list-team-component-sets",
         format: resolveOutputFormat(flags),
       };
+    case "list-component-set-usages": {
+      if (!flags.indexDir) {
+        throw new CliError(
+          "Missing --index-dir for --list-component-set-usages.",
+        );
+      }
+
+      return {
+        kind: "list-component-set-usages",
+        indexDir: flags.indexDir,
+        componentSet: parseComponentSetLookup(
+          flags.componentSetKey,
+          flags.componentSetName,
+          "--list-component-set-usages",
+        ),
+        screenGroup: flags.screenGroup,
+        format: resolveOutputFormat(flags),
+      };
+    }
+    case "inspect-component-set-responsive-usage": {
+      if (!flags.indexDir) {
+        throw new CliError(
+          "Missing --index-dir for --inspect-component-set-responsive-usage.",
+        );
+      }
+
+      return {
+        kind: "inspect-component-set-responsive-usage",
+        indexDir: flags.indexDir,
+        componentSet: parseComponentSetLookup(
+          flags.componentSetKey,
+          flags.componentSetName,
+          "--inspect-component-set-responsive-usage",
+        ),
+        screenGroup: flags.screenGroup,
+        format: resolveOutputFormat(flags),
+      };
+    }
     case "list-project-files": {
       if (!flags.projectId) {
         throw new CliError("Missing --project-id for --list-project-files.");
@@ -848,6 +910,16 @@ export function parseCommand(argv: string[]): CliCommand {
       continue;
     }
 
+    if (arg === "--list-component-set-usages") {
+      flags.listComponentSetUsages = true;
+      continue;
+    }
+
+    if (arg === "--inspect-component-set-responsive-usage") {
+      flags.inspectComponentSetResponsiveUsage = true;
+      continue;
+    }
+
     if (arg === "--list-file-pages") {
       flags.listFilePages = true;
       continue;
@@ -994,6 +1066,20 @@ export function parseCommand(argv: string[]): CliCommand {
     if (arg === "--screen-size-tolerance") {
       const { value, nextIndex } = readFlagValue(argv, index, arg);
       flags.screenSizeTolerance = parseScreenSizeTolerance(value);
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--index-dir") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.indexDir = value;
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--screen-group") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.screenGroup = value;
       index = nextIndex;
       continue;
     }

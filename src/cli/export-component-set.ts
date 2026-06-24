@@ -38,6 +38,7 @@ import {
   exportNestedAssets,
   exportNodePreview,
   exportVariantAssets,
+  layoutRisksForTree,
   loadComponentSetContext,
   type NestedAssetsOptions,
   resolveTeamComponentSetScope,
@@ -71,6 +72,10 @@ export interface ExportComponentSetResult
 
 function sanitizeFileName(name: string): string {
   return name.replace(/[/\\?%*:|"<>]/g, "_");
+}
+
+function dataFileExtension(format: ContractFormat): string {
+  return format === "json" ? ".json" : ".yaml";
 }
 
 function teamComponentEntryFromPublishedSet(
@@ -176,6 +181,14 @@ export async function exportComponentSet(
     options.outputDir,
     `${baseName}.component-set.structure.dsl`,
   );
+  const layoutRisks = layoutRisksForTree(raw);
+  const layoutRisksPath =
+    layoutRisks.length > 0
+      ? path.join(
+          options.outputDir,
+          `${baseName}.component-set.layout-risks${dataFileExtension(format)}`,
+        )
+      : undefined;
 
   const lockVariants = toLockVariants(
     filterFileComponentsForComponentSet(fileComponents, componentSetNodeId),
@@ -260,6 +273,22 @@ export async function exportComponentSet(
   await writeDataFile(geometryContractPath, contractResult.geometry, format);
   await writeDataFile(metaContractPath, contractResult.meta, format);
   await writeFile(structureDslPath, contractResult.structureDsl, "utf8");
+  if (layoutRisksPath) {
+    await writeDataFile(
+      layoutRisksPath,
+      {
+        version: 1,
+        kind: "component-set-layout-risks",
+        componentSet: {
+          id: componentSetNodeId,
+          key: componentSetMeta.key,
+          name: scope.publishedSet.name,
+        },
+        risks: layoutRisks,
+      },
+      format,
+    );
+  }
 
   const artifacts = await readComponentContractArtifacts(
     options.outputDir,
@@ -320,7 +349,12 @@ export async function exportComponentSet(
     assetsDir,
     nestedAssetsDir: nestedAssetsResult?.nestedAssetsDir,
     nestedAssetsManifestPath: nestedAssetsResult?.nestedAssetsManifestPath,
+    layoutRisksPath,
     importNotesPath,
     assetExportWarning,
+    layoutRiskWarning:
+      layoutRisks.length > 0
+        ? `${baseName} has ${layoutRisks.length} layout risk${layoutRisks.length === 1 ? "" : "s"}; inspect ${layoutRisksPath}.`
+        : undefined,
   };
 }

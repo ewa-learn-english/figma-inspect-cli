@@ -5,6 +5,13 @@ import {
   readString,
 } from "./component-set-spec/figma-node.js";
 import { FigmaInspectError } from "./errors.js";
+import {
+  type LayoutContext,
+  type LayoutRisk,
+  layoutContext,
+  layoutRisksForUsage,
+  readVariantProps,
+} from "./layout-risks.js";
 import type { DocumentNode, FileNodeEntry } from "./schemas.js";
 
 const DEFAULT_SCREEN_SIMILARITY_THRESHOLD = 0.9;
@@ -46,6 +53,7 @@ interface TeamIndexFileSummary {
 
 interface TeamIndexNode {
   id: string;
+  key?: string;
   name: string;
   lastModified: string;
   url: string;
@@ -73,6 +81,27 @@ interface TeamIndexScreenGroupScreen {
   url: string;
 }
 
+interface TeamIndexUsageComponentSet {
+  id: string;
+  key?: string;
+  name: string;
+}
+
+interface TeamIndexUsageInstance {
+  id: string;
+  name: string;
+  path: string;
+  variantProps?: Record<string, boolean | string>;
+}
+
+export interface TeamIndexComponentUsage {
+  componentSet: TeamIndexUsageComponentSet;
+  screen: TeamIndexScreen;
+  instance: TeamIndexUsageInstance;
+  ancestorChain: LayoutContext[];
+  layoutRisks?: LayoutRisk[];
+}
+
 interface TeamIndexFileRef {
   key: string;
   name: string;
@@ -89,6 +118,7 @@ export interface TeamIndexFile {
   components: TeamIndexNode[];
   screens: TeamIndexScreen[];
   screenGroups: TeamIndexScreenGroup[];
+  componentUsages: TeamIndexComponentUsage[];
 }
 
 export interface TeamIndex {
@@ -110,6 +140,7 @@ interface FoundNode {
   projectId: string;
   projectName: string;
   nodeId: string;
+  key?: string;
   name: string;
   url: string;
 }
@@ -126,11 +157,36 @@ interface DraftFile {
   componentSets: FoundNode[];
   components: FoundNode[];
   screens: FoundScreen[];
+  componentUsages: FoundComponentUsage[];
 }
 
 interface TraversalContext {
   parentComponentSetId?: string;
   insideScreen: boolean;
+  currentScreen?: FoundScreen;
+  path: string;
+  ancestors: LayoutContext[];
+  parentNode?: DocumentNode;
+}
+
+interface UsageComponentSet {
+  id: string;
+  key?: string;
+  name: string;
+}
+
+interface FoundComponentUsage {
+  componentSet: UsageComponentSet;
+  screen: FoundScreen;
+  node: DocumentNode;
+  parentNode?: DocumentNode;
+  instance: {
+    id: string;
+    name: string;
+    path: string;
+    variantProps?: Record<string, boolean | string>;
+  };
+  ancestorChain: LayoutContext[];
 }
 
 function assertTeamIndexOptions(
@@ -178,6 +234,7 @@ function nodeId(node: DocumentNode): string | undefined {
 function foundNode(
   file: FigmaTeamProjectFile,
   node: DocumentNode,
+  entry: FileNodeEntry,
 ): FoundNode | undefined {
   const id = nodeId(node);
   if (!id) {
@@ -191,6 +248,10 @@ function foundNode(
     projectId: file.project_id,
     projectName: file.project_name,
     nodeId: id,
+    ...(entry.componentSets[id]?.key
+      ? { key: entry.componentSets[id].key }
+      : {}),
+    ...(entry.components[id]?.key ? { key: entry.components[id].key } : {}),
     name: nodeName(node),
     url: figmaNodeUrl(file.key, file.name, id),
   };
@@ -284,6 +345,102 @@ function componentTokens(node: DocumentNode, entry: FileNodeEntry): string[] {
   ];
 }
 
+function pathSegment(raw: string | undefined, fallback: string): string {
+  const words = (raw ?? fallback)
+    .replace(/[^A-Za-z0-9]+/g, " ")
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 0);
+  if (words.length === 0) {
+    return fallback;
+  }
+
+  return words
+    .map((word, index) => {
+      const lower = word.charAt(0).toLowerCase() + word.slice(1);
+      return index === 0
+        ? lower
+        : lower.charAt(0).toUpperCase() + lower.slice(1);
+    })
+    .join("");
+}
+
+function childPath(
+  parentPath: string,
+  child: DocumentNode,
+  index: number,
+  siblingCounts: Map<string, number>,
+): string {
+  const segment = pathSegment(readString(child, "name"), `child${index + 1}`);
+  const nextCount = (siblingCounts.get(segment) ?? 0) + 1;
+  siblingCounts.set(segment, nextCount);
+  const uniqueSegment = nextCount === 1 ? segment : `${segment}${nextCount}`;
+  return parentPath === "root"
+    ? uniqueSegment
+    : `${parentPath}.${uniqueSegment}`;
+}
+
+function instanceComponentSet(
+  node: DocumentNode,
+  entry: FileNodeEntry,
+): UsageComponentSet | undefined {
+  const componentId = readString(node, "componentId");
+  if (!componentId) {
+    return undefined;
+  }
+
+  const component = entry.components[componentId];
+  const componentSetId = component?.componentSetId;
+  if (!componentSetId) {
+    return undefined;
+  }
+
+  const componentSet = entry.componentSets[componentSetId];
+  if (!componentSet) {
+    return undefined;
+  }
+
+  return {
+    id: componentSet.id,
+    key: componentSet.key,
+    name: componentSet.name,
+  };
+}
+
+function foundComponentUsage(options: {
+  node: DocumentNode;
+  entry: FileNodeEntry;
+  screen: FoundScreen;
+  path: string;
+  ancestorChain: LayoutContext[];
+  parentNode?: DocumentNode;
+}): FoundComponentUsage | undefined {
+  const id = nodeId(options.node);
+  if (!id) {
+    return undefined;
+  }
+
+  const componentSet = instanceComponentSet(options.node, options.entry);
+  if (!componentSet) {
+    return undefined;
+  }
+
+  const variantProps = readVariantProps(options.node);
+  return {
+    componentSet,
+    screen: options.screen,
+    node: options.node,
+    ...(options.parentNode ? { parentNode: options.parentNode } : {}),
+    instance: {
+      id,
+      name: nodeName(options.node),
+      path: options.path,
+      ...(variantProps ? { variantProps } : {}),
+    },
+    ancestorChain: options.ancestorChain,
+  };
+}
+
 function buildDraftFile(
   input: BuildTeamIndexFileInput,
   sizeTolerance: number,
@@ -297,10 +454,11 @@ function buildDraftFile(
   const componentSets: FoundNode[] = [];
   const components: FoundNode[] = [];
   const screens: FoundScreen[] = [];
+  const componentUsages: FoundComponentUsage[] = [];
 
   function visit(node: DocumentNode, context: TraversalContext): void {
     const type = nodeType(node);
-    const base = foundNode(file, node);
+    const base = foundNode(file, node, entry);
 
     if (base && type === "COMPONENT_SET") {
       componentSets.push(base);
@@ -319,12 +477,32 @@ function buildDraftFile(
         ? isScreenSize(node, sizeTolerance)
         : undefined;
     if (base && size) {
-      screens.push({
+      const screen = {
         ...base,
         size,
         structureTokens: structureTokens(node, entry),
         componentTokens: componentTokens(node, entry),
+      };
+      screens.push(screen);
+    }
+
+    const screen =
+      base && size ? screens[screens.length - 1] : context.currentScreen;
+    const path = base && size ? "root" : context.path;
+    const ancestors = base && size ? [] : context.ancestors;
+
+    if (type === "INSTANCE" && screen) {
+      const usage = foundComponentUsage({
+        node,
+        entry,
+        screen,
+        path,
+        ancestorChain: ancestors.slice(-5),
+        parentNode: context.parentNode,
       });
+      if (usage) {
+        componentUsages.push(usage);
+      }
     }
 
     const childContext: TraversalContext = {
@@ -333,16 +511,30 @@ function buildDraftFile(
           ? base.nodeId
           : context.parentComponentSetId,
       insideScreen: context.insideScreen || size !== undefined,
+      currentScreen: screen,
+      path,
+      ancestors: screen
+        ? [...ancestors, layoutContext(node, path)].slice(-5)
+        : [],
+      parentNode: node,
     };
 
-    for (const child of node.children ?? []) {
-      visit(child, childContext);
+    const siblingCounts = new Map<string, number>();
+    for (const [index, child] of (node.children ?? []).entries()) {
+      visit(child, {
+        ...childContext,
+        path: screen ? childPath(path, child, index, siblingCounts) : "root",
+      });
     }
   }
 
   for (const page of root.children ?? []) {
     for (const child of page.children ?? []) {
-      visit(child, { insideScreen: false });
+      visit(child, {
+        insideScreen: false,
+        path: "root",
+        ancestors: [],
+      });
     }
   }
 
@@ -351,6 +543,7 @@ function buildDraftFile(
     componentSets: sortNodesById(componentSets),
     components: sortNodesById(components),
     screens: sortNodesById(screens),
+    componentUsages: sortComponentUsages(componentUsages),
   };
 }
 
@@ -358,6 +551,24 @@ function sortNodesById<T extends FoundNode>(records: T[]): T[] {
   return [...records].sort((left, right) =>
     left.nodeId.localeCompare(right.nodeId),
   );
+}
+
+function sortComponentUsages(
+  records: FoundComponentUsage[],
+): FoundComponentUsage[] {
+  return [...records].sort((left, right) => {
+    const byComponent = left.componentSet.name.localeCompare(
+      right.componentSet.name,
+    );
+    if (byComponent !== 0) {
+      return byComponent;
+    }
+
+    const byScreen = left.screen.nodeId.localeCompare(right.screen.nodeId);
+    return byScreen === 0
+      ? left.instance.path.localeCompare(right.instance.path)
+      : byScreen;
+  });
 }
 
 function multisetSimilarity(left: readonly string[], right: readonly string[]) {
@@ -508,6 +719,7 @@ function assignFileScreenGroups(
 function indexNode(node: FoundNode): TeamIndexNode {
   return {
     id: node.nodeId,
+    ...(node.key ? { key: node.key } : {}),
     name: node.name,
     lastModified: node.lastModified,
     url: node.url,
@@ -532,6 +744,45 @@ function screenGroupScreen(screen: FoundScreen): TeamIndexScreenGroupScreen {
     size: screen.size,
     lastModified: screen.lastModified,
     url: screen.url,
+  };
+}
+
+function screenSizesForUsage(
+  usage: FoundComponentUsage,
+  groups: readonly TeamIndexScreenGroup[],
+): string[] {
+  if (!usage.screen.groupId) {
+    return [usage.screen.size];
+  }
+
+  const group = groups.find(
+    (candidate) => candidate.id === usage.screen.groupId,
+  );
+  return group?.screens.map((screen) => screen.size) ?? [usage.screen.size];
+}
+
+function indexComponentUsage(
+  usage: FoundComponentUsage,
+  groups: readonly TeamIndexScreenGroup[],
+): TeamIndexComponentUsage {
+  const layoutRisks = layoutRisksForUsage({
+    node: usage.node,
+    path: usage.instance.path,
+    ancestorChain: usage.ancestorChain,
+    parentNode: usage.parentNode,
+    screenSizes: screenSizesForUsage(usage, groups),
+  });
+
+  return {
+    componentSet: {
+      id: usage.componentSet.id,
+      ...(usage.componentSet.key ? { key: usage.componentSet.key } : {}),
+      name: usage.componentSet.name,
+    },
+    screen: indexScreen(usage.screen),
+    instance: usage.instance,
+    ancestorChain: usage.ancestorChain,
+    ...(layoutRisks.length > 0 ? { layoutRisks } : {}),
   };
 }
 
@@ -568,6 +819,9 @@ function fileIndex(file: DraftFile, threshold: number): TeamIndexFile {
     components: file.components.map(indexNode),
     screens: file.screens.map(indexScreen),
     screenGroups: groups,
+    componentUsages: file.componentUsages.map((usage) =>
+      indexComponentUsage(usage, groups),
+    ),
   };
 }
 

@@ -8,6 +8,10 @@ export {
   resolveVisualsContractPath,
 } from "./component-set-pseudocode/index.js";
 export { buildComponentSetSpecFromFile } from "./component-set-spec/index.js";
+export {
+  inspectComponentSetResponsiveUsage,
+  listComponentSetUsages,
+} from "./component-set-usages.js";
 export { verifyComponentContracts } from "./contract/verify-component-contract.js";
 export { FigmaInspectError } from "./errors.js";
 export {
@@ -32,6 +36,7 @@ export {
   getNodeComponentSet,
   getNodeComponentSetByRef,
 } from "./get-node-component-set.js";
+export { layoutRisksForTree } from "./layout-risks.js";
 export { listAllComponentSets } from "./list-all-component-sets.js";
 export {
   listComponentSetProperties,

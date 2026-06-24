@@ -16,6 +16,8 @@ const mocks = vi.hoisted(() => ({
   exportContract: vi.fn(),
   exportNodeContract: vi.fn(),
   exportTeamIndex: vi.fn(),
+  listComponentSetUsages: vi.fn(),
+  inspectComponentSetResponsiveUsage: vi.fn(),
   listProjectFiles: vi.fn(),
   getFileNode: vi.fn(),
   getNodeComponentSetByRef: vi.fn(),
@@ -48,7 +50,9 @@ vi.mock("../inspect/index.js", () => ({
   buildComponentSetSpecFromFile: mocks.buildComponentSetSpecFromFile,
   getNodeComponentSet: vi.fn(),
   getNodeComponentSetByRef: mocks.getNodeComponentSetByRef,
+  inspectComponentSetResponsiveUsage: mocks.inspectComponentSetResponsiveUsage,
   listAllComponentSets: vi.fn(),
+  listComponentSetUsages: mocks.listComponentSetUsages,
   listComponentSetProperties: vi.fn(),
   listComponentSetPropertiesByRef: mocks.listComponentSetPropertiesByRef,
   parseFigmaNodeUrl: mocks.parseFigmaNodeUrl,
@@ -213,6 +217,45 @@ describe("runCli", () => {
     expect(output()).toBe(
       "tmp/figma-index/team.index.yaml\ntmp/figma-index/files/Profile.Settings.file-key.index.yaml\n",
     );
+  });
+
+  it("runs local component usage lookup without API credentials", async () => {
+    mocks.listComponentSetUsages.mockResolvedValue([
+      {
+        file: { key: "file-key", name: "Leagues" },
+        componentSet: { id: "10:1", key: "set-key", name: "RatingsDivider" },
+        screen: { id: "20:1", name: "Leagues scroll", size: "1194x834" },
+        instance: {
+          id: "20:2",
+          name: "RatingsDivider",
+          path: "usersList.ratingsDivider",
+        },
+        ancestorChain: [],
+      },
+    ]);
+    const { io, output } = createIo({
+      FIGMA_API_TOKEN: undefined,
+      FIGMA_TEAM_ID: undefined,
+    });
+
+    await runCli(
+      [
+        "--list-component-set-usages",
+        "--index-dir",
+        "tmp/figma-index",
+        "--component-set-name",
+        "RatingsDivider",
+        "--json",
+      ],
+      io,
+    );
+
+    expect(mocks.listComponentSetUsages).toHaveBeenCalledWith({
+      indexDir: "tmp/figma-index",
+      componentSet: { kind: "name", value: "RatingsDivider" },
+      screenGroup: undefined,
+    });
+    expect(output()).toContain('"path": "usersList.ratingsDivider"');
   });
 
   it("writes yaml verify results and fails when status is not ok", async () => {

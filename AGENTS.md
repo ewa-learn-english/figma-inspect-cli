@@ -55,6 +55,8 @@ One command per invocation. Source of truth: `src/cli/usage.ts` and `src/cli/par
 | `--list-team-project-files` | yes | yes | |
 | `--export-team-index` | yes | yes | `--output-dir`; optional screen grouping thresholds |
 | `--list-team-component-sets` | yes | yes | |
+| `--list-component-set-usages` | | | local `--index-dir`; component set key/name; optional `--screen-group` |
+| `--inspect-component-set-responsive-usage` | | | local `--index-dir`; component set key/name; optional `--screen-group` |
 | `--list-file-pages` | yes | | `--file-key` |
 | `--list-file-component-sets` | yes | | `--file-key` |
 | `--inspect-component-set-properties` | yes | | `--url` or `--file-key`, `--node-id`, component set key/name |
@@ -82,6 +84,7 @@ Component-set exports write four files for the model + lock for CI:
 - `<Name>.component-set.visuals.yaml`
 - `<Name>.component-set.structure.dsl` — entry point with `contracts {}` and `resolve {}`
 - `<Name>.component-set.lock.yaml` — Figma source, variant `updatedAt`, fingerprints (not for LLM prompt)
+- `<Name>.component-set.layout-risks.{yaml,json}` — optional sidecar when constrained fill/stretch patterns need manual layout review
 
 Frame and standalone component exports use the same shape with `<kind>` set to
 `frame` or `component`:
@@ -101,6 +104,9 @@ With `--export-assets`: `<Name>.assets/*.svg` on disk; paths referenced from
 - `FIGMA_API_TOKEN` — required for all API commands and verify commands
 - `FIGMA_TEAM_ID` — required for team-scoped list/inspect/export commands, `--export-team-index`, `--export-component-set`, and `--export-contract` when the target is a `COMPONENT_SET`
 - `FIGMA_CACHE` — set to `0` to disable on-disk API cache (`figma-inspect-cli-cache/` in temp)
+
+Local index lookup commands read `--index-dir` and do not require Figma
+environment variables.
 
 ## Scripts
 

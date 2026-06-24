@@ -31,6 +31,20 @@ export type CliCommand =
       screenSizeTolerance?: number;
     }
   | { kind: "list-team-component-sets"; format: ContractFormat }
+  | {
+      kind: "list-component-set-usages";
+      indexDir: string;
+      componentSet: ComponentSetLookup;
+      screenGroup?: string;
+      format: ContractFormat;
+    }
+  | {
+      kind: "inspect-component-set-responsive-usage";
+      indexDir: string;
+      componentSet: ComponentSetLookup;
+      screenGroup?: string;
+      format: ContractFormat;
+    }
   | { kind: "list-file-pages"; fileKey: string; format: ContractFormat }
   | {
       kind: "list-file-component-sets";

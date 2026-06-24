@@ -11,8 +11,10 @@ export interface ExportArtifactPathExtras {
   assetsDir?: string;
   nestedAssetsDir?: string;
   nestedAssetsManifestPath?: string;
+  layoutRisksPath?: string;
   importNotesPath?: string;
   assetExportWarning?: string;
+  layoutRiskWarning?: string;
 }
 
 export type ExportArtifactPathResult = ExportArtifactPaths &
@@ -34,6 +36,7 @@ export function writeExportArtifactPaths(
     result.assetsDir,
     result.nestedAssetsDir,
     result.nestedAssetsManifestPath,
+    result.layoutRisksPath,
     result.importNotesPath,
   ]) {
     if (optionalPath && !lines.includes(optionalPath)) {
@@ -50,5 +53,8 @@ export function writeExportWarnings(
 ): void {
   if (result.assetExportWarning) {
     stderr.write(`warning: ${result.assetExportWarning}\n`);
+  }
+  if (result.layoutRiskWarning) {
+    stderr.write(`warning: ${result.layoutRiskWarning}\n`);
   }
 }

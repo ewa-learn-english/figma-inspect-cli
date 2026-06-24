@@ -39,6 +39,8 @@ team-scoped commands, `--export-team-index`, `--export-component-set`, and
 | `--list-team-project-files` | none | Files across team projects |
 | `--export-team-index` | `--output-dir <dir>` | `team.index.yaml` plus per-file `*.index.yaml` |
 | `--list-team-component-sets` | none | Published team component sets |
+| `--list-component-set-usages` | `--index-dir <dir>` plus component set key/name | Screens where a component set is used |
+| `--inspect-component-set-responsive-usage` | `--index-dir <dir>` plus component set key/name | Responsive usage groups and layout risks |
 | `--list-file-pages` | `--file-key <key>` | Pages in one file |
 | `--list-file-component-sets` | `--file-key <key>` | Component sets in one file |
 | `--inspect-component-set-properties` | `--url <figma-url>` or `--file-key <key> --node-id <id>` plus component set key/name | Nested component-set properties |
@@ -73,6 +75,9 @@ Common optional flags:
   and `--asset-max <number>` refine nested asset export.
 - `--screen-similarity-threshold <number>` and `--screen-size-tolerance <px>`
   refine screen grouping for `--export-team-index`.
+- `--index-dir <dir>` is required by local component usage lookup commands.
+- `--screen-group <name-or-id>` filters local usage lookup to one responsive
+  screen group.
 
 ## Discovery
 
@@ -82,15 +87,20 @@ npx . --list-project-files --project-id <project_id>
 npx . --list-team-project-files
 npx . --export-team-index --output-dir tmp/figma-index
 npx . --list-team-component-sets
+npx . --list-component-set-usages --index-dir tmp/figma-index --component-set-name RatingsDivider
+npx . --inspect-component-set-responsive-usage --index-dir tmp/figma-index --component-set-name RatingsDivider
 npx . --list-file-pages --file-key <file_key>
 npx . --list-file-component-sets --file-key <file_key>
 ```
 
 `--export-team-index` writes a compact `team.index.yaml` router plus one sibling
 `*.index.yaml` per Figma file. Per-file indexes include component sets,
-standalone components, screens, and screen groups. Detailed contracts are
-exported later with `--export-contract`, `--export-component-set`, or
-`--export-node-contract`.
+standalone components, screens, screen groups, component-set usages, ancestor
+layout context, and layout risks. Detailed contracts are exported later with
+`--export-contract`, `--export-component-set`, or `--export-node-contract`.
+Component-set exports also write
+`<Name>.component-set.layout-risks.{yaml,json}` when the exported set contains
+constrained fill/stretch patterns that need manual layout review.
 
 ## Inspect
 

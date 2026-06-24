@@ -25,6 +25,7 @@ describe("writeExportArtifactPaths", () => {
         assetsDir: "/out/Cell.assets",
         nestedAssetsDir: "/out/Cell.assets",
         nestedAssetsManifestPath: "/out/Cell.component-set.nested-assets.yaml",
+        layoutRisksPath: "/out/Cell.component-set.layout-risks.yaml",
         importNotesPath: "/out/import-notes.md",
       },
       stdout,
@@ -40,6 +41,7 @@ describe("writeExportArtifactPaths", () => {
         "/out/Cell.component-set.preview.png",
         "/out/Cell.assets",
         "/out/Cell.component-set.nested-assets.yaml",
+        "/out/Cell.component-set.layout-risks.yaml",
         "/out/import-notes.md",
       ].join("\n")}\n`,
     );
@@ -62,10 +64,13 @@ describe("writeExportArtifactPaths", () => {
         lockContractPath: "/out/Cell.component-set.lock.yaml",
         structureDslPath: "/out/Cell.component-set.structure.dsl",
         assetExportWarning: "Variant SVG assets skipped for Cell.",
+        layoutRiskWarning: "Cell has 1 layout risk.",
       },
       stderr,
     );
 
-    expect(output).toBe("warning: Variant SVG assets skipped for Cell.\n");
+    expect(output).toBe(
+      "warning: Variant SVG assets skipped for Cell.\nwarning: Cell has 1 layout risk.\n",
+    );
   });
 });

@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
   exportVariantAssets: vi.fn(),
   exportNodePreview: vi.fn(),
   exportNestedAssets: vi.fn(),
+  layoutRisksForTree: vi.fn(),
   getComponentSetByKey: vi.fn(),
   listFileComponents: vi.fn(),
   filterFileComponentsForComponentSet: vi.fn(),
@@ -24,6 +25,7 @@ vi.mock("../inspect/index.js", () => ({
   exportVariantAssets: mocks.exportVariantAssets,
   exportNodePreview: mocks.exportNodePreview,
   exportNestedAssets: mocks.exportNestedAssets,
+  layoutRisksForTree: mocks.layoutRisksForTree,
 }));
 
 vi.mock("../figma-api/index.js", () => ({
@@ -84,6 +86,7 @@ describe("exportComponentSet", () => {
         name: "TextInput",
       },
     });
+    mocks.layoutRisksForTree.mockReturnValue([]);
     mocks.getComponentSetByKey.mockResolvedValue({
       key: "component-set-key",
       node_id: "3971:6465",
@@ -371,5 +374,55 @@ describe("exportComponentSet", () => {
     expect(result.nestedAssetsManifestPath).toBe(
       path.join(outputDir, "TextInput.component-set.nested-assets.yaml"),
     );
+  });
+
+  it("writes a layout risks sidecar when component-set risks are detected", async () => {
+    mocks.layoutRisksForTree.mockReturnValueOnce([
+      {
+        type: "constrained-stretch",
+        severity: "medium",
+        nodePath: "root.label",
+        message:
+          "Node stretches to its parent and is capped by maxWidth; React Native Web may clamp without centering.",
+        evidence: {
+          layoutAlign: "STRETCH",
+          maxWidth: 520,
+        },
+      },
+    ]);
+
+    const result = await exportComponentSet({
+      token: "token",
+      teamId: "team-id",
+      outputDir,
+      componentSet: { kind: "key", value: "component-set-key" },
+      variablesPath: variablesFixturePath,
+    });
+
+    expect(result.layoutRisksPath).toBe(
+      path.join(outputDir, "TextInput.component-set.layout-risks.yaml"),
+    );
+    expect(result.layoutRiskWarning).toContain("TextInput has 1 layout risk");
+
+    const sidecar = parse(
+      await readFile(result.layoutRisksPath ?? "", "utf8"),
+    ) as {
+      kind: string;
+      risks: Array<{ type: string; nodePath: string }>;
+    };
+    expect(sidecar).toMatchObject({
+      kind: "component-set-layout-risks",
+      componentSet: {
+        id: "3971:6465",
+        key: "component-set-key",
+        name: "TextInput",
+      },
+      risks: [
+        {
+          type: "constrained-stretch",
+          nodePath: "root.label",
+        },
+      ],
+    });
   });
 });

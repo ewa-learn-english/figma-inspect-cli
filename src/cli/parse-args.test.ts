@@ -22,6 +22,39 @@ describe("parseCommand", () => {
       format: "yaml",
     });
     expect(
+      parseCommand([
+        "--list-component-set-usages",
+        "--index-dir",
+        "tmp/figma-index",
+        "--component-set-name",
+        "RatingsDivider",
+        "--screen-group",
+        "Leagues scroll",
+        "--json",
+      ]),
+    ).toEqual({
+      kind: "list-component-set-usages",
+      indexDir: "tmp/figma-index",
+      componentSet: { kind: "name", value: "RatingsDivider" },
+      screenGroup: "Leagues scroll",
+      format: "json",
+    });
+    expect(
+      parseCommand([
+        "--inspect-component-set-responsive-usage",
+        "--index-dir",
+        "tmp/figma-index",
+        "--component-set-key",
+        "set-key",
+      ]),
+    ).toEqual({
+      kind: "inspect-component-set-responsive-usage",
+      indexDir: "tmp/figma-index",
+      componentSet: { kind: "key", value: "set-key" },
+      screenGroup: undefined,
+      format: "yaml",
+    });
+    expect(
       parseCommand(["--list-project-files", "--project-id", "123"]),
     ).toEqual({
       kind: "list-project-files",
@@ -583,6 +616,23 @@ describe("parseCommand", () => {
         "0.8",
       ]),
     ).toThrow(/require --export-team-index/);
+    expect(() => parseCommand(["--list-component-set-usages"])).toThrow(
+      /Missing --index-dir/,
+    );
+    expect(() =>
+      parseCommand([
+        "--inspect-component-set-responsive-usage",
+        "--index-dir",
+        "tmp/figma-index",
+      ]),
+    ).toThrow(/component-set-key or --component-set-name/);
+    expect(() =>
+      parseCommand([
+        "--list-team-component-sets",
+        "--index-dir",
+        "tmp/figma-index",
+      ]),
+    ).toThrow(/require --list-component-set-usages/);
     expect(() =>
       parseCommand([
         "--export-team-index",
