@@ -56,6 +56,36 @@ describe("validateComponentContractArtifacts", () => {
     ).not.toThrow();
   });
 
+  it("accepts nested array payloads in visuals contracts", async () => {
+    const artifacts = await readComponentContractArtifacts(
+      contractDir,
+      "TextInput",
+      "yaml",
+    );
+
+    expect(() =>
+      validateComponentContractArtifacts(
+        {
+          ...artifacts,
+          visuals: {
+            Default: {
+              root: {
+                children: [
+                  {
+                    type: "ellipse",
+                    name: "shape",
+                    style: { background: "tokens/yellow/accentYellow4" },
+                  },
+                ],
+              },
+            },
+          },
+        },
+        "yaml",
+      ),
+    ).not.toThrow();
+  });
+
   it("rejects structure DSL with the wrong component header", async () => {
     const artifacts = await readComponentContractArtifacts(
       contractDir,

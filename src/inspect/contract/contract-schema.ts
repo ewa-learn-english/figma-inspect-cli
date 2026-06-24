@@ -55,7 +55,13 @@ type MetaContractValidated = z.infer<typeof metaContractSchema>;
 const variantTreeSchema: z.ZodType<Record<string, unknown>> = z.lazy(() =>
   z.record(
     z.string(),
-    z.union([z.string(), z.number(), z.boolean(), variantTreeSchema]),
+    z.union([
+      z.string(),
+      z.number(),
+      z.boolean(),
+      z.array(z.unknown()),
+      variantTreeSchema,
+    ]),
   ),
 );
 

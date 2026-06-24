@@ -269,6 +269,16 @@ export async function exportComponentSet(
       teamComponents: scope.teamComponents,
     },
   });
+  validateComponentContractArtifacts(
+    {
+      componentName: baseName,
+      visuals: contractResult.visuals,
+      geometry: contractResult.geometry,
+      meta: contractResult.meta,
+      structureDsl: contractResult.structureDsl,
+    },
+    format,
+  );
   await writeDataFile(visualsContractPath, contractResult.visuals, format);
   await writeDataFile(geometryContractPath, contractResult.geometry, format);
   await writeDataFile(metaContractPath, contractResult.meta, format);
