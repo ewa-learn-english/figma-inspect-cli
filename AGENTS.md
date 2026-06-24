@@ -50,6 +50,7 @@ One command per invocation. Source of truth: `src/cli/usage.ts` and `src/cli/par
 
 | Command | Token | Team ID | Notes |
 |---------|-------|---------|-------|
+| `--version` | | | prints package version |
 | `--list-team-projects` | yes | yes | |
 | `--list-project-files` | yes | | `--project-id` |
 | `--list-team-project-files` | yes | yes | |

@@ -72,7 +72,9 @@ async function indexFilePaths(indexDir: string): Promise<string[]> {
 }
 
 async function readIndexFile(filePath: string): Promise<TeamIndexFile> {
-  const parsed = parse(await readFile(filePath, "utf8"));
+  const parsed = parse(await readFile(filePath, "utf8"), {
+    maxAliasCount: -1,
+  });
   if (!isTeamIndexFile(parsed)) {
     throw new FigmaInspectError(
       `Invalid Figma file index ${path.basename(filePath)}.`,

@@ -152,6 +152,17 @@ describe("runCli", () => {
     expect(output()).toBe(usage);
   });
 
+  it("prints the package version without API credentials", async () => {
+    const { io, output } = createIo({
+      FIGMA_API_TOKEN: undefined,
+      FIGMA_TEAM_ID: undefined,
+    });
+
+    await runCli(["--version"], io);
+
+    expect(output()).toMatch(/^\d+\.\d+\.\d+\n$/);
+  });
+
   it("requires FIGMA_API_TOKEN for api commands", async () => {
     const { io } = createIo({ FIGMA_API_TOKEN: undefined });
     await expect(runCli(["--list-team-projects"], io)).rejects.toThrow(

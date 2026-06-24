@@ -102,10 +102,11 @@ binary is `figma-inspect`.
 
    ```sh
    npm view figma-inspect-cli@<version> name version bin dist-tags --json
-   npm exec --yes --package=figma-inspect-cli@<version> -- figma-inspect --help
+   npm exec --yes --package=figma-inspect-cli@<version> -- figma-inspect --version
    ```
 
-   Run the `npm exec` verification from `/tmp` or another external directory,
+   Confirm the CLI prints the expected version. Run the `npm exec` verification
+   from `/tmp` or another external directory,
    not from this repository. Because this repo has the same package name, running
    `npm exec --package=figma-inspect-cli ...` here can fail to expose the
    published package binary even when the published package is healthy.

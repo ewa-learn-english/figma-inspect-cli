@@ -1,4 +1,5 @@
 export const usage = `Usage:
+  figma-inspect --version
   figma-inspect --list-team-projects [--json]
   figma-inspect --list-project-files --project-id <id> [--json]
   figma-inspect --list-team-project-files [--json]
@@ -26,6 +27,7 @@ Environment:
   FIGMA_CACHE      Set to 0 to disable the on-disk response cache (enabled by default)
 
 Options:
+  --version, -v                   Print the CLI package version
   --list-team-projects            List projects in a Figma team
   --list-project-files            List files in a Figma project
   --list-team-project-files       List files in all team projects

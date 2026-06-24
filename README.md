@@ -34,6 +34,7 @@ team-scoped commands, `--export-team-index`, `--export-component-set`, and
 
 | Command | Main arguments | Output |
 |---|---|---|
+| `--version` | none | CLI package version |
 | `--list-team-projects` | none | Team projects |
 | `--list-project-files` | `--project-id <id>` | Files in one project |
 | `--list-team-project-files` | none | Files across team projects |

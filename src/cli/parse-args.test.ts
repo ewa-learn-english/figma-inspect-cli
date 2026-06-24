@@ -8,6 +8,11 @@ describe("parseCommand", () => {
     expect(parseCommand(["-h"])).toEqual({ kind: "help" });
   });
 
+  it("parses version", () => {
+    expect(parseCommand(["--version"])).toEqual({ kind: "version" });
+    expect(parseCommand(["-v"])).toEqual({ kind: "version" });
+  });
+
   it("parses list commands with optional json output", () => {
     expect(parseCommand(["--list-team-projects"])).toEqual({
       kind: "list-team-projects",

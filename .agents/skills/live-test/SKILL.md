@@ -55,6 +55,7 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 
 | # | Command | Required args | Notes |
 |---|---|---|---|
+| 0 | `--version` | | local package version; no Figma API call |
 | 1 | `--list-team-projects` | | needs `FIGMA_TEAM_ID` |
 | 2 | `--list-project-files` | `--project-id $PROJECT_ID` | |
 | 3 | `--list-team-project-files` | | needs `FIGMA_TEAM_ID` |
@@ -94,6 +95,7 @@ Example:
 ```sh
 npm run build
 
+npx . --version
 npx . --list-team-projects
 npx . --list-project-files --project-id "$PROJECT_ID"
 npx . --list-team-project-files

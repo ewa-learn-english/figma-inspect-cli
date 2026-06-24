@@ -21,6 +21,7 @@ export type ComponentSetCommandScope =
 
 export type CliCommand =
   | { kind: "help" }
+  | { kind: "version" }
   | { kind: "list-team-projects"; format: ContractFormat }
   | { kind: "list-project-files"; projectId: string; format: ContractFormat }
   | { kind: "list-team-project-files"; format: ContractFormat }

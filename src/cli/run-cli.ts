@@ -51,12 +51,18 @@ import {
 import { parseCommand } from "./parse-args.js";
 import type { CliIo } from "./types.js";
 import { usage } from "./usage.js";
+import { readPackageVersion } from "./version.js";
 
 export async function runCli(argv: string[], io: CliIo): Promise<void> {
   const command = parseCommand(argv);
 
   if (command.kind === "help") {
     io.stdout.write(usage);
+    return;
+  }
+
+  if (command.kind === "version") {
+    io.stdout.write(`${await readPackageVersion()}\n`);
     return;
   }
 

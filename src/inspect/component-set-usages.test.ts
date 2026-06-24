@@ -10,6 +10,53 @@ import {
 
 let indexDir: string | undefined;
 
+function aliasHeavyIndexYaml(): string {
+  const usages = Array.from({ length: 200 }, (_, index) =>
+    [
+      "  - componentSet:",
+      "      id: 90:1",
+      "      name: OtherSet",
+      "    screen:",
+      "      id: 91:1",
+      "      name: Other screen",
+      "      size: 375x812",
+      "      group: null",
+      "      lastModified: 2026-06-24T07:00:00Z",
+      "      url: https://www.figma.com/design/other-key/Other?node-id=91-1&m=dev",
+      "    instance:",
+      `      id: 91:${index + 2}`,
+      "      name: OtherSet",
+      `      path: repeated.item${index + 1}`,
+      "    ancestorChain:",
+      "      - *ancestor",
+    ].join("\n"),
+  ).join("\n");
+
+  return [
+    "version: 1",
+    "kind: figma-file-index",
+    "file:",
+    "  key: other-key",
+    "  name: Other",
+    "  lastModified: 2026-06-24T07:00:00Z",
+    "  projectId: profile",
+    "  projectName: Profile",
+    "componentSets: []",
+    "components: []",
+    "screens: []",
+    "screenGroups: []",
+    "ancestor: &ancestor",
+    "  path: root",
+    "  id: 91:1",
+    "  name: Other screen",
+    "  type: FRAME",
+    "  layoutMode: VERTICAL",
+    "componentUsages:",
+    usages,
+    "",
+  ].join("\n");
+}
+
 async function writeIndex(): Promise<string> {
   const directory = await mkdtemp(path.join(os.tmpdir(), "figma-index-"));
   await writeFile(
@@ -111,6 +158,11 @@ async function writeIndex(): Promise<string> {
         },
       ],
     }),
+    "utf8",
+  );
+  await writeFile(
+    path.join(directory, "Profile.Other.other-key.index.yaml"),
+    aliasHeavyIndexYaml(),
     "utf8",
   );
   return directory;

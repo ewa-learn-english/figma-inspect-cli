@@ -25,6 +25,7 @@ import { usage } from "./usage.js";
 
 interface ParsedFlags {
   help: boolean;
+  version: boolean;
   listTeamProjects: boolean;
   listProjectFiles: boolean;
   listTeamProjectFiles: boolean;
@@ -84,6 +85,7 @@ function resolveOutputFormat(flags: ParsedFlags): ContractFormat {
 function emptyFlags(): ParsedFlags {
   return {
     help: false,
+    version: false,
     listTeamProjects: false,
     listProjectFiles: false,
     listTeamProjectFiles: false,
@@ -527,6 +529,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
   }
 
   const selected = [
+    flags.version ? ("version" as const) : undefined,
     flags.listTeamProjects ? ("list-team-projects" as const) : undefined,
     flags.listProjectFiles ? ("list-project-files" as const) : undefined,
     flags.listTeamProjectFiles
@@ -571,7 +574,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
 
   if (selected.length === 0) {
     throw new CliError(
-      "Nothing to do. Pass --list-team-projects, --list-project-files, --list-team-project-files, --export-team-index, --list-team-component-sets, --list-component-set-usages, --inspect-component-set-responsive-usage, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, --build-component-set-spec, --build-component-set-pseudocode, --verify-component-contract, --verify-node-contract, --export-contract, --export-component-set, or --export-node-contract.\n\n" +
+      "Nothing to do. Pass --version, --list-team-projects, --list-project-files, --list-team-project-files, --export-team-index, --list-team-component-sets, --list-component-set-usages, --inspect-component-set-responsive-usage, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, --build-component-set-spec, --build-component-set-pseudocode, --verify-component-contract, --verify-node-contract, --export-contract, --export-component-set, or --export-node-contract.\n\n" +
         usage,
     );
   }
@@ -602,6 +605,8 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
   }
 
   switch (command) {
+    case "version":
+      return { kind: "version" };
     case "list-team-projects":
       return { kind: "list-team-projects", format: resolveOutputFormat(flags) };
     case "list-team-project-files":
@@ -882,6 +887,11 @@ export function parseCommand(argv: string[]): CliCommand {
 
     if (arg === "--help" || arg === "-h") {
       flags.help = true;
+      continue;
+    }
+
+    if (arg === "--version" || arg === "-v") {
+      flags.version = true;
       continue;
     }
 
