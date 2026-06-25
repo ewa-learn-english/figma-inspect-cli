@@ -1,4 +1,8 @@
 import { describe, expect, it } from "vitest";
+import type {
+  ComponentSetSpec,
+  SlimNode,
+} from "../component-set-spec/types.js";
 import { buildStructureContract } from "./structure-contract.js";
 import { renderStructureDsl } from "./structure-dsl.js";
 import type { PseudocodeModel } from "./types.js";
@@ -121,5 +125,55 @@ describe("renderStructureDsl", () => {
     expect(dsl).toContain("asset = meta.assets[Size][Status]");
     expect(dsl).toContain("Asset root");
     expect(dsl).toContain("asset asset");
+  });
+
+  it("renders templated component names without treating variables as prop names", () => {
+    const layout: SlimNode = {
+      type: "frame",
+      name: "Buttons",
+      children: [
+        {
+          type: "instance",
+          component: {
+            name: { $var: "item1ComponentName" } as unknown as string,
+          },
+        },
+      ],
+    };
+    const model: PseudocodeModel = {
+      name: "ButtonsContainer",
+      props: {},
+      baseVariant: {},
+      variantAxes: {},
+      definitions: {},
+      definitionTemplates: [],
+      templates: [
+        {
+          name: "allVariants",
+          variables: ["item1ComponentName"],
+          layout,
+        },
+      ],
+      variantGroups: [],
+      stats: {
+        variants: 1,
+        definitions: 0,
+        definitionTemplates: 0,
+        templates: 1,
+        variantGroups: 0,
+      },
+    };
+    const spec: ComponentSetSpec = {
+      name: model.name,
+      props: model.props,
+      baseVariant: model.baseVariant,
+      variantAxes: model.variantAxes,
+      variants: [{ when: {}, layout }],
+    };
+
+    const dsl = renderStructureDsl(buildStructureContract(model, spec));
+
+    expect(dsl).toContain("component ButtonsContainer");
+    expect(dsl).toContain("Instance instance");
   });
 });

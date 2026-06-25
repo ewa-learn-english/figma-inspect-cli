@@ -6,7 +6,13 @@ import type {
 } from "../component-set-spec/types.js";
 import type { ContractFormat } from "../contract/contract-format.js";
 import { contractArtifactFileName } from "../contract/contract-format.js";
-import { isNode, isRef, isVar, nodeKey } from "./slim-node-guards.js";
+import {
+  componentRefName,
+  isNode,
+  isRef,
+  isVar,
+  nodeKey,
+} from "./slim-node-guards.js";
 import type { PseudocodeModel } from "./types.js";
 
 export interface StructureContract {
@@ -120,19 +126,13 @@ function structureType(node: SlimNode): string {
     return "Icon";
   }
   if (node.type === "component" && node.component) {
-    if (typeof node.component === "string") {
-      return toTagName(node.component, "Component");
-    }
-    return toTagName(node.component.name, "Component");
+    return toTagName(componentRefName(node), "Component");
   }
   if (node.type === "instance" && node.component) {
     if (node.icon) {
       return "Icon";
     }
-    if (typeof node.component === "string") {
-      return toTagName(node.component, "Instance");
-    }
-    return toTagName(node.component.name, "Instance");
+    return toTagName(componentRefName(node), "Instance");
   }
   if (
     node.type === "line" ||
@@ -177,11 +177,9 @@ function instanceRef(node: SlimNode): StructurePropRef | string | undefined {
   if (typeof node.prop === "string" && node.prop.length > 0) {
     return { $prop: normalizePropName(node.prop) };
   }
-  if (node.component && typeof node.component !== "string") {
-    return node.component.name;
-  }
-  if (typeof node.component === "string") {
-    return node.component;
+  const componentName = componentRefName(node);
+  if (componentName) {
+    return componentName;
   }
   if (typeof node.name === "string") {
     return node.name;

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { isNode, isRef, isVar, nodeKey } from "./slim-node-guards.js";
+import {
+  componentRefName,
+  isNode,
+  isRef,
+  isVar,
+  nodeKey,
+} from "./slim-node-guards.js";
 
 describe("slim-node-guards", () => {
   it("detects ref, var, and node shapes", () => {
@@ -22,6 +28,14 @@ describe("slim-node-guards", () => {
         component: { name: "SearchIcon" },
       }),
     ).toBe("searchIcon");
+    const templatedInstance = {
+      type: "instance",
+      component: {
+        name: { $var: "item1ComponentName" } as unknown as string,
+      },
+    };
+    expect(componentRefName(templatedInstance)).toBeUndefined();
+    expect(nodeKey(templatedInstance)).toBe("instance");
     expect(nodeKey({ type: "vector" })).toBe("vector");
   });
 });

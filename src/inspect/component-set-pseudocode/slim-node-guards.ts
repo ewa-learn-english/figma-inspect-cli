@@ -16,6 +16,21 @@ export function isNode(value: unknown): value is SlimNode {
   return isRecord(value) && typeof value.type === "string";
 }
 
+export function componentRefName(node: SlimNode): string | undefined {
+  if (typeof node.component === "string" && node.component.length > 0) {
+    return node.component;
+  }
+  if (
+    node.component &&
+    typeof node.component !== "string" &&
+    typeof node.component.name === "string" &&
+    node.component.name.length > 0
+  ) {
+    return node.component.name;
+  }
+  return undefined;
+}
+
 export function nodeKey(
   node: SlimNode,
   options: { root?: boolean } = {},
@@ -29,8 +44,12 @@ export function nodeKey(
   if (typeof node.prop === "string" && node.prop.length > 0) {
     return normalizePropName(node.prop);
   }
-  if (node.component && typeof node.component !== "string") {
-    return normalizePropName(node.component.name ?? "instance");
+  const componentName = componentRefName(node);
+  if (componentName) {
+    return normalizePropName(componentName);
+  }
+  if (node.component) {
+    return "instance";
   }
   return node.type;
 }
