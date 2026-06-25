@@ -1,6 +1,6 @@
 {
   "name": "figma-inspect-cli",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Small CLI for inspecting Figma API resources.",
   "type": "module",
   "bin": {
