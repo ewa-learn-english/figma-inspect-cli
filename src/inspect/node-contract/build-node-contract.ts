@@ -198,19 +198,6 @@ function buildNodeContractLock(input: {
       ),
     },
     dependencies: input.meta.dependencies,
-    approval: {
-      status: "unverified" as const,
-      verifiedAt: null,
-      verifiedBy: null,
-      baselineRevision: null,
-    },
-    drift: {
-      lastCheckedAt: null,
-      metadataChanged: false,
-      sourceChanged: false,
-      structureChanged: false,
-      visualsChanged: false,
-    },
   };
 }
 

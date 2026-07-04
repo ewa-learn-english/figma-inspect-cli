@@ -17,7 +17,6 @@ import {
   collectUnchangedVariantNodeIds,
   readContractLock,
   resolveContractLockPath,
-  stabilizeContractLockDates,
   toLockVariants,
   writeContractLock,
 } from "../inspect/contract/contract-lock.js";
@@ -307,38 +306,34 @@ export async function exportComponentSet(
   );
   validateComponentContractArtifacts(artifacts, format);
 
-  const lock = stabilizeContractLockDates(
-    previousLock,
-    buildContractLock({
-      source: {
-        fileKey: scope.fileKey,
-        nodeId: componentSetNodeId,
-        nodeType: "COMPONENT_SET",
-        ...(options.sourceUrl ? { sourceUrl: options.sourceUrl } : {}),
-        componentSetKey: componentSetMeta.key,
-        componentSetUpdatedAt: componentSetMeta.updated_at,
-      },
-      variants: lockVariants,
-      fingerprints: {
-        tree: treeFingerprint,
-        contractSurface: contractSurfaceFingerprint,
-        contracts: fingerprintContracts(
-          contractResult.visuals,
-          contractResult.geometry,
-          contractResult.meta,
-          contractResult.structureDsl,
-        ),
-        ...(assetsDir
-          ? {
-              assets: await fingerprintAssetFiles(
-                assetsDir,
-                exportedAssets?.assetSlugs ?? [],
-              ),
-            }
-          : {}),
-      },
-    }),
-  );
+  const lock = buildContractLock({
+    source: {
+      fileKey: scope.fileKey,
+      nodeId: componentSetNodeId,
+      nodeType: "COMPONENT_SET",
+      ...(options.sourceUrl ? { sourceUrl: options.sourceUrl } : {}),
+      componentSetKey: componentSetMeta.key,
+    },
+    variants: lockVariants,
+    fingerprints: {
+      tree: treeFingerprint,
+      contractSurface: contractSurfaceFingerprint,
+      contracts: fingerprintContracts(
+        contractResult.visuals,
+        contractResult.geometry,
+        contractResult.meta,
+        contractResult.structureDsl,
+      ),
+      ...(assetsDir
+        ? {
+            assets: await fingerprintAssetFiles(
+              assetsDir,
+              exportedAssets?.assetSlugs ?? [],
+            ),
+          }
+        : {}),
+    },
+  });
   await writeContractLock(lockContractPath, lock);
   const importNotesPath = await writeImportNotes({
     outputDir: options.outputDir,

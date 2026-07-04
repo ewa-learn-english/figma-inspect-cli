@@ -158,8 +158,6 @@ async function verifySingleNodeContract(
         node,
         lock.source.fileKey,
       ),
-      approval: lock.approval,
-      drift: lock.drift,
     };
     const changed = diffNodeContractLock(lock, live);
     const status = isNodeContractLockDiffEmpty(changed) ? "ok" : "changed";

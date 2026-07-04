@@ -3,32 +3,25 @@ source:
   fileKey: YYQVrmbhmRrraUvQQsT4Zo
   nodeId: 5708:145
   componentSetKey: 6f102b2085bb0646e3fbeb56862055e2e0678618
-  componentSetUpdatedAt: 2026-06-04T09:48:57.997Z
 variants:
   - key: 814a81896380a05f4dfbe7e44bb240d866353b44
     nodeId: 5708:146
     name: Status=Active, Size=M
-    updatedAt: 2026-06-04T09:48:58.253Z
   - key: a7a471073978ecbc78afb1e8cfeb11c2b644605e
     nodeId: 9775:961
     name: Status=Active, Size=XL
-    updatedAt: 2026-06-04T09:48:58.014Z
   - key: 927bf221639dec48520e4d11d80239cf591f2c9f
     nodeId: 5708:261
     name: Status=Loading, Size=M
-    updatedAt: 2026-06-04T09:48:58.256Z
   - key: e00721afc0515ce6c01cda01b5131237179a67da
     nodeId: 9775:973
     name: Status=Loading, Size=XL
-    updatedAt: 2026-06-04T09:48:58.017Z
   - key: 421211b6e099602b3710ffb3efbc9876f82d3165
     nodeId: 5708:250
     name: Status=Missed, Size=M
-    updatedAt: 2026-06-04T09:48:58.218Z
   - key: 27fabc004b6ed471992785f1ff51add49705cb2c
     nodeId: 9775:952
     name: Status=Missed, Size=XL
-    updatedAt: 2026-06-04T09:48:58.010Z
 fingerprints:
   tree: 19658d5e54e69463f0e258466e5a4ba810ea062827f61821d6dd1677509447e2
   contracts: 23bc17a8db227bfa2b2bf5ebd84922ee4f038099c771e38bf47afc50ed68657e

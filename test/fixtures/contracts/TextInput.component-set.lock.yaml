@@ -3,56 +3,43 @@ source:
   fileKey: O7aE7SeG2TRBCK5MsjkG7z
   nodeId: 3971:6465
   componentSetKey: 4b3d7fd0a56107702180b4c75763264ee9dcd1e5
-  componentSetUpdatedAt: 2026-06-02T10:42:38.948Z
 variants:
   - key: 50df46a21953cc6917eaf283a31be527493524cd
     nodeId: 3971:6466
     name: State=Disabled, Active=Off, Writing=Default
-    updatedAt: 2026-06-02T10:42:39.733Z
   - key: a89d22a26b8c23f017f000cc1ac014e6c934d54d
     nodeId: 3971:6510
     name: State=Disabled, Active=Off, Writing=RTL
-    updatedAt: 2026-06-02T10:42:39.846Z
   - key: 5cb9de5b55ac07973ed73c527d7c4de56b3f9585
     nodeId: 3971:6472
     name: State=Disabled, Active=On, Writing=Default
-    updatedAt: 2026-06-02T10:42:39.758Z
   - key: 7eef02f6945d1b108e145a6b0cad7b125aa4c87b
     nodeId: 3971:6516
     name: State=Disabled, Active=On, Writing=RTL
-    updatedAt: 2026-06-02T10:42:39.798Z
   - key: c01c8d0cafaad341b59a5602acec10656f278190
     nodeId: 3971:6478
     name: State=Empty, Active=Off, Writing=Default
-    updatedAt: 2026-06-02T10:42:39.878Z
   - key: d79f7d5796a94917075562d5a50d97b92bd3c39d
     nodeId: 3971:6522
     name: State=Empty, Active=Off, Writing=RTL
-    updatedAt: 2026-06-02T10:42:39.894Z
   - key: 5362875f22419283a74ec9918cca502058e23635
     nodeId: 3971:6485
     name: State=Empty, Active=On, Writing=Default
-    updatedAt: 2026-06-02T10:42:39.737Z
   - key: 86bfa1756bdecb478ad2be7e80b0fb4192eac89b
     nodeId: 3971:6529
     name: State=Empty, Active=On, Writing=RTL
-    updatedAt: 2026-06-02T10:42:39.806Z
   - key: 753597739cf60e16386f3f3f8e1b5960e330cbe6
     nodeId: 3971:6493
     name: State=Filled, Active=Off, Writing=Default
-    updatedAt: 2026-06-02T10:42:39.790Z
   - key: b222c781a85459c2538897840685e131a5c50989
     nodeId: 3971:6537
     name: State=Filled, Active=Off, Writing=RTL
-    updatedAt: 2026-06-02T10:42:39.866Z
   - key: 8ccf4646e352905603fee6af1fc7e7fb6590e084
     nodeId: 3971:6500
     name: State=Filled, Active=On, Writing=Default
-    updatedAt: 2026-06-02T10:42:39.820Z
   - key: b41a81c3df13915fa0a4a0cb1d5f0b4d77901856
     nodeId: 3971:6544
     name: State=Filled, Active=On, Writing=RTL
-    updatedAt: 2026-06-02T10:42:39.870Z
 fingerprints:
   tree: 74f861ce0a1507a06568919bfac9fa37db75a1d644b57e618112c85344d8dcc0
   contracts: b553ae5b49cdcdfa26eeb1e245ac9afa26918a9e4a9c226fbd80dc945c538483

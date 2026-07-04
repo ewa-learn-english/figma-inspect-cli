@@ -54,19 +54,6 @@ function baseV2Lock(tree: Record<string, unknown>) {
       contractSurface: fingerprintContractSurface(tree),
       contracts: baseLock.fingerprints.contracts,
     },
-    approval: {
-      status: "unverified" as const,
-      verifiedAt: null,
-      verifiedBy: null,
-      baselineRevision: null,
-    },
-    drift: {
-      lastCheckedAt: null,
-      metadataChanged: false,
-      sourceChanged: false,
-      structureChanged: false,
-      visualsChanged: false,
-    },
   };
 }
 
@@ -227,7 +214,7 @@ describe("verifyNodeContracts", () => {
     ]);
   });
 
-  it("returns an error for v2 node locks with missing approval metadata", async () => {
+  it("returns an error for v2 node locks with missing contract surface", async () => {
     const directory = await mkdtemp(
       path.join(os.tmpdir(), "figma-node-verify-invalid-v2-"),
     );
@@ -238,7 +225,14 @@ describe("verifyNodeContracts", () => {
       isExposedInstance: false,
       absoluteBoundingBox: { width: 390, height: 844 },
     };
-    const { approval: _approval, ...invalidLock } = baseV2Lock(tree);
+    const lock = baseV2Lock(tree);
+    const invalidLock = {
+      ...lock,
+      fingerprints: {
+        tree: lock.fingerprints.tree,
+        contracts: lock.fingerprints.contracts,
+      },
+    };
 
     await writeNodeArtifacts(directory);
     await writeFile(

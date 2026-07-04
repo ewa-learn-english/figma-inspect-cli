@@ -88,19 +88,6 @@ describe("exportNodeContract", () => {
           contracts: "contracts",
         },
         dependencies: { componentSets: [], components: [] },
-        approval: {
-          status: "unverified",
-          verifiedAt: null,
-          verifiedBy: null,
-          baselineRevision: null,
-        },
-        drift: {
-          lastCheckedAt: null,
-          metadataChanged: false,
-          sourceChanged: false,
-          structureChanged: false,
-          visualsChanged: false,
-        },
       },
     });
     mocks.exportNodePreview.mockImplementation(async (options) => ({

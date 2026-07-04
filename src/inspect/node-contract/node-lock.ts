@@ -4,7 +4,6 @@ import { serializeContractData } from "../contract/contract-format.js";
 import {
   hasContractSurfaceFingerprint,
   normalizeLockVersion,
-  normalizeVersionedLockMetadata,
 } from "../contract/lock-metadata.js";
 import { FigmaInspectError } from "../errors.js";
 import type {
@@ -141,17 +140,10 @@ function normalizeLock(value: unknown): NodeContractLock | undefined {
     return undefined;
   }
 
-  const metadata = normalizeVersionedLockMetadata(record, version);
-  if (!metadata) {
-    return undefined;
-  }
-
   const base = {
     kind,
     source,
     dependencies: { componentSets, components },
-    approval: metadata.approval,
-    drift: metadata.drift,
   };
 
   if (version === 2) {

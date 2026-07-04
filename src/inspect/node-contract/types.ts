@@ -1,7 +1,5 @@
 import type { ContractFormat } from "../contract/contract-format.js";
 import type {
-  LockApproval,
-  LockDrift,
   LockFingerprintsV1,
   LockFingerprintsV2,
 } from "../contract/lock-metadata.js";
@@ -68,8 +66,6 @@ interface NodeContractLockBase {
   kind: NodeContractKind;
   source: NodeContractSource;
   dependencies: NodeContractDependencies;
-  approval: LockApproval;
-  drift: LockDrift;
 }
 
 interface NodeContractLockV1 extends NodeContractLockBase {

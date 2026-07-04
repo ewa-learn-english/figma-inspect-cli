@@ -3,248 +3,187 @@ source:
   fileKey: O7aE7SeG2TRBCK5MsjkG7z
   nodeId: 4020:3574
   componentSetKey: ba81b96246030859409cbbb64ceb95875d1be92c
-  componentSetUpdatedAt: 2026-06-04T14:03:21.234Z
 variants:
   - key: e06e12f5ac3b068898a9e9ccea8b214fd5ed7427
     nodeId: 4020:3602
     name: Type=Action, Writing=Default, State=Default
-    updatedAt: 2026-06-04T14:03:22.864Z
   - key: 8e8803259ab56adda823912d9dd72db8d5fae466
     nodeId: 5912:8240
     name: Type=Action, Writing=Default, State=Hover
-    updatedAt: 2026-06-04T14:03:22.733Z
   - key: 9e5980b3f7a4f219f3c6a812027815c3f58172fc
     nodeId: 5912:8370
     name: Type=Action, Writing=Default, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.762Z
   - key: 1e3bf63665ff48ead1763f916d23e2af11f31b0d
     nodeId: 4020:3737
     name: Type=Action, Writing=RTL, State=Default
-    updatedAt: 2026-06-04T14:03:22.599Z
   - key: 08098f3509325c9112ee88eadfe529b2aabf00c7
     nodeId: 5912:8246
     name: Type=Action, Writing=RTL, State=Hover
-    updatedAt: 2026-06-04T14:03:22.578Z
   - key: b5c2324b019a7134cca9babbc7f9b84af90501e1
     nodeId: 5912:8376
     name: Type=Action, Writing=RTL, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.813Z
   - key: ad8e8bd32afc9a36447664648a68f1326e30cb4b
     nodeId: 5604:5890
     name: Type=Avatar, Writing=Default, State=Default
-    updatedAt: 2026-06-04T14:03:22.792Z
   - key: a5311a24effeeab625aa2fcdb23f6748ec556dba
     nodeId: 5912:8181
     name: Type=Avatar, Writing=Default, State=Hover
-    updatedAt: 2026-06-04T14:03:22.783Z
   - key: 9a01aae6ae172403a7503d948da41f2da1eca412
     nodeId: 5912:8311
     name: Type=Avatar, Writing=Default, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.749Z
   - key: 2186049436d53b446ffd321f6d2fb8ca0188f201
     nodeId: 5604:5903
     name: Type=Avatar, Writing=RTL, State=Default
-    updatedAt: 2026-06-04T14:03:22.613Z
   - key: 3b6537bd8b0d0213b76082e9eebaf6bdd9fae6cc
     nodeId: 5912:8187
     name: Type=Avatar, Writing=RTL, State=Hover
-    updatedAt: 2026-06-04T14:03:22.636Z
   - key: beba4e1a1207e0257db5fdee7e80b9824d481d7b
     nodeId: 5912:8317
     name: Type=Avatar, Writing=RTL, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.823Z
   - key: 5b8a2997684212ee68821a11f1a2435ba8aace46
     nodeId: 4020:3645
     name: Type=Button destructive, Writing=Default, State=Default
-    updatedAt: 2026-06-04T14:03:22.678Z
   - key: 2b7451c0f5fae61781213c37b0e52092776843bd
     nodeId: 5912:8258
     name: Type=Button destructive, Writing=Default, State=Hover
-    updatedAt: 2026-06-04T14:03:22.626Z
   - key: 0ed79d9cf545e41eaceb2b02ac851d259eb084b3
     nodeId: 5912:8388
     name: Type=Button destructive, Writing=Default, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.595Z
   - key: e6cfc7c3770836ac811d068d780282b83bfdbabb
     nodeId: 4020:3746
     name: Type=Button destructive, Writing=RTL, State=Default
-    updatedAt: 2026-06-04T14:03:22.868Z
   - key: 63b4d554b38186c870b1579bcdfa3d8bbf803555
     nodeId: 5912:8261
     name: Type=Button destructive, Writing=RTL, State=Hover
-    updatedAt: 2026-06-04T14:03:22.689Z
   - key: 51c8afdc6a20d5116631349c187ef3623cdc5ea6
     nodeId: 5912:8391
     name: Type=Button destructive, Writing=RTL, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.672Z
   - key: a1b0449aef237872495809aab676297f4fdae89e
     nodeId: 4020:3638
     name: Type=Button, Writing=Default, State=Default
-    updatedAt: 2026-06-04T14:03:22.779Z
   - key: 4efe4d6608226db295b5c0d980a970e30c65a09d
     nodeId: 5912:8252
     name: Type=Button, Writing=Default, State=Hover
-    updatedAt: 2026-06-04T14:03:22.668Z
   - key: d28fe57dff48043db3c327fa3d6927fbe4a1e9f9
     nodeId: 5912:8382
     name: Type=Button, Writing=Default, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.840Z
   - key: 85a6a31090634bda87b937ef35299c2d2e5d42d5
     nodeId: 4020:3743
     name: Type=Button, Writing=RTL, State=Default
-    updatedAt: 2026-06-04T14:03:22.719Z
   - key: f3a94bdad566c58e89d63181710bbbfae016c7dd
     nodeId: 5912:8255
     name: Type=Button, Writing=RTL, State=Hover
-    updatedAt: 2026-06-04T14:03:22.894Z
   - key: 8ae79c214fec68c7661511a0c7cf6cd7feffad67
     nodeId: 5912:8385
     name: Type=Button, Writing=RTL, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.730Z
   - key: e9f26758cc23011aa48fe2aa2bcc3a80d4729f56
     nodeId: 5610:7415
     name: Type=Trailing Button Avatar, Writing=Default, State=Default
-    updatedAt: 2026-06-04T14:03:22.876Z
   - key: 0778d64d0a88d5d895f66bf69056182efff60dfe
     nodeId: 5912:8207
     name: Type=Trailing Button Avatar, Writing=Default, State=Hover
-    updatedAt: 2026-06-04T14:03:22.573Z
   - key: 84973a172f58cb505e273e19ba197d7d4c2ccffe
     nodeId: 5912:8337
     name: Type=Trailing Button Avatar, Writing=Default, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.715Z
   - key: ebc76b84e82a701d9e4761452d640fce6fa40da0
     nodeId: 5610:7430
     name: Type=Trailing Button Avatar, Writing=RTL, State=Default
-    updatedAt: 2026-06-04T14:03:22.879Z
   - key: 20e58e543ce58c85960eadf18548df3df87767dd
     nodeId: 5912:8213
     name: Type=Trailing Button Avatar, Writing=RTL, State=Hover
-    updatedAt: 2026-06-04T14:03:22.608Z
   - key: 670e05bd65e76a22dcfcc51078ffa17210baff37
     nodeId: 5912:8343
     name: Type=Trailing Button Avatar, Writing=RTL, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.692Z
   - key: ed5f44be821a011ce3bd78139f72243ef224cadf
     nodeId: 6748:4796
     name: Type=Trailing Button Icon, Writing=Default, State=Default
-    updatedAt: 2026-06-04T14:03:22.887Z
   - key: ae0f11130dfc4e92a1d2c51a1c0800aeefb80a73
     nodeId: 6748:4802
     name: Type=Trailing Button Icon, Writing=Default, State=Hover
-    updatedAt: 2026-06-04T14:03:22.796Z
   - key: 499ccff9af0de7c74a693b8c06a6b38d644db8ae
     nodeId: 6748:4808
     name: Type=Trailing Button Icon, Writing=Default, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.657Z
   - key: 0c5c9f847e812adb99271197aa71a3966e438d91
     nodeId: 6748:4831
     name: Type=Trailing Button Icon, Writing=RTL, State=Default
-    updatedAt: 2026-06-04T14:03:22.588Z
   - key: 3f3b54a8229728a3c30cb6f9adcdff6656a15845
     nodeId: 6748:4837
     name: Type=Trailing Button Icon, Writing=RTL, State=Hover
-    updatedAt: 2026-06-04T14:03:22.641Z
   - key: 5e796028589a4bc446e7d711dede33d414469beb
     nodeId: 6748:4843
     name: Type=Trailing Button Icon, Writing=RTL, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.682Z
   - key: bc33eb7ffb84a2e0f39bc73f5c68f7e428d5582f
     nodeId: 4020:3589
     name: Type=Trailing Checkmark, Writing=Default, State=Default
-    updatedAt: 2026-06-04T14:03:22.818Z
   - key: ebccfe7207c29ede68c7e150fbae6f380f6d5e8c
     nodeId: 5912:8226
     name: Type=Trailing Checkmark, Writing=Default, State=Hover
-    updatedAt: 2026-06-04T14:03:22.884Z
   - key: db2fb31ff4f1943672e3a0d2ae1b933a46de1a34
     nodeId: 5912:8356
     name: Type=Trailing Checkmark, Writing=Default, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.853Z
   - key: 7c35be078451edad5b3486935f5b645b79ed45a7
     nodeId: 4020:3730
     name: Type=Trailing Checkmark, Writing=RTL, State=Default
-    updatedAt: 2026-06-04T14:03:22.707Z
   - key: 9f6e7883d19857deb93338b95c465d084fed94bf
     nodeId: 5912:8233
     name: Type=Trailing Checkmark, Writing=RTL, State=Hover
-    updatedAt: 2026-06-04T14:03:22.766Z
   - key: 0584e655f0e2734af3483c9747b77a52f760e9e6
     nodeId: 5912:8363
     name: Type=Trailing Checkmark, Writing=RTL, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.566Z
   - key: b450b013365244f6c2f77d9e844b1bfc5e3f7066
     nodeId: 4008:3416
     name: Type=Trailing Chevron, Writing=Default, State=Default
-    updatedAt: 2026-06-04T14:03:22.809Z
   - key: 09dbd8e77a15c5f1db54e18a75f8930466e7a443
     nodeId: 5912:8162
     name: Type=Trailing Chevron, Writing=Default, State=Hover
-    updatedAt: 2026-06-04T14:03:22.584Z
   - key: 2d3d9281d6c6f9db41457ebd0d487dedf96dcd9e
     nodeId: 5912:8292
     name: Type=Trailing Chevron, Writing=Default, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.631Z
   - key: 0699db8e318fa1f8dab99c4f6a7cdaa6dd4b959b
     nodeId: 4020:3716
     name: Type=Trailing Chevron, Writing=RTL, State=Default
-    updatedAt: 2026-06-04T14:03:22.570Z
   - key: cba587a9e9d67ea32390636b8abae8b590cc336c
     nodeId: 5912:8193
     name: Type=Trailing Chevron, Writing=RTL, State=Hover
-    updatedAt: 2026-06-04T14:03:22.831Z
   - key: 9ffd79dbf6d0378308bca050f7b24aa01d2df5d8
     nodeId: 5912:8323
     name: Type=Trailing Chevron, Writing=RTL, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.770Z
   - key: a0b5337b3343f608bc84a6a3ecbce1e61a19389f
     nodeId: 4020:3575
     name: Type=Trailing Toggle, Writing=Default, State=Default
-    updatedAt: 2026-06-04T14:03:22.775Z
   - key: 81f7f0efdc6abb6b755571d2ac698ce470c5415d
     nodeId: 5912:8200
     name: Type=Trailing Toggle, Writing=Default, State=Hover
-    updatedAt: 2026-06-04T14:03:22.711Z
   - key: 9ced166b78bd2ec38ad9cefe9218d6ca28da4baa
     nodeId: 5912:8330
     name: Type=Trailing Toggle, Writing=Default, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.753Z
   - key: 408978ab75d924aedf2349f55f0f9ce9f79fb11a
     nodeId: 4020:3723
     name: Type=Trailing Toggle, Writing=RTL, State=Default
-    updatedAt: 2026-06-04T14:03:22.650Z
   - key: fbce1762bc8af494bb71ad7e63b4950fcabb4efb
     nodeId: 5912:8219
     name: Type=Trailing Toggle, Writing=RTL, State=Hover
-    updatedAt: 2026-06-04T14:03:22.900Z
   - key: 9dbb9ed58ccd7e8805e18462e8d944d193901153
     nodeId: 5912:8349
     name: Type=Trailing Toggle, Writing=RTL, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.757Z
   - key: d4898033546dcee065a512be325405e6d1ae4e03
     nodeId: 5614:3644
     name: Type=Trailing Value, Writing=Default, State=Default
-    updatedAt: 2026-06-04T14:03:22.844Z
   - key: 5f782ebaa301e2e3b07dba9c5eaa24d490627765
     nodeId: 5912:8169
     name: Type=Trailing Value, Writing=Default, State=Hover
-    updatedAt: 2026-06-04T14:03:22.685Z
   - key: f6331c34a23121db3abc09ab92bb525b32aa9320
     nodeId: 5912:8299
     name: Type=Trailing Value, Writing=Default, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.897Z
   - key: 9932d5204729f750359ed636b0733ff7f5af546e
     nodeId: 5614:4301
     name: Type=Trailing Value, Writing=RTL, State=Default
-    updatedAt: 2026-06-04T14:03:22.745Z
   - key: e9b1c97baccc41140f03c4e16661edefef2adf3f
     nodeId: 5912:8175
     name: Type=Trailing Value, Writing=RTL, State=Hover
-    updatedAt: 2026-06-04T14:03:22.872Z
   - key: 92e2fd17848f48f1e384a8431832d42cfb87efd2
     nodeId: 5912:8305
     name: Type=Trailing Value, Writing=RTL, State=Pressed
-    updatedAt: 2026-06-04T14:03:22.737Z
 fingerprints:
   tree: 24cb8b4809392fc3444a2baa9fe82a75d7de4e3287efea4fcd4e88cb14298c6c
   contracts: e7d85022fc2b36d36fc5541b6d6a27686194b97b127bd033c69a0a77ce9039fb

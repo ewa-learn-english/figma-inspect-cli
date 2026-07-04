@@ -107,7 +107,6 @@ async function fetchLiveLockSnapshot(
       nodeType: "COMPONENT_SET",
       ...(lock.source.sourceUrl ? { sourceUrl: lock.source.sourceUrl } : {}),
       componentSetKey: componentSetMeta.key,
-      componentSetUpdatedAt: componentSetMeta.updated_at,
     },
     variants: toLockVariants(
       filterFileComponentsForComponentSet(fileComponents, lock.source.nodeId),

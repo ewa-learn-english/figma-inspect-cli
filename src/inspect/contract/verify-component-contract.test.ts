@@ -103,7 +103,7 @@ function buildLiveMockResponses(
         file_key: source.fileKey,
         node_id: source.nodeId,
         name: "ProfileStreakIcon",
-        updated_at: source.componentSetUpdatedAt,
+        updated_at: "2026-01-01T00:00:00.000Z",
       },
     },
     fileComponents: {
@@ -113,7 +113,7 @@ function buildLiveMockResponses(
           file_key: source.fileKey,
           node_id: variant.nodeId,
           name: variant.name,
-          updated_at: variant.updatedAt,
+          updated_at: "2026-01-01T00:00:00.000Z",
           containing_frame: {
             containingComponentSet: { nodeId: source.nodeId },
           },
@@ -291,7 +291,7 @@ describe("verifyComponentContracts", () => {
     });
   });
 
-  it("reports ok when only live component set metadata timestamps drift", async () => {
+  it("reports ok when only live Figma updated_at metadata changes", async () => {
     const contractDir = await mkdtemp(
       path.join(tmpdir(), "figma-verify-meta-"),
     );
@@ -315,9 +315,8 @@ describe("verifyComponentContracts", () => {
       serializeContractData(lock, "yaml"),
     );
 
-    const liveResponses = buildLiveMockResponses(lock, tree, {
-      componentSetUpdatedAt: "2099-01-01T00:00:00.000Z",
-    });
+    const liveResponses = buildLiveMockResponses(lock, tree);
+    liveResponses.componentSet.meta.updated_at = "2099-01-01T00:00:00.000Z";
     liveResponses.fileComponents.meta.components =
       liveResponses.fileComponents.meta.components.map((component) => ({
         ...component,
@@ -394,9 +393,7 @@ describe("verifyComponentContracts", () => {
     const lock = await loadProfileStreakLock();
 
     const tree = profileStreakComponentSetTree();
-    const liveResponses = buildLiveMockResponses(lock, tree, {
-      componentSetUpdatedAt: "2099-01-01T00:00:00.000Z",
-    });
+    const liveResponses = buildLiveMockResponses(lock, tree);
     const fetchImpl = createFigmaFetchMock(liveResponses);
 
     const results = await verifyComponentContracts({

@@ -173,7 +173,6 @@ describe("exportComponentSet", () => {
         key: "variant-key",
         nodeId: "3971:6466",
         name: "State=Default",
-        updatedAt: "2026-01-01T00:00:00.000Z",
       },
     ]);
 

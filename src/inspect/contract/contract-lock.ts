@@ -4,15 +4,10 @@ import { parse } from "yaml";
 import { FigmaInspectError } from "../errors.js";
 import { serializeContractData } from "./contract-format.js";
 import {
-  defaultLockApproval,
-  defaultLockDrift,
   hasContractSurfaceFingerprint,
-  type LockApproval,
-  type LockDrift,
   type LockFingerprintsV1,
   type LockFingerprintsV2,
   normalizeLockVersion,
-  normalizeVersionedLockMetadata,
 } from "./lock-metadata.js";
 
 export interface ContractLockSource {
@@ -21,14 +16,12 @@ export interface ContractLockSource {
   nodeType?: "COMPONENT_SET";
   sourceUrl?: string;
   componentSetKey: string;
-  componentSetUpdatedAt: string;
 }
 
 export interface ContractLockVariant {
   key: string;
   nodeId: string;
   name: string;
-  updatedAt: string;
 }
 
 interface ContractLockFingerprintsV1 extends LockFingerprintsV1 {
@@ -48,8 +41,6 @@ interface ContractLockBase {
   source: ContractLockSource;
   variants: ContractLockVariant[];
   fingerprints: ContractLockFingerprints;
-  approval: LockApproval;
-  drift: LockDrift;
 }
 
 interface ContractLockV1 extends ContractLockBase {
@@ -128,8 +119,6 @@ export function buildContractLock(input: {
           }
         : {}),
     },
-    approval: defaultLockApproval(),
-    drift: defaultLockDrift(),
   };
 }
 
@@ -189,13 +178,12 @@ function normalizeContractLockVariant(
   const key = readStringField(value, "key", "key");
   const nodeId = readStringField(value, "nodeId", "node_id");
   const name = readStringField(value, "name", "name");
-  const updatedAt = readStringField(value, "updatedAt", "updated_at");
 
-  if (!key || !nodeId || !name || !updatedAt) {
+  if (!key || !nodeId || !name) {
     return undefined;
   }
 
-  return { key, nodeId, name, updatedAt };
+  return { key, nodeId, name };
 }
 
 function normalizeContractLockSource(
@@ -210,13 +198,7 @@ function normalizeContractLockSource(
     "componentSetKey",
     "component_set_key",
   );
-  const componentSetUpdatedAt = readStringField(
-    value,
-    "componentSetUpdatedAt",
-    "component_set_updated_at",
-  );
-
-  if (!fileKey || !nodeId || !componentSetKey || !componentSetUpdatedAt) {
+  if (!fileKey || !nodeId || !componentSetKey) {
     return undefined;
   }
 
@@ -226,7 +208,6 @@ function normalizeContractLockSource(
     ...(nodeType === "COMPONENT_SET" ? { nodeType } : {}),
     ...(sourceUrl ? { sourceUrl } : {}),
     componentSetKey,
-    componentSetUpdatedAt,
   };
 }
 
@@ -297,16 +278,9 @@ function normalizeContractLock(value: unknown): ContractLock | undefined {
     }
   }
 
-  const metadata = normalizeVersionedLockMetadata(record, version);
-  if (!metadata) {
-    return undefined;
-  }
-
   const base = {
     kind: "component-set" as const,
     variants,
-    approval: metadata.approval,
-    drift: metadata.drift,
   };
 
   if (version === 2) {
@@ -344,14 +318,12 @@ export function toLockVariants(
     key: string;
     node_id: string;
     name: string;
-    updated_at: string;
   }>,
 ): ContractLockVariant[] {
   return components.map((component) => ({
     key: component.key,
     nodeId: component.node_id,
     name: component.name,
-    updatedAt: component.updated_at,
   }));
 }
 
@@ -488,65 +460,8 @@ export function collectUnchangedVariantNodeIds(
 
     if (sourceSurfaceIsUnchanged && sameVariantIdentity(previous, variant)) {
       unchanged.add(variant.nodeId);
-      continue;
-    }
-
-    if (previous.updatedAt === variant.updatedAt) {
-      unchanged.add(variant.nodeId);
     }
   }
 
   return unchanged;
-}
-
-export function stabilizeContractLockDates(
-  previousLock: ContractLock | undefined,
-  lock: ContractLock,
-): ContractLock {
-  const sourceSurfaceIsUnchanged =
-    previousLock &&
-    hasContractSurfaceFingerprint(previousLock.fingerprints) &&
-    hasContractSurfaceFingerprint(lock.fingerprints)
-      ? previousLock.fingerprints.contractSurface ===
-        lock.fingerprints.contractSurface
-      : previousLock?.fingerprints.tree === lock.fingerprints.tree;
-
-  if (!previousLock || !sourceSurfaceIsUnchanged) {
-    return lock;
-  }
-
-  const previousByNodeId = new Map(
-    previousLock.variants.map((variant) => [variant.nodeId, variant]),
-  );
-  const source = sameSourceIdentity(previousLock.source, lock.source)
-    ? {
-        ...lock.source,
-        componentSetUpdatedAt: previousLock.source.componentSetUpdatedAt,
-      }
-    : lock.source;
-  const variants = lock.variants.map((variant) => {
-    const previous = previousByNodeId.get(variant.nodeId);
-    if (!previous || !sameVariantIdentity(previous, variant)) {
-      return variant;
-    }
-
-    return {
-      ...variant,
-      updatedAt: previous.updatedAt,
-    };
-  });
-
-  if (lock.version === 2) {
-    return {
-      ...lock,
-      source: { ...source, nodeType: "COMPONENT_SET" },
-      variants,
-    };
-  }
-
-  return {
-    ...lock,
-    source,
-    variants,
-  };
 }
