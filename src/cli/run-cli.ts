@@ -29,6 +29,7 @@ import {
   resolveTeamComponentSetScope,
   resolveVisualsContractPath,
   verifyComponentContracts,
+  verifyComponentLock,
   verifyNodeContracts,
 } from "../inspect/index.js";
 import { CliError } from "./errors.js";
@@ -174,6 +175,68 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
 
       if (results.some((result) => result.status !== "ok")) {
         throw new CliError("Contract verification failed.");
+      }
+    } catch (error) {
+      if (error instanceof FigmaInspectError || error instanceof CliError) {
+        throw error instanceof CliError ? error : new CliError(error.message);
+      }
+
+      throw error;
+    }
+
+    return;
+  }
+
+  if (command.kind === "verify-component-lock") {
+    const token = io.env.FIGMA_API_TOKEN;
+    if (!token) {
+      throw new CliError("Missing FIGMA_API_TOKEN environment variable.");
+    }
+
+    try {
+      const results = [
+        await verifyComponentLock({
+          token,
+          lockPath: command.lockFile,
+        }),
+      ];
+      if (command.outputFormat === "json") {
+        io.stdout.write(`${JSON.stringify({ results }, null, 2)}\n`);
+      } else {
+        for (const result of results) {
+          io.stdout.write(`${result.componentName}\t${result.status}\n`);
+          for (const error of result.errors) {
+            io.stdout.write(`  ${error}\n`);
+          }
+          if (result.status === "changed") {
+            const parts: string[] = [];
+            if (result.changed.source) {
+              parts.push("source");
+            }
+            if (result.changed.tree) {
+              parts.push("tree");
+            }
+            if (result.changed.contractSurface) {
+              parts.push("contract-surface");
+            }
+            if (result.changed.variants.length > 0) {
+              parts.push(`variants=${result.changed.variants.join(", ")}`);
+            }
+            if (result.changed.addedVariants.length > 0) {
+              parts.push(`added=${result.changed.addedVariants.join(", ")}`);
+            }
+            if (result.changed.removedVariants.length > 0) {
+              parts.push(
+                `removed=${result.changed.removedVariants.join(", ")}`,
+              );
+            }
+            io.stdout.write(`  changed: ${parts.join(" ")}\n`);
+          }
+        }
+      }
+
+      if (results.some((result) => result.status !== "ok")) {
+        throw new CliError("Component lock verification failed.");
       }
     } catch (error) {
       if (error instanceof FigmaInspectError || error instanceof CliError) {

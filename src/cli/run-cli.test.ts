@@ -9,6 +9,7 @@ import { CliError } from "./errors.js";
 const mocks = vi.hoisted(() => ({
   listTeamProjects: vi.fn(),
   verifyComponentContracts: vi.fn(),
+  verifyComponentLock: vi.fn(),
   verifyNodeContracts: vi.fn(),
   buildComponentSetSpecFromFile: vi.fn(),
   buildComponentSetPseudocodeFromFile: vi.fn(),
@@ -86,6 +87,7 @@ vi.mock("../inspect/index.js", () => ({
       ),
   ),
   verifyComponentContracts: mocks.verifyComponentContracts,
+  verifyComponentLock: mocks.verifyComponentLock,
   verifyNodeContracts: mocks.verifyNodeContracts,
 }));
 
@@ -454,6 +456,82 @@ describe("runCli", () => {
     expect(JSON.parse(output())).toEqual({
       results: [{ componentName: "Cell", status: "ok", errors: [] }],
     });
+  });
+
+  it("writes json component lock verify results", async () => {
+    mocks.verifyComponentLock.mockResolvedValue({
+      componentName: "Cell",
+      status: "ok",
+      errors: [],
+      changed: {
+        source: false,
+        tree: false,
+        contractSurface: false,
+        variants: [],
+        addedVariants: [],
+        removedVariants: [],
+      },
+    });
+    const { io, output } = createIo();
+
+    await runCli(
+      [
+        "--verify-component-lock",
+        "--lock-file",
+        "tmp/Cell.component-set.lock.yaml",
+        "--json",
+      ],
+      io,
+    );
+
+    expect(mocks.verifyComponentLock).toHaveBeenCalledWith({
+      token: "token",
+      lockPath: "tmp/Cell.component-set.lock.yaml",
+    });
+    expect(JSON.parse(output())).toEqual({
+      results: [
+        {
+          componentName: "Cell",
+          status: "ok",
+          errors: [],
+          changed: {
+            source: false,
+            tree: false,
+            contractSurface: false,
+            variants: [],
+            addedVariants: [],
+            removedVariants: [],
+          },
+        },
+      ],
+    });
+  });
+
+  it("writes yaml component lock verify results and fails when changed", async () => {
+    mocks.verifyComponentLock.mockResolvedValue({
+      componentName: "Cell",
+      status: "changed",
+      errors: [],
+      changed: {
+        source: false,
+        tree: false,
+        contractSurface: true,
+        variants: [],
+        addedVariants: ["State=Hover"],
+        removedVariants: [],
+      },
+    });
+    const { io, output } = createIo();
+
+    await expect(
+      runCli(
+        ["--verify-component-lock", "--lock-file", "tmp/Cell.lock.yaml"],
+        io,
+      ),
+    ).rejects.toThrow(/Component lock verification failed/);
+
+    expect(output()).toContain("Cell\tchanged");
+    expect(output()).toContain("changed: contract-surface added=State=Hover");
   });
 
   it("writes yaml node verify results and fails when status is not ok", async () => {

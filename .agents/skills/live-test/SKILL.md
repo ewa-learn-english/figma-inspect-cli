@@ -89,6 +89,7 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 31 | `--verify-node-contract` | `--contract-dir tmp --node-name "$FRAME_NODE_NAME" --json` | verifies one node contract; JSON output only |
 | 32 | `--verify-component-contract` | `--contract-dir tmp` | compares each lock to live Figma (source, tree, variants); needs `FIGMA_API_TOKEN` |
 | 33 | `--verify-component-contract` | `--contract-dir tmp --component-name Cell --json` | verifies one component; JSON output only |
+| 34 | `--verify-component-lock` | `--lock-file tmp/Cell.component-set.lock.yaml --json` | verifies one component-set lock without reading contract artifacts; JSON output only |
 
 Example:
 
@@ -127,6 +128,7 @@ npx . --verify-node-contract --contract-dir tmp
 npx . --verify-node-contract --contract-dir tmp --node-name "$FRAME_NODE_NAME" --json
 npx . --verify-component-contract --contract-dir tmp
 npx . --verify-component-contract --contract-dir tmp --component-name Cell --json
+npx . --verify-component-lock --lock-file tmp/Cell.component-set.lock.yaml --json
 ```
 
 ## Execution rules

@@ -1,4 +1,5 @@
 import { readdir } from "node:fs/promises";
+import path from "node:path";
 import {
   filterFileComponentsForComponentSet,
   getComponentSetByKey,
@@ -44,6 +45,12 @@ export interface VerifyComponentContractsOptions {
   fetchImpl?: typeof fetch;
 }
 
+export interface VerifyComponentLockOptions {
+  token: string;
+  lockPath: string;
+  fetchImpl?: typeof fetch;
+}
+
 interface LiveLockSnapshot {
   source: ContractLockSource;
   variants: ContractLockVariant[];
@@ -53,6 +60,23 @@ interface LiveLockSnapshot {
 
 function lockFileNamePattern(): RegExp {
   return /^(.+)\.component-set\.lock\.yaml$/;
+}
+
+function emptyDiff(): ContractLockDiff {
+  return {
+    source: false,
+    tree: false,
+    contractSurface: false,
+    variants: [],
+    addedVariants: [],
+    removedVariants: [],
+  };
+}
+
+function componentNameFromLockPath(lockPath: string): string {
+  const fileName = path.basename(lockPath);
+  const match = fileName.match(lockFileNamePattern());
+  return match?.[1] ?? fileName;
 }
 
 async function discoverLockedComponentNames(
@@ -122,14 +146,6 @@ async function verifySingleComponentContract(
 ): Promise<ComponentContractVerifyResult> {
   const fetchImpl = options.fetchImpl ?? fetch;
   const errors: string[] = [];
-  const emptyDiff: ContractLockDiff = {
-    source: false,
-    tree: false,
-    contractSurface: false,
-    variants: [],
-    addedVariants: [],
-    removedVariants: [],
-  };
 
   try {
     const lockPath = resolveContractLockPath(
@@ -142,7 +158,7 @@ async function verifySingleComponentContract(
         componentName,
         status: "error",
         errors: [`Missing lock file: ${lockPath}`],
-        changed: emptyDiff,
+        changed: emptyDiff(),
       };
     }
 
@@ -181,7 +197,54 @@ async function verifySingleComponentContract(
       componentName,
       status: "error",
       errors,
-      changed: emptyDiff,
+      changed: emptyDiff(),
+    };
+  }
+}
+
+export async function verifyComponentLock(
+  options: VerifyComponentLockOptions,
+): Promise<ComponentContractVerifyResult> {
+  const componentName = componentNameFromLockPath(options.lockPath);
+  const fetchImpl = options.fetchImpl ?? fetch;
+  const errors: string[] = [];
+
+  try {
+    const lock = await readContractLock(options.lockPath);
+    if (!lock) {
+      return {
+        componentName,
+        status: "error",
+        errors: [`Missing lock file: ${options.lockPath}`],
+        changed: emptyDiff(),
+      };
+    }
+
+    const live = await fetchLiveLockSnapshot(options.token, lock, fetchImpl);
+    const changed = diffContractLock(lock, live);
+    const status = isContractLockDiffEmpty(changed)
+      ? ("ok" as const)
+      : ("changed" as const);
+
+    return {
+      componentName,
+      status,
+      errors: [],
+      changed,
+    };
+  } catch (error) {
+    const message =
+      error instanceof FigmaInspectError
+        ? error.message
+        : error instanceof Error
+          ? error.message
+          : String(error);
+    errors.push(message);
+    return {
+      componentName,
+      status: "error",
+      errors,
+      changed: emptyDiff(),
     };
   }
 }

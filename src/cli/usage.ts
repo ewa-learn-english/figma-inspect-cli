@@ -16,13 +16,14 @@ export const usage = `Usage:
   figma-inspect --build-component-set-spec --input <path> --variables <path> [--team-components <path>] [--json]
   figma-inspect --build-component-set-pseudocode --input <path> --variables <path> [--output-dir <dir>] [--team-components <path>] [--json]
   figma-inspect --verify-component-contract --contract-dir <dir> [--component-name <name>] [--json]
+  figma-inspect --verify-component-lock --lock-file <path> [--json]
   figma-inspect --verify-node-contract --contract-dir <dir> [--node-name <name>] [--json]
   figma-inspect --export-contract --output-dir <dir> --variables <path> (--url <figma-url> | --file-key <key> --node-id <id>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-assets] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|png] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
   figma-inspect --export-component-set --output-dir <dir> --variables <path> (--url <figma-url> | --component-set-key <key> | --component-set-name <name>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-assets] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|png] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
   figma-inspect --export-node-contract --output-dir <dir> --variables <path> (--url <figma-url> | --file-key <key> --node-id <id>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|png] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
 
 Environment:
-  FIGMA_API_TOKEN  Figma personal access token (required for --verify-component-contract, --verify-node-contract, and all API commands below)
+  FIGMA_API_TOKEN  Figma personal access token (required for --verify-component-contract, --verify-component-lock, --verify-node-contract, and all API commands below)
   FIGMA_TEAM_ID    Figma team id (required for team-scoped commands, --export-team-index, --export-component-set, and --export-contract when the target is a COMPONENT_SET)
   FIGMA_CACHE      Set to 0 to disable the on-disk response cache (enabled by default)
 
@@ -44,6 +45,7 @@ Options:
   --build-component-set-spec      Build an AI-friendly spec from a local COMPONENT_SET JSON file; prints YAML by default
   --build-component-set-pseudocode Build component contracts from a local COMPONENT_SET JSON file; writes <ComponentName>.component-set.{visuals,geometry,meta}.yaml and <ComponentName>.component-set.structure.dsl
   --verify-component-contract     Compare lock files to live Figma via the API; validates local contract schema
+  --verify-component-lock         Compare one component-set lock file to live Figma without requiring contract artifacts
   --verify-node-contract          Compare frame/component node lock files to live Figma via the API; validates local node contract schema
   --export-contract               Export contract files for a Figma URL or node ref; auto-detects COMPONENT_SET, FRAME, or standalone COMPONENT
   --export-component-set          Export component contract files for a published team component set as YAML; writes <ComponentName>.component-set.lock.yaml; with --export-assets attempts variant SVG assets and falls back to a runtime contract when the set has runtime props
@@ -67,6 +69,7 @@ Options:
   --input <path>                  Input JSON file path (required with --build-component-set-spec and --build-component-set-pseudocode)
   --output-dir <dir>              Output directory (optional with --build-component-set-pseudocode; defaults to the input file directory)
   --contract-dir <dir>            Contract directory (required with --verify-component-contract and --verify-node-contract)
+  --lock-file <path>              Component-set lock file path (required with --verify-component-lock)
   --component-name <name>         Component name (optional with --verify-component-contract; defaults to all lock files in --contract-dir)
   --node-name <name>              Node contract base name (optional with --verify-node-contract; defaults to all frame/component lock files in --contract-dir)
   --output-dir <dir>              Output directory (required with export commands and --export-team-index)

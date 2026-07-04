@@ -54,6 +54,7 @@ team-scoped commands, `--export-team-index`, `--export-component-set`, and
 | `--export-component-set` | `--output-dir <dir> --variables <path>` plus URL or component set key/name | Component-set contracts |
 | `--export-node-contract` | `--output-dir <dir> --variables <path>` plus URL or file/node ref | Frame or standalone component contracts |
 | `--verify-component-contract` | `--contract-dir <dir>` | Component-set lock verification |
+| `--verify-component-lock` | `--lock-file <path>` | Single component-set lock verification without contract artifacts |
 | `--verify-node-contract` | `--contract-dir <dir>` | Frame/component lock verification |
 
 Common optional flags:
@@ -178,6 +179,7 @@ asset export writes `<Name>.assets/*.{svg,png}` plus
 ```sh
 npx . --verify-component-contract --contract-dir tmp
 npx . --verify-component-contract --contract-dir tmp --component-name Cell --json
+npx . --verify-component-lock --lock-file tmp/Cell.component-set.lock.yaml --json
 npx . --verify-node-contract --contract-dir tmp
 npx . --verify-node-contract --contract-dir tmp --node-name Settings --json
 ```

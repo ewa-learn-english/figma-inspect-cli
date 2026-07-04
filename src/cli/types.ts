@@ -97,6 +97,11 @@ export type CliCommand =
       outputFormat: ContractFormat;
     }
   | {
+      kind: "verify-component-lock";
+      lockFile: string;
+      outputFormat: ContractFormat;
+    }
+  | {
       kind: "verify-node-contract";
       contractDir: string;
       nodeName?: string;

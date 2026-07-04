@@ -42,6 +42,7 @@ interface ParsedFlags {
   buildComponentSetSpec: boolean;
   buildComponentSetPseudocode: boolean;
   verifyComponentContract: boolean;
+  verifyComponentLock: boolean;
   verifyNodeContract: boolean;
   exportContract: boolean;
   exportComponentSet: boolean;
@@ -73,6 +74,7 @@ interface ParsedFlags {
   componentSetKey: string | undefined;
   componentSetName: string | undefined;
   contractDir: string | undefined;
+  lockFile: string | undefined;
   componentName: string | undefined;
   nodeName: string | undefined;
   full: boolean;
@@ -103,6 +105,7 @@ function emptyFlags(): ParsedFlags {
     buildComponentSetSpec: false,
     buildComponentSetPseudocode: false,
     verifyComponentContract: false,
+    verifyComponentLock: false,
     verifyNodeContract: false,
     exportContract: false,
     exportComponentSet: false,
@@ -134,6 +137,7 @@ function emptyFlags(): ParsedFlags {
     componentSetKey: undefined,
     componentSetName: undefined,
     contractDir: undefined,
+    lockFile: undefined,
     componentName: undefined,
     nodeName: undefined,
     full: false,
@@ -568,6 +572,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
     flags.verifyComponentContract
       ? ("verify-component-contract" as const)
       : undefined,
+    flags.verifyComponentLock ? ("verify-component-lock" as const) : undefined,
     flags.verifyNodeContract ? ("verify-node-contract" as const) : undefined,
     flags.exportContract ? ("export-contract" as const) : undefined,
     flags.exportComponentSet ? ("export-component-set" as const) : undefined,
@@ -576,7 +581,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
 
   if (selected.length === 0) {
     throw new CliError(
-      "Nothing to do. Pass --version, --list-team-projects, --list-project-files, --list-team-project-files, --export-team-index, --list-team-component-sets, --list-component-set-usages, --inspect-component-set-responsive-usage, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, --build-component-set-spec, --build-component-set-pseudocode, --verify-component-contract, --verify-node-contract, --export-contract, --export-component-set, or --export-node-contract.\n\n" +
+      "Nothing to do. Pass --version, --list-team-projects, --list-project-files, --list-team-project-files, --export-team-index, --list-team-component-sets, --list-component-set-usages, --inspect-component-set-responsive-usage, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, --build-component-set-spec, --build-component-set-pseudocode, --verify-component-contract, --verify-component-lock, --verify-node-contract, --export-contract, --export-component-set, or --export-node-contract.\n\n" +
         usage,
     );
   }
@@ -606,6 +611,10 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
     throw new CliError(
       "--index-dir, --screen-group, and --full require --list-component-set-usages or --inspect-component-set-responsive-usage.",
     );
+  }
+
+  if (command !== "verify-component-lock" && flags.lockFile !== undefined) {
+    throw new CliError("--lock-file requires --verify-component-lock.");
   }
 
   switch (command) {
@@ -782,6 +791,17 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         kind: "verify-component-contract",
         contractDir: flags.contractDir,
         componentName: flags.componentName,
+        outputFormat: resolveOutputFormat(flags),
+      };
+    }
+    case "verify-component-lock": {
+      if (!flags.lockFile) {
+        throw new CliError("Missing --lock-file for --verify-component-lock.");
+      }
+
+      return {
+        kind: "verify-component-lock",
+        lockFile: flags.lockFile,
         outputFormat: resolveOutputFormat(flags),
       };
     }
@@ -978,6 +998,11 @@ export function parseCommand(argv: string[]): CliCommand {
 
     if (arg === "--verify-component-contract") {
       flags.verifyComponentContract = true;
+      continue;
+    }
+
+    if (arg === "--verify-component-lock") {
+      flags.verifyComponentLock = true;
       continue;
     }
 
@@ -1180,6 +1205,13 @@ export function parseCommand(argv: string[]): CliCommand {
     if (arg === "--contract-dir") {
       const { value, nextIndex } = readFlagValue(argv, index, arg);
       flags.contractDir = value;
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--lock-file") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.lockFile = value;
       index = nextIndex;
       continue;
     }

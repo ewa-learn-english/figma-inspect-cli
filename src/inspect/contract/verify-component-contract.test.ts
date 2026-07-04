@@ -13,7 +13,10 @@ import {
   resolveContractLockPath,
 } from "./contract-lock.js";
 import { fingerprintContractSurface, fingerprintTree } from "./fingerprint.js";
-import { verifyComponentContracts } from "./verify-component-contract.js";
+import {
+  verifyComponentContracts,
+  verifyComponentLock,
+} from "./verify-component-contract.js";
 
 const contractFixtures = contractFixturesDir;
 
@@ -493,5 +496,43 @@ describe("verifyComponentContracts", () => {
 
     expect(results[0]?.status).toBe("error");
     expect(results[0]?.errors[0]).toMatch(/structure DSL/);
+  });
+
+  it("verifies a single component lock without contract artifacts", async () => {
+    const contractDir = await mkdtemp(path.join(tmpdir(), "figma-lock-only-"));
+    const sourceLock = await loadProfileStreakLock();
+    const tree = profileStreakComponentSetTree();
+    const lock = buildContractLock({
+      source: sourceLock.source,
+      variants: sourceLock.variants,
+      fingerprints: {
+        tree: fingerprintTree(tree),
+        contractSurface: fingerprintContractSurface(tree),
+        contracts: sourceLock.fingerprints.contracts,
+        assets: sourceLock.fingerprints.assets,
+      },
+    });
+    const lockPath = resolveContractLockPath(contractDir, "ProfileStreakIcon");
+    await writeFile(lockPath, serializeContractData(lock, "yaml"));
+
+    const result = await verifyComponentLock({
+      token: "token",
+      lockPath,
+      fetchImpl: createFigmaFetchMock(buildLiveMockResponses(lock, tree)),
+    });
+
+    expect(result).toEqual({
+      componentName: "ProfileStreakIcon",
+      status: "ok",
+      errors: [],
+      changed: {
+        source: false,
+        tree: false,
+        contractSurface: false,
+        variants: [],
+        addedVariants: [],
+        removedVariants: [],
+      },
+    });
   });
 });

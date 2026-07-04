@@ -14,7 +14,10 @@ export {
   inspectComponentSetResponsiveUsage,
   listComponentSetUsages,
 } from "./component-set-usages.js";
-export { verifyComponentContracts } from "./contract/verify-component-contract.js";
+export {
+  verifyComponentContracts,
+  verifyComponentLock,
+} from "./contract/verify-component-contract.js";
 export { FigmaInspectError } from "./errors.js";
 export {
   DEFAULT_NESTED_ASSET_SCALE,

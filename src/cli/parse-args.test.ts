@@ -284,6 +284,21 @@ describe("parseCommand", () => {
     });
   });
 
+  it("parses verify-component-lock with lock file", () => {
+    expect(
+      parseCommand([
+        "--verify-component-lock",
+        "--lock-file",
+        "tmp/Cell.component-set.lock.yaml",
+        "--json",
+      ]),
+    ).toEqual({
+      kind: "verify-component-lock",
+      lockFile: "tmp/Cell.component-set.lock.yaml",
+      outputFormat: "json",
+    });
+  });
+
   it("uses json only for verify stdout format", () => {
     const command = parseCommand([
       "--verify-component-contract",
@@ -603,6 +618,7 @@ describe("parseCommand", () => {
     expect(() => parseCommand(["--verify-component-contract"])).toThrow(
       CliError,
     );
+    expect(() => parseCommand(["--verify-component-lock"])).toThrow(CliError);
     expect(() => parseCommand(["--verify-node-contract"])).toThrow(CliError);
     expect(() => parseCommand(["--list-project-files"])).toThrow(CliError);
     expect(() => parseCommand(["--export-team-index"])).toThrow(
