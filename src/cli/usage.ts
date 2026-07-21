@@ -1,30 +1,36 @@
 export const usage = `Usage:
   figma-inspect --version
-  figma-inspect --list-team-projects [--json]
+  figma-inspect --list-team-projects [--team <alias>] [--json]
   figma-inspect --list-project-files --project-id <id> [--json]
-  figma-inspect --list-team-project-files [--json]
-  figma-inspect --export-team-index --output-dir <dir> [--screen-similarity-threshold <number>] [--screen-size-tolerance <px>]
-  figma-inspect --list-team-component-sets [--json]
+  figma-inspect --list-team-project-files [--team <alias>] [--json]
+  figma-inspect --export-team-index --output-dir <dir> [--team <alias>] [--screen-similarity-threshold <number>] [--screen-size-tolerance <px>]
+  figma-inspect --refresh-index [--team <alias>] [--index-root <dir>] [--screen-similarity-threshold <number>] [--screen-size-tolerance <px>] [--json]
+  figma-inspect --index-status [--team <alias>] [--index-root <dir>] [--json]
+  figma-inspect --search-components --name <query> [--team <alias>] [--index-root <dir>] [--json]
+  figma-inspect --preflight [--team <alias>] [--index-root <dir>] [--json]
+  figma-inspect --list-team-component-sets [--team <alias>] [--json]
   figma-inspect --list-component-set-usages --index-dir <dir> (--component-set-key <key> | --component-set-name <name>) [--screen-group <name-or-id>] [--full] [--json]
   figma-inspect --inspect-component-set-responsive-usage --index-dir <dir> (--component-set-key <key> | --component-set-name <name>) [--screen-group <name-or-id>] [--full] [--json]
   figma-inspect --list-file-pages --file-key <key> [--json]
   figma-inspect --list-file-component-sets --file-key <key> [--json]
   figma-inspect --inspect-component-set-properties (--url <figma-url> | --file-key <key> --node-id <id> (--component-set-key <key> | --component-set-name <name>)) [--json]
   figma-inspect --inspect-component-set (--url <figma-url> | --file-key <key> --node-id <id> (--component-set-key <key> | --component-set-name <name>)) [--json]
-  figma-inspect --inspect-team-component-set (--component-set-key <key> | --component-set-name <name>) [--json]
+  figma-inspect --inspect-team-component-set (--component-set-key <key> | --component-set-name <name>) [--team <alias>] [--json]
   figma-inspect --inspect-file-node (--url <figma-url> | --file-key <key> --node-id <id>) [--json]
-  figma-inspect --build-component-set-spec --input <path> --variables <path> [--team-components <path>] [--json]
-  figma-inspect --build-component-set-pseudocode --input <path> --variables <path> [--output-dir <dir>] [--team-components <path>] [--json]
+  figma-inspect --build-component-set-spec --input <path> [--variables <path>] [--team-components <path>] [--json]
+  figma-inspect --build-component-set-pseudocode --input <path> [--variables <path>] [--output-dir <dir>] [--team-components <path>] [--json]
   figma-inspect --verify-component-contract --contract-dir <dir> [--component-name <name>] [--json]
   figma-inspect --verify-component-lock --lock-file <path> [--json]
   figma-inspect --verify-node-contract --contract-dir <dir> [--node-name <name>] [--json]
-  figma-inspect --export-contract --output-dir <dir> --variables <path> (--url <figma-url> | --file-key <key> --node-id <id>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-assets] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|png] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
-  figma-inspect --export-component-set --output-dir <dir> --variables <path> (--url <figma-url> | --component-set-key <key> | --component-set-name <name>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-assets] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|png] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
-  figma-inspect --export-node-contract --output-dir <dir> --variables <path> (--url <figma-url> | --file-key <key> --node-id <id>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|png] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
+  figma-inspect --export-contract --output-dir <dir> [--variables <path>] [--team <alias>] (--url <figma-url> | --file-key <key> --node-id <id>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-assets] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|png] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
+  figma-inspect --export-component-set --output-dir <dir> [--variables <path>] [--team <alias>] (--url <figma-url> | --component-set-key <key> | --component-set-name <name>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-assets] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|png] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
+  figma-inspect --export-node-contract --output-dir <dir> [--variables <path>] (--url <figma-url> | --file-key <key> --node-id <id>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|png] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
 
 Environment:
   FIGMA_API_TOKEN  Figma personal access token (required for --verify-component-contract, --verify-component-lock, --verify-node-contract, and all API commands below)
-  FIGMA_TEAM_ID    Figma team id (required for team-scoped commands, --export-team-index, --export-component-set, and --export-contract when the target is a COMPONENT_SET)
+  FIGMA_TEAMS      JSON object of team aliases to team ids (used by managed indexes and --team)
+  FIGMA_TEAM_ID    Legacy single Figma team id (still supported by all existing team-scoped commands)
+  FIGMA_INDEX_ROOT Managed index root (default: ~/.figma-inspect-cli/indexes)
   FIGMA_CACHE      Set to 0 to disable the on-disk response cache (enabled by default)
 
 Options:
@@ -33,6 +39,10 @@ Options:
   --list-project-files            List files in a Figma project
   --list-team-project-files       List files in all team projects
   --export-team-index             Write a deterministic team inventory index as SQLite: figma-index.sqlite3
+  --refresh-index                 Rebuild persistent indexes for one or all configured teams
+  --index-status                  Print persistent index creation time, age, and counts
+  --search-components             Search component sets and standalone components by name in persistent indexes
+  --preflight                     Validate token access, configured teams, and index-root permissions
   --list-team-component-sets      List published component sets in a Figma team
   --list-component-set-usages     Read a local team index and list compact screens/usages where a component set is used
   --inspect-component-set-responsive-usage Read a local team index and group compact component-set usages by responsive screen group with layout risks
@@ -61,9 +71,12 @@ Options:
   --asset-max <number>            Maximum nested asset nodes to export after selection
   --asset-format <format>         Asset export format; svg for --export-assets, svg or png for --export-nested-assets (repeatable; default: svg)
   --asset-scale <scale>           PNG nested asset scale for the Figma Images API (default: 2)
-  --screen-similarity-threshold <number> Screen similarity threshold for --export-team-index (default: 0.9)
-  --screen-size-tolerance <px>     Screen frame size tolerance in pixels for --export-team-index (default: 2)
+  --screen-similarity-threshold <number> Screen similarity threshold for index export (default: 0.9)
+  --screen-size-tolerance <px>     Screen frame size tolerance in pixels for index export (default: 2)
   --index-dir <dir>               Local team index directory (required with --list-component-set-usages and --inspect-component-set-responsive-usage)
+  --index-root <dir>              Persistent multi-team index root (overrides FIGMA_INDEX_ROOT)
+  --team <alias>                  Select one alias from FIGMA_TEAMS
+  --name <query>                  Component-name substring for --search-components
   --screen-group <name-or-id>      Filter local component-set usage lookup to a screen group id or shared screen name prefix
   --full                          Print full local usage records instead of compact LLM-friendly summaries
   --input <path>                  Input JSON file path (required with --build-component-set-spec and --build-component-set-pseudocode)
@@ -73,7 +86,7 @@ Options:
   --component-name <name>         Component name (optional with --verify-component-contract; defaults to all lock files in --contract-dir)
   --node-name <name>              Node contract base name (optional with --verify-node-contract; defaults to all frame/component lock files in --contract-dir)
   --output-dir <dir>              Output directory (required with export commands and --export-team-index)
-  --variables <path>              Variables export JSON (required with --build-component-set-spec, --build-component-set-pseudocode, and export commands)
+  --variables <path>              Optional variables export JSON for resolving Figma variable aliases
   --team-components <path>        Team component sets JSON (optional with --build-component-set-spec and --build-component-set-pseudocode)
   --url <figma-url>               Figma node URL; supports /design/<fileKey>/... and /file/<fileKey>/... with node-id
   --project-id <id>               Project id (required with --list-project-files)

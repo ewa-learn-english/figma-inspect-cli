@@ -55,6 +55,10 @@ One command per invocation. Source of truth: `src/cli/usage.ts` and `src/cli/par
 | `--list-project-files` | yes | | `--project-id` |
 | `--list-team-project-files` | yes | yes | |
 | `--export-team-index` | yes | yes | `--output-dir`; writes `figma-index.sqlite3`; optional screen grouping thresholds |
+| `--refresh-index` | yes | configured teams | managed per-team indexes; all teams unless `--team` is passed |
+| `--index-status` | | configured teams | local timestamps, ages, and counts |
+| `--search-components` | | configured teams | local case-insensitive component-name search |
+| `--preflight` | yes | configured teams | token/team access plus index-root permissions |
 | `--list-team-component-sets` | yes | yes | |
 | `--list-component-set-usages` | | | local `--index-dir`; component set key/name; optional `--screen-group`, `--full` |
 | `--inspect-component-set-responsive-usage` | | | local `--index-dir`; component set key/name; optional `--screen-group`, `--full` |
@@ -64,13 +68,13 @@ One command per invocation. Source of truth: `src/cli/usage.ts` and `src/cli/par
 | `--inspect-component-set` | yes | | `--url` or `--file-key`, `--node-id`, component set key/name; raw COMPONENT_SET YAML/JSON |
 | `--inspect-team-component-set` | yes | yes | resolves file/node from team publish |
 | `--inspect-file-node` | yes | | `--url` or `--file-key`, `--node-id` |
-| `--build-component-set-spec` | | | local JSON `--input`, `--variables`; no API token |
+| `--build-component-set-spec` | | | local JSON `--input`; optional `--variables`; no API token |
 | `--build-component-set-pseudocode` | | | writes contract files locally |
 | `--verify-component-contract` | yes | | `--contract-dir`; compares lock to live Figma API |
 | `--verify-node-contract` | yes | | `--contract-dir`; compares frame/component lock to live Figma API |
-| `--export-contract` | yes | maybe | `--output-dir`, `--variables`, `--url` or file/node ref; Team ID only when target is `COMPONENT_SET` |
-| `--export-component-set` | yes | yes | `--output-dir`, `--variables`, `--url` or component set key/name |
-| `--export-node-contract` | yes | | `--output-dir`, `--variables`, `--url` or file/node ref |
+| `--export-contract` | yes | maybe | `--output-dir`, `--url` or file/node ref; optional `--variables`; team only when target is `COMPONENT_SET` |
+| `--export-component-set` | yes | yes | `--output-dir`, optional `--variables`, `--url` or component set key/name |
+| `--export-node-contract` | yes | | `--output-dir`, optional `--variables`, `--url` or file/node ref |
 
 `--json` on verify affects **stdout format only**. Export commands write JSON
 data artifacts when `--json` is set, but lock files stay YAML and structure
@@ -104,7 +108,9 @@ With `--export-assets`: `<Name>.assets/*.svg` on disk; paths referenced from
 ## Environment
 
 - `FIGMA_API_TOKEN` — required for all API commands and verify commands
-- `FIGMA_TEAM_ID` — required for team-scoped list/inspect/export commands, `--export-team-index`, `--export-component-set`, and `--export-contract` when the target is a `COMPONENT_SET`
+- `FIGMA_TEAMS` — JSON object of user-defined aliases to team ids; managed commands operate on all entries unless `--team` is passed
+- `FIGMA_TEAM_ID` — backward-compatible single-team fallback for existing commands and setups
+- `FIGMA_INDEX_ROOT` — persistent managed index root; defaults to `~/.figma-inspect-cli/indexes`
 - `FIGMA_CACHE` — set to `0` to disable on-disk API cache (`figma-inspect-cli-cache/` in temp)
 
 Local index lookup commands read `--index-dir` and do not require Figma

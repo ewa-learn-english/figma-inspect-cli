@@ -21,6 +21,10 @@ const mocks = vi.hoisted(() => ({
   compactComponentSetUsages: vi.fn(),
   inspectComponentSetResponsiveUsage: vi.fn(),
   compactComponentSetResponsiveUsage: vi.fn(),
+  managedTeamIndexStatuses: vi.fn(),
+  refreshManagedTeamIndexes: vi.fn(),
+  runFigmaPreflight: vi.fn(),
+  searchManagedTeamIndexes: vi.fn(),
   listProjectFiles: vi.fn(),
   getFileNode: vi.fn(),
   getNodeComponentSetByRef: vi.fn(),
@@ -107,6 +111,16 @@ vi.mock("./export-team-index.js", () => ({
   exportTeamIndex: mocks.exportTeamIndex,
 }));
 
+vi.mock("./figma-preflight.js", () => ({
+  runFigmaPreflight: mocks.runFigmaPreflight,
+}));
+
+vi.mock("./managed-team-index.js", () => ({
+  managedTeamIndexStatuses: mocks.managedTeamIndexStatuses,
+  refreshManagedTeamIndexes: mocks.refreshManagedTeamIndexes,
+  searchManagedTeamIndexes: mocks.searchManagedTeamIndexes,
+}));
+
 import { runCli } from "./run-cli.js";
 import { usage } from "./usage.js";
 
@@ -180,6 +194,77 @@ describe("runCli", () => {
     const { io } = createIo({ FIGMA_TEAM_ID: undefined });
     await expect(runCli(["--list-team-projects"], io)).rejects.toThrow(
       /Missing FIGMA_TEAM_ID/,
+    );
+  });
+
+  it("searches every configured team index without API credentials", async () => {
+    mocks.searchManagedTeamIndexes.mockResolvedValue([
+      {
+        team: { alias: "design", id: "1" },
+        type: "component-set",
+        name: "Button",
+      },
+    ]);
+    const { io, output } = createIo({
+      FIGMA_API_TOKEN: undefined,
+      FIGMA_TEAM_ID: undefined,
+      FIGMA_TEAMS: '{"design":"1","marketing":"2"}',
+      FIGMA_INDEX_ROOT: "/tmp/figma-indexes",
+    });
+
+    await runCli(["--search-components", "--name", "button", "--json"], io);
+
+    expect(mocks.searchManagedTeamIndexes).toHaveBeenCalledWith({
+      teams: [
+        { alias: "design", id: "1" },
+        { alias: "marketing", id: "2" },
+      ],
+      indexRoot: "/tmp/figma-indexes",
+      query: "button",
+    });
+    expect(JSON.parse(output())).toMatchObject({
+      query: "button",
+      results: [{ name: "Button" }],
+    });
+  });
+
+  it("refreshes all configured teams and runs preflight", async () => {
+    mocks.refreshManagedTeamIndexes.mockResolvedValue([]);
+    mocks.runFigmaPreflight.mockResolvedValue({
+      status: "passed",
+      checkedAt: "2026-07-21T00:00:00.000Z",
+      cliVersion: "0.7.0",
+      indexRoot: "/tmp/figma-indexes",
+      teams: [],
+    });
+    const environment = {
+      FIGMA_TEAM_ID: undefined,
+      FIGMA_TEAMS: '{"design":"1","marketing":"2"}',
+      FIGMA_INDEX_ROOT: "/tmp/figma-indexes",
+    };
+
+    await runCli(["--refresh-index", "--json"], createIo(environment).io);
+    expect(mocks.refreshManagedTeamIndexes).toHaveBeenCalledWith({
+      token: "token",
+      teams: [
+        { alias: "design", id: "1" },
+        { alias: "marketing", id: "2" },
+      ],
+      indexRoot: "/tmp/figma-indexes",
+      screenSimilarityThreshold: undefined,
+      screenSizeTolerance: undefined,
+    });
+
+    await runCli(["--preflight", "--json"], createIo(environment).io);
+    expect(mocks.runFigmaPreflight).toHaveBeenCalledWith(
+      expect.objectContaining({
+        token: "token",
+        teams: [
+          { alias: "design", id: "1" },
+          { alias: "marketing", id: "2" },
+        ],
+        indexRoot: "/tmp/figma-indexes",
+      }),
     );
   });
 

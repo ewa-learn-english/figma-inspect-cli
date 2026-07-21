@@ -36,6 +36,7 @@ export interface BuildTeamIndexFileInput {
 export interface BuildTeamIndexOptions {
   teamId: string;
   files: readonly BuildTeamIndexFileInput[];
+  generatedAt?: string;
   screenSimilarityThreshold?: number;
   screenSizeTolerance?: number;
 }
@@ -125,6 +126,7 @@ interface TeamIndex {
   version: 1;
   kind: "figma-team-index";
   team: string;
+  generatedAt: string;
   files: TeamIndexFileSummary[];
 }
 
@@ -845,6 +847,7 @@ export function buildTeamIndex(
       version: 1,
       kind: "figma-team-index",
       team: options.teamId,
+      generatedAt: options.generatedAt ?? new Date().toISOString(),
       files: draftFiles.map(teamFileSummary),
     },
     files: draftFiles.map((file) => fileIndex(file, threshold)),

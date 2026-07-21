@@ -20,7 +20,7 @@ export interface ExportContractOptions extends FigmaNodeRef {
   teamId?: string;
   outputDir: string;
   sourceUrl?: string;
-  variablesPath: string;
+  variablesPath?: string;
   exportAssets?: boolean;
   assetFormat?: "svg";
   nestedAssets?: NestedAssetsOptions;
@@ -43,7 +43,9 @@ export async function exportContract(
 
   if (target.kind === "component-set") {
     if (!options.teamId) {
-      throw new CliError("Missing FIGMA_TEAM_ID environment variable.");
+      throw new CliError(
+        "Missing FIGMA_TEAM_ID environment variable or unambiguous FIGMA_TEAMS selection; pass --team when multiple teams are configured.",
+      );
     }
 
     return exportComponentSet({

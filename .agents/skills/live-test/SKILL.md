@@ -18,7 +18,7 @@ Do not run live API calls during refactors, reviews, or commits unless the user 
 
 ## Prerequisites
 
-1. `FIGMA_API_TOKEN` and `FIGMA_TEAM_ID` must be set in the environment.
+1. `FIGMA_API_TOKEN` and either `FIGMA_TEAM_ID` or `FIGMA_TEAMS` must be set in the environment.
 2. Build before testing: `npm run build`
 3. Run CLI from repo root via `npx .` (uses package `bin` → `dist/`).
 
@@ -35,6 +35,7 @@ Use these defaults unless the user provides overrides in the chat:
 | `COMPONENT_SET_NAME` | `Cell` |
 | `VARIABLES_PATH` | `tmp/cp-ds-styles-variables-local.json` |
 | `TEAM_INDEX_DIR` | `tmp/figma-index` |
+| `MANAGED_INDEX_ROOT` | `tmp/figma-managed-indexes` |
 | `FIGMA_NODE_URL` | `https://www.figma.com/design/$FILE_KEY/LiveTest?node-id=${NODE_ID/:/-}` |
 | `FRAME_NODE_URL` | user-provided FRAME URL for node contract export |
 | `FRAME_NODE_NAME` | base file name produced by `FRAME_NODE_URL` export |
@@ -59,7 +60,11 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 1 | `--list-team-projects` | | needs `FIGMA_TEAM_ID` |
 | 2 | `--list-project-files` | `--project-id $PROJECT_ID` | |
 | 3 | `--list-team-project-files` | | needs `FIGMA_TEAM_ID` |
-| 4 | `--export-team-index` | `--output-dir $TEAM_INDEX_DIR` | writes `figma-index.sqlite3`; needs `FIGMA_TEAM_ID` |
+| 4 | `--export-team-index` | `--output-dir $TEAM_INDEX_DIR` | writes `figma-index.sqlite3`; use `--team` when `FIGMA_TEAMS` has multiple entries |
+| 4a | `--refresh-index` | `--index-root $MANAGED_INDEX_ROOT` | rebuilds all configured teams; with only `FIGMA_TEAM_ID`, rebuilds the legacy team |
+| 4b | `--index-status` | `--index-root $MANAGED_INDEX_ROOT --json` | local timestamps and counts; no API token required |
+| 4c | `--search-components` | `--index-root $MANAGED_INDEX_ROOT --name $COMPONENT_SET_NAME --json` | local case-insensitive name search |
+| 4d | `--preflight` | `--index-root $MANAGED_INDEX_ROOT --json` | token/team access and writable index root |
 | 5 | `--list-component-set-usages` | `--index-dir $TEAM_INDEX_DIR --component-set-name $COMPONENT_SET_NAME` | compact local index lookup; no Figma API call; add `--full` for raw records |
 | 6 | `--inspect-component-set-responsive-usage` | `--index-dir $TEAM_INDEX_DIR --component-set-name $COMPONENT_SET_NAME` | compact local responsive usage/risk lookup; no Figma API call; add `--full` for raw records |
 | 7 | `--list-team-component-sets` | | needs `FIGMA_TEAM_ID`; published sets only |
@@ -101,6 +106,10 @@ npx . --list-team-projects
 npx . --list-project-files --project-id "$PROJECT_ID"
 npx . --list-team-project-files
 npx . --export-team-index --output-dir "$TEAM_INDEX_DIR"
+npx . --refresh-index --index-root "$MANAGED_INDEX_ROOT"
+npx . --index-status --index-root "$MANAGED_INDEX_ROOT" --json
+npx . --search-components --index-root "$MANAGED_INDEX_ROOT" --name "$COMPONENT_SET_NAME" --json
+npx . --preflight --index-root "$MANAGED_INDEX_ROOT" --json
 npx . --list-component-set-usages --index-dir "$TEAM_INDEX_DIR" --component-set-name "$COMPONENT_SET_NAME"
 npx . --inspect-component-set-responsive-usage --index-dir "$TEAM_INDEX_DIR" --component-set-name "$COMPONENT_SET_NAME"
 npx . --list-team-component-sets

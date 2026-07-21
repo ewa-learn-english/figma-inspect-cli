@@ -29,7 +29,7 @@ export interface ExportNodeContractOptions extends FigmaNodeRef {
   token: string;
   outputDir: string;
   sourceUrl?: string;
-  variablesPath: string;
+  variablesPath?: string;
   nestedAssets?: NestedAssetsOptions;
   preview?: ExportPreviewOptions;
   format?: ContractFormat;

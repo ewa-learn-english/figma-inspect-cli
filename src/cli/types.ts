@@ -22,16 +22,52 @@ export type ComponentSetCommandScope =
 export type CliCommand =
   | { kind: "help" }
   | { kind: "version" }
-  | { kind: "list-team-projects"; format: ContractFormat }
+  | { kind: "list-team-projects"; teamAlias?: string; format: ContractFormat }
   | { kind: "list-project-files"; projectId: string; format: ContractFormat }
-  | { kind: "list-team-project-files"; format: ContractFormat }
+  | {
+      kind: "list-team-project-files";
+      teamAlias?: string;
+      format: ContractFormat;
+    }
   | {
       kind: "export-team-index";
       outputDir: string;
+      teamAlias?: string;
       screenSimilarityThreshold?: number;
       screenSizeTolerance?: number;
     }
-  | { kind: "list-team-component-sets"; format: ContractFormat }
+  | {
+      kind: "refresh-index";
+      teamAlias?: string;
+      indexRoot?: string;
+      screenSimilarityThreshold?: number;
+      screenSizeTolerance?: number;
+      format: ContractFormat;
+    }
+  | {
+      kind: "index-status";
+      teamAlias?: string;
+      indexRoot?: string;
+      format: ContractFormat;
+    }
+  | {
+      kind: "search-components";
+      query: string;
+      teamAlias?: string;
+      indexRoot?: string;
+      format: ContractFormat;
+    }
+  | {
+      kind: "preflight";
+      teamAlias?: string;
+      indexRoot?: string;
+      format: ContractFormat;
+    }
+  | {
+      kind: "list-team-component-sets";
+      teamAlias?: string;
+      format: ContractFormat;
+    }
   | {
       kind: "list-component-set-usages";
       indexDir: string;
@@ -67,6 +103,7 @@ export type CliCommand =
   | {
       kind: "inspect-team-component-set";
       componentSet: ComponentSetLookup;
+      teamAlias?: string;
       format: ContractFormat;
     }
   | ({
@@ -77,7 +114,7 @@ export type CliCommand =
   | {
       kind: "build-component-set-spec";
       inputPath: string;
-      variablesPath: string;
+      variablesPath?: string;
       teamComponentsPath?: string;
       format: ContractFormat;
     }
@@ -85,7 +122,7 @@ export type CliCommand =
       kind: "build-component-set-pseudocode";
       inputPath: string;
       outputDir?: string;
-      variablesPath: string;
+      variablesPath?: string;
       teamComponentsPath?: string;
       format: ContractFormat;
     }
@@ -112,8 +149,9 @@ export type CliCommand =
       kind: "export-component-set";
       outputDir: string;
       componentSet: ComponentSetTarget;
+      teamAlias?: string;
       sourceUrl?: string;
-      variablesPath: string;
+      variablesPath?: string;
       exportAssets?: boolean;
       assetFormat?: "svg";
       nestedAssets?: NestedAssetsOptions;
@@ -123,8 +161,9 @@ export type CliCommand =
   | ({
       kind: "export-contract";
       outputDir: string;
+      teamAlias?: string;
       sourceUrl?: string;
-      variablesPath: string;
+      variablesPath?: string;
       exportAssets?: boolean;
       assetFormat?: "svg";
       nestedAssets?: NestedAssetsOptions;
@@ -135,7 +174,7 @@ export type CliCommand =
       kind: "export-node-contract";
       outputDir: string;
       sourceUrl?: string;
-      variablesPath: string;
+      variablesPath?: string;
       nestedAssets?: NestedAssetsOptions;
       preview?: ExportPreviewOptions;
       format: ContractFormat;

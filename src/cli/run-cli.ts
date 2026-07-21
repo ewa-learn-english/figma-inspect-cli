@@ -42,6 +42,18 @@ import {
 } from "./export-result.js";
 import { exportTeamIndex } from "./export-team-index.js";
 import {
+  optionalSingleFigmaTeamId,
+  resolveFigmaIndexRoot,
+  selectConfiguredFigmaTeams,
+  selectSingleFigmaTeam,
+} from "./figma-environment.js";
+import { runFigmaPreflight } from "./figma-preflight.js";
+import {
+  managedTeamIndexStatuses,
+  refreshManagedTeamIndexes,
+  searchManagedTeamIndexes,
+} from "./managed-team-index.js";
+import {
   writeComponentSetProperties,
   writeComponentSets,
   writeData,
@@ -56,6 +68,17 @@ import type { CliIo } from "./types.js";
 import { usage } from "./usage.js";
 import { readPackageVersion } from "./version.js";
 
+function warnUnresolvedVariables(
+  variablesPath: string | undefined,
+  stderr: NodeJS.WriteStream,
+): void {
+  if (variablesPath === undefined) {
+    stderr.write(
+      "Warning: --variables was not provided; Figma variable aliases remain unresolved.\n",
+    );
+  }
+}
+
 export async function runCli(argv: string[], io: CliIo): Promise<void> {
   const command = parseCommand(argv);
 
@@ -66,6 +89,41 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
 
   if (command.kind === "version") {
     io.stdout.write(`${await readPackageVersion()}\n`);
+    return;
+  }
+
+  if (command.kind === "index-status") {
+    try {
+      const teams = selectConfiguredFigmaTeams(io.env, command.teamAlias);
+      const statuses = await managedTeamIndexStatuses({
+        teams,
+        indexRoot: resolveFigmaIndexRoot(io.env, command.indexRoot),
+      });
+      writeData(statuses, command.format, io.stdout);
+    } catch (error) {
+      if (error instanceof FigmaInspectError) {
+        throw new CliError(error.message);
+      }
+      throw error;
+    }
+    return;
+  }
+
+  if (command.kind === "search-components") {
+    try {
+      const teams = selectConfiguredFigmaTeams(io.env, command.teamAlias);
+      const results = await searchManagedTeamIndexes({
+        teams,
+        indexRoot: resolveFigmaIndexRoot(io.env, command.indexRoot),
+        query: command.query,
+      });
+      writeData({ query: command.query, results }, command.format, io.stdout);
+    } catch (error) {
+      if (error instanceof FigmaInspectError) {
+        throw new CliError(error.message);
+      }
+      throw error;
+    }
     return;
   }
 
@@ -251,6 +309,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
 
   if (command.kind === "build-component-set-spec") {
     try {
+      warnUnresolvedVariables(command.variablesPath, io.stderr);
       const spec = await buildComponentSetSpecFromFile(command.inputPath, {
         variablesPath: command.variablesPath,
         teamComponentsPath: command.teamComponentsPath,
@@ -269,6 +328,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
 
   if (command.kind === "build-component-set-pseudocode") {
     try {
+      warnUnresolvedVariables(command.variablesPath, io.stderr);
       const result = await buildComponentSetPseudocodeFromFile(
         command.inputPath,
         {
@@ -390,11 +450,46 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
     throw new CliError("Missing FIGMA_API_TOKEN environment variable.");
   }
 
-  if (command.kind === "export-team-index") {
-    const teamId = io.env.FIGMA_TEAM_ID;
-    if (!teamId) {
-      throw new CliError("Missing FIGMA_TEAM_ID environment variable.");
+  if (command.kind === "preflight") {
+    const teams = selectConfiguredFigmaTeams(io.env, command.teamAlias);
+    const result = await runFigmaPreflight({
+      token,
+      teams,
+      indexRoot: resolveFigmaIndexRoot(io.env, command.indexRoot),
+      cliVersion: await readPackageVersion(),
+    });
+    writeData(result, command.format, io.stdout);
+    if (result.status !== "passed") {
+      throw new CliError(`Figma preflight ${result.status}.`);
     }
+    return;
+  }
+
+  if (command.kind === "refresh-index") {
+    try {
+      const teams = selectConfiguredFigmaTeams(io.env, command.teamAlias);
+      const results = await refreshManagedTeamIndexes({
+        token,
+        teams,
+        indexRoot: resolveFigmaIndexRoot(io.env, command.indexRoot),
+        screenSimilarityThreshold: command.screenSimilarityThreshold,
+        screenSizeTolerance: command.screenSizeTolerance,
+      });
+      writeData(results, command.format, io.stdout);
+    } catch (error) {
+      if (
+        error instanceof FigmaApiError ||
+        error instanceof FigmaInspectError
+      ) {
+        throw new CliError(error.message);
+      }
+      throw error;
+    }
+    return;
+  }
+
+  if (command.kind === "export-team-index") {
+    const teamId = selectSingleFigmaTeam(io.env, command.teamAlias).id;
 
     try {
       const result = await exportTeamIndex({
@@ -420,12 +515,10 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
   }
 
   if (command.kind === "export-component-set") {
-    const teamId = io.env.FIGMA_TEAM_ID;
-    if (!teamId) {
-      throw new CliError("Missing FIGMA_TEAM_ID environment variable.");
-    }
+    const teamId = selectSingleFigmaTeam(io.env, command.teamAlias).id;
 
     try {
+      warnUnresolvedVariables(command.variablesPath, io.stderr);
       const result = await exportComponentSet({
         token,
         teamId,
@@ -457,9 +550,10 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
 
   if (command.kind === "export-contract") {
     try {
+      warnUnresolvedVariables(command.variablesPath, io.stderr);
       const result = await exportContract({
         token,
-        teamId: io.env.FIGMA_TEAM_ID,
+        teamId: optionalSingleFigmaTeamId(io.env, command.teamAlias),
         outputDir: command.outputDir,
         fileKey: command.fileKey,
         nodeId: command.nodeId,
@@ -490,6 +584,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
 
   if (command.kind === "export-node-contract") {
     try {
+      warnUnresolvedVariables(command.variablesPath, io.stderr);
       const result = await exportNodeContract({
         token,
         outputDir: command.outputDir,
@@ -520,30 +615,21 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
   try {
     switch (command.kind) {
       case "list-team-projects": {
-        const teamId = io.env.FIGMA_TEAM_ID;
-        if (!teamId) {
-          throw new CliError("Missing FIGMA_TEAM_ID environment variable.");
-        }
+        const teamId = selectSingleFigmaTeam(io.env, command.teamAlias).id;
 
         const projects = await listTeamProjects({ token, teamId });
         writeProjects(projects, command.format, io.stdout);
         break;
       }
       case "list-team-project-files": {
-        const teamId = io.env.FIGMA_TEAM_ID;
-        if (!teamId) {
-          throw new CliError("Missing FIGMA_TEAM_ID environment variable.");
-        }
+        const teamId = selectSingleFigmaTeam(io.env, command.teamAlias).id;
 
         const files = await listTeamProjectFiles({ token, teamId });
         writeTeamProjectFiles(files, command.format, io.stdout);
         break;
       }
       case "list-team-component-sets": {
-        const teamId = io.env.FIGMA_TEAM_ID;
-        if (!teamId) {
-          throw new CliError("Missing FIGMA_TEAM_ID environment variable.");
-        }
+        const teamId = selectSingleFigmaTeam(io.env, command.teamAlias).id;
 
         const componentSets = await listAllComponentSets({ token, teamId });
         writeTeamComponentSets(componentSets, command.format, io.stdout);
@@ -618,10 +704,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         break;
       }
       case "inspect-team-component-set": {
-        const teamId = io.env.FIGMA_TEAM_ID;
-        if (!teamId) {
-          throw new CliError("Missing FIGMA_TEAM_ID environment variable.");
-        }
+        const teamId = selectSingleFigmaTeam(io.env, command.teamAlias).id;
 
         const scope = await resolveTeamComponentSetScope({
           token,

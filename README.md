@@ -14,8 +14,12 @@ Set the environment variables needed by API-backed commands:
 
 ```sh
 export FIGMA_API_TOKEN="figd_..."
-export FIGMA_TEAM_ID="<team_id>"
+export FIGMA_TEAMS='{"design":"<team_id>","marketing":"<team_id>"}'
 ```
+
+`FIGMA_TEAM_ID=<team_id>` remains supported for existing single-team setups.
+`FIGMA_TEAMS` enables aliases and all-team index commands; aliases are chosen by
+the user and have no built-in meaning.
 
 From the repository, run the compiled CLI with `npx .`:
 
@@ -28,9 +32,9 @@ For source-mode development, use `npm run dev -- <flags>`.
 ## Commands
 
 Only one command can be passed per invocation. `FIGMA_API_TOKEN` is required for
-all API-backed commands and verification. `FIGMA_TEAM_ID` is required for
-team-scoped commands, `--export-team-index`, `--export-component-set`, and
-`--export-contract` when the target is a `COMPONENT_SET`.
+all API-backed commands and verification. Team-scoped commands use the legacy
+`FIGMA_TEAM_ID`, the only `FIGMA_TEAMS` entry, or a `--team <alias>` selection.
+Managed index commands without `--team` operate on every `FIGMA_TEAMS` entry.
 
 | Command | Main arguments | Output |
 |---|---|---|
@@ -39,6 +43,10 @@ team-scoped commands, `--export-team-index`, `--export-component-set`, and
 | `--list-project-files` | `--project-id <id>` | Files in one project |
 | `--list-team-project-files` | none | Files across team projects |
 | `--export-team-index` | `--output-dir <dir>` | `figma-index.sqlite3` |
+| `--refresh-index` | optional `--team <alias>` | Rebuilt persistent indexes for one or all configured teams |
+| `--index-status` | optional `--team <alias>` | Index timestamps, ages, and counts |
+| `--search-components` | `--name <query>`; optional `--team <alias>` | Component sets and standalone components matching a name substring |
+| `--preflight` | optional `--team <alias>` | Token access, team access, and index-root validation |
 | `--list-team-component-sets` | none | Published team component sets |
 | `--list-component-set-usages` | `--index-dir <dir>` plus component set key/name | Compact screens/usages where a component set is used |
 | `--inspect-component-set-responsive-usage` | `--index-dir <dir>` plus component set key/name | Compact responsive usage groups and layout risks |
@@ -48,11 +56,11 @@ team-scoped commands, `--export-team-index`, `--export-component-set`, and
 | `--inspect-component-set` | `--url <figma-url>` or `--file-key <key> --node-id <id>` plus component set key/name | Raw `COMPONENT_SET` node |
 | `--inspect-team-component-set` | `--component-set-key <key>` or `--component-set-name <name>` | Raw published component set |
 | `--inspect-file-node` | `--url <figma-url>` or `--file-key <key> --node-id <id>` | Raw file node |
-| `--build-component-set-spec` | `--input <path> --variables <path>` | Compact local component-set spec |
-| `--build-component-set-pseudocode` | `--input <path> --variables <path>` | Local component-set contract files |
-| `--export-contract` | `--output-dir <dir> --variables <path>` plus URL or file/node ref | Auto-detected component-set, frame, or component contracts |
-| `--export-component-set` | `--output-dir <dir> --variables <path>` plus URL or component set key/name | Component-set contracts |
-| `--export-node-contract` | `--output-dir <dir> --variables <path>` plus URL or file/node ref | Frame or standalone component contracts |
+| `--build-component-set-spec` | `--input <path>` | Compact local component-set spec |
+| `--build-component-set-pseudocode` | `--input <path>` | Local component-set contract files |
+| `--export-contract` | `--output-dir <dir>` plus URL or file/node ref | Auto-detected component-set, frame, or component contracts |
+| `--export-component-set` | `--output-dir <dir>` plus URL or component set key/name | Component-set contracts |
+| `--export-node-contract` | `--output-dir <dir>` plus URL or file/node ref | Frame or standalone component contracts |
 | `--verify-component-contract` | `--contract-dir <dir>` | Component-set lock verification |
 | `--verify-component-lock` | `--lock-file <path>` | Single component-set lock verification without contract artifacts |
 | `--verify-node-contract` | `--contract-dir <dir>` | Frame/component lock verification |
@@ -63,6 +71,11 @@ Common optional flags:
   commands. Lock files remain YAML and structure files remain DSL. `--json` is
   not supported with `--export-team-index`.
 - `--team-components <path>` is supported by local component-set build commands.
+- `--variables <path>` resolves Figma variable aliases. Without it, exports
+  still succeed and print a warning that aliases remain unresolved.
+- `--team <alias>` selects one entry from `FIGMA_TEAMS`. Omit it on managed
+  index commands to operate on every configured team.
+- `--index-root <dir>` overrides `FIGMA_INDEX_ROOT` for managed indexes.
 - `--export-preview`, `--preview-format png|svg`, and `--preview-scale <scale>`
   write a root preview image next to exported contracts.
 - `--export-assets` attempts to write one SVG per component-set variant. It is
@@ -91,6 +104,10 @@ npx . --list-team-projects
 npx . --list-project-files --project-id <project_id>
 npx . --list-team-project-files
 npx . --export-team-index --output-dir tmp/figma-index
+npx . --refresh-index
+npx . --index-status --json
+npx . --search-components --name Button --json
+npx . --preflight --json
 npx . --list-team-component-sets
 npx . --list-component-set-usages --index-dir tmp/figma-index --component-set-name RatingsDivider
 npx . --inspect-component-set-responsive-usage --index-dir tmp/figma-index --component-set-name RatingsDivider
@@ -115,6 +132,20 @@ Detailed contracts are exported later with `--export-contract`,
 Component-set exports also write
 `<Name>.component-set.layout-risks.{yaml,json}` when the exported set contains
 constrained fill/stretch patterns that need manual layout review.
+
+### Persistent multi-team indexes
+
+`--refresh-index` stores one `figma-index.sqlite3` per configured team under
+`FIGMA_INDEX_ROOT`, which defaults to `~/.figma-inspect-cli/indexes`. This path
+is outside the npm package, so package upgrades and reinstalls do not remove the
+indexes. Each database records `generatedAt`; `--index-status` falls back to the
+database modification time for indexes produced by older CLI versions.
+
+The CLI does not run a scheduler. Callers can check `ageSeconds` and run
+`--refresh-index` when an index is missing or older than their freshness policy
+(the companion plugin uses 24 hours). `--search-components` searches the local
+indexes only, using a case-insensitive name substring across every configured
+team unless `--team` narrows the search.
 
 ## Inspect
 

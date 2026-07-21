@@ -57,7 +57,7 @@ export interface ExportComponentSetOptions {
   outputDir: string;
   componentSet: ComponentSetTarget;
   sourceUrl?: string;
-  variablesPath: string;
+  variablesPath?: string;
   exportAssets?: boolean;
   assetFormat?: "svg";
   nestedAssets?: NestedAssetsOptions;

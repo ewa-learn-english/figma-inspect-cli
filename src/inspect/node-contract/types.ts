@@ -92,7 +92,7 @@ export interface BuildNodeContractOptions {
   fileKey: string;
   nodeId: string;
   sourceUrl?: string;
-  variablesPath: string;
+  variablesPath?: string;
   format?: ContractFormat;
   fetchImpl?: typeof fetch;
 }

@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { CliError } from "./errors.js";
 
 const mocks = vi.hoisted(() => ({
   resolveExportContractTarget: vi.fn(),
@@ -126,9 +125,7 @@ describe("exportContract", () => {
         nodeId: "213:695",
         variablesPath: "vars.json",
       }),
-    ).rejects.toThrow(
-      new CliError("Missing FIGMA_TEAM_ID environment variable."),
-    );
+    ).rejects.toThrow(/Missing FIGMA_TEAM_ID/);
   });
 
   it("ignores variant asset export for node targets", async () => {

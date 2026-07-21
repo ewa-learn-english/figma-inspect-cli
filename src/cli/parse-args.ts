@@ -30,6 +30,10 @@ interface ParsedFlags {
   listProjectFiles: boolean;
   listTeamProjectFiles: boolean;
   exportTeamIndex: boolean;
+  refreshIndex: boolean;
+  indexStatus: boolean;
+  searchComponents: boolean;
+  preflight: boolean;
   listTeamComponentSets: boolean;
   listComponentSetUsages: boolean;
   inspectComponentSetResponsiveUsage: boolean;
@@ -63,6 +67,9 @@ interface ParsedFlags {
   outputPath: string | undefined;
   outputDir: string | undefined;
   indexDir: string | undefined;
+  indexRoot: string | undefined;
+  teamAlias: string | undefined;
+  nameQuery: string | undefined;
   screenGroup: string | undefined;
   screenSimilarityThreshold: number | undefined;
   screenSizeTolerance: number | undefined;
@@ -93,6 +100,10 @@ function emptyFlags(): ParsedFlags {
     listProjectFiles: false,
     listTeamProjectFiles: false,
     exportTeamIndex: false,
+    refreshIndex: false,
+    indexStatus: false,
+    searchComponents: false,
+    preflight: false,
     listTeamComponentSets: false,
     listComponentSetUsages: false,
     inspectComponentSetResponsiveUsage: false,
@@ -126,6 +137,9 @@ function emptyFlags(): ParsedFlags {
     outputPath: undefined,
     outputDir: undefined,
     indexDir: undefined,
+    indexRoot: undefined,
+    teamAlias: undefined,
+    nameQuery: undefined,
     screenGroup: undefined,
     screenSimilarityThreshold: undefined,
     screenSizeTolerance: undefined,
@@ -436,17 +450,6 @@ function requireNodeId(nodeId: string | undefined, command: string): string {
   return nodeId;
 }
 
-function requireVariablesPath(
-  variablesPath: string | undefined,
-  command: string,
-): string {
-  if (!variablesPath) {
-    throw new CliError(`Missing --variables for ${command}.`);
-  }
-
-  return variablesPath;
-}
-
 function requireComponentSetScope(
   flags: ParsedFlags,
   command: string,
@@ -542,6 +545,10 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
       ? ("list-team-project-files" as const)
       : undefined,
     flags.exportTeamIndex ? ("export-team-index" as const) : undefined,
+    flags.refreshIndex ? ("refresh-index" as const) : undefined,
+    flags.indexStatus ? ("index-status" as const) : undefined,
+    flags.searchComponents ? ("search-components" as const) : undefined,
+    flags.preflight ? ("preflight" as const) : undefined,
     flags.listTeamComponentSets
       ? ("list-team-component-sets" as const)
       : undefined,
@@ -581,7 +588,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
 
   if (selected.length === 0) {
     throw new CliError(
-      "Nothing to do. Pass --version, --list-team-projects, --list-project-files, --list-team-project-files, --export-team-index, --list-team-component-sets, --list-component-set-usages, --inspect-component-set-responsive-usage, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, --build-component-set-spec, --build-component-set-pseudocode, --verify-component-contract, --verify-component-lock, --verify-node-contract, --export-contract, --export-component-set, or --export-node-contract.\n\n" +
+      "Nothing to do. Pass --version, --list-team-projects, --list-project-files, --list-team-project-files, --export-team-index, --refresh-index, --index-status, --search-components, --preflight, --list-team-component-sets, --list-component-set-usages, --inspect-component-set-responsive-usage, --list-file-pages, --list-file-component-sets, --inspect-component-set-properties, --inspect-component-set, --inspect-team-component-set, --inspect-file-node, --build-component-set-spec, --build-component-set-pseudocode, --verify-component-contract, --verify-component-lock, --verify-node-contract, --export-contract, --export-component-set, or --export-node-contract.\n\n" +
         usage,
     );
   }
@@ -593,11 +600,12 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
   const command = selected[0];
   if (
     command !== "export-team-index" &&
+    command !== "refresh-index" &&
     (flags.screenSimilarityThreshold !== undefined ||
       flags.screenSizeTolerance !== undefined)
   ) {
     throw new CliError(
-      "--screen-similarity-threshold and --screen-size-tolerance require --export-team-index.",
+      "--screen-similarity-threshold and --screen-size-tolerance require --export-team-index or --refresh-index.",
     );
   }
 
@@ -617,14 +625,50 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
     throw new CliError("--lock-file requires --verify-component-lock.");
   }
 
+  const teamCommands = new Set([
+    "list-team-projects",
+    "list-team-project-files",
+    "export-team-index",
+    "refresh-index",
+    "index-status",
+    "search-components",
+    "preflight",
+    "list-team-component-sets",
+    "inspect-team-component-set",
+    "export-component-set",
+    "export-contract",
+  ]);
+  if (!teamCommands.has(command) && flags.teamAlias !== undefined) {
+    throw new CliError("--team is not supported with this command.");
+  }
+
+  const managedIndexCommands = new Set([
+    "refresh-index",
+    "index-status",
+    "search-components",
+    "preflight",
+  ]);
+  if (!managedIndexCommands.has(command) && flags.indexRoot !== undefined) {
+    throw new CliError("--index-root requires a managed index command.");
+  }
+
+  if (command !== "search-components" && flags.nameQuery !== undefined) {
+    throw new CliError("--name requires --search-components.");
+  }
+
   switch (command) {
     case "version":
       return { kind: "version" };
     case "list-team-projects":
-      return { kind: "list-team-projects", format: resolveOutputFormat(flags) };
+      return {
+        kind: "list-team-projects",
+        teamAlias: flags.teamAlias,
+        format: resolveOutputFormat(flags),
+      };
     case "list-team-project-files":
       return {
         kind: "list-team-project-files",
+        teamAlias: flags.teamAlias,
         format: resolveOutputFormat(flags),
       };
     case "export-team-index": {
@@ -641,13 +685,50 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
       return {
         kind: "export-team-index",
         outputDir: flags.outputDir,
+        teamAlias: flags.teamAlias,
         screenSimilarityThreshold: flags.screenSimilarityThreshold,
         screenSizeTolerance: flags.screenSizeTolerance,
       };
     }
+    case "refresh-index":
+      return {
+        kind: "refresh-index",
+        teamAlias: flags.teamAlias,
+        indexRoot: flags.indexRoot,
+        screenSimilarityThreshold: flags.screenSimilarityThreshold,
+        screenSizeTolerance: flags.screenSizeTolerance,
+        format: resolveOutputFormat(flags),
+      };
+    case "index-status":
+      return {
+        kind: "index-status",
+        teamAlias: flags.teamAlias,
+        indexRoot: flags.indexRoot,
+        format: resolveOutputFormat(flags),
+      };
+    case "search-components": {
+      if (!flags.nameQuery) {
+        throw new CliError("Missing --name for --search-components.");
+      }
+      return {
+        kind: "search-components",
+        query: flags.nameQuery,
+        teamAlias: flags.teamAlias,
+        indexRoot: flags.indexRoot,
+        format: resolveOutputFormat(flags),
+      };
+    }
+    case "preflight":
+      return {
+        kind: "preflight",
+        teamAlias: flags.teamAlias,
+        indexRoot: flags.indexRoot,
+        format: resolveOutputFormat(flags),
+      };
     case "list-team-component-sets":
       return {
         kind: "list-team-component-sets",
+        teamAlias: flags.teamAlias,
         format: resolveOutputFormat(flags),
       };
     case "list-component-set-usages": {
@@ -736,6 +817,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
           flags.componentSetName,
           "--inspect-team-component-set",
         ),
+        teamAlias: flags.teamAlias,
         format: resolveOutputFormat(flags),
       };
     case "inspect-file-node":
@@ -753,10 +835,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
       return {
         kind: "build-component-set-spec",
         inputPath: flags.inputPath,
-        variablesPath: requireVariablesPath(
-          flags.variablesPath,
-          "--build-component-set-spec",
-        ),
+        variablesPath: flags.variablesPath,
         teamComponentsPath: flags.teamComponentsPath,
         format: resolveOutputFormat(flags),
       };
@@ -772,10 +851,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         kind: "build-component-set-pseudocode",
         inputPath: flags.inputPath,
         outputDir: flags.outputDir ?? flags.outputPath,
-        variablesPath: requireVariablesPath(
-          flags.variablesPath,
-          "--build-component-set-pseudocode",
-        ),
+        variablesPath: flags.variablesPath,
         teamComponentsPath: flags.teamComponentsPath,
         format: resolveOutputFormat(flags),
       };
@@ -832,11 +908,9 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         kind: "export-component-set",
         outputDir: flags.outputDir,
         componentSet: parseComponentSetTarget(flags, "--export-component-set"),
+        teamAlias: flags.teamAlias,
         sourceUrl: flags.url,
-        variablesPath: requireVariablesPath(
-          flags.variablesPath,
-          "--export-component-set",
-        ),
+        variablesPath: flags.variablesPath,
         exportAssets: flags.exportAssets,
         assetFormat,
         ...(nestedAssets ? { nestedAssets } : {}),
@@ -858,11 +932,9 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         kind: "export-contract",
         outputDir: flags.outputDir,
         ...nodeRef,
+        teamAlias: flags.teamAlias,
         sourceUrl: flags.url,
-        variablesPath: requireVariablesPath(
-          flags.variablesPath,
-          "--export-contract",
-        ),
+        variablesPath: flags.variablesPath,
         exportAssets: flags.exportAssets,
         assetFormat,
         ...(nestedAssets ? { nestedAssets } : {}),
@@ -889,10 +961,7 @@ function resolveCommand(flags: ParsedFlags): CliCommand {
         outputDir: flags.outputDir,
         ...nodeRef,
         sourceUrl: flags.url,
-        variablesPath: requireVariablesPath(
-          flags.variablesPath,
-          "--export-node-contract",
-        ),
+        variablesPath: flags.variablesPath,
         ...(nestedAssets ? { nestedAssets } : {}),
         ...(preview ? { preview } : {}),
         format: resolveOutputFormat(flags),
@@ -938,6 +1007,26 @@ export function parseCommand(argv: string[]): CliCommand {
 
     if (arg === "--export-team-index") {
       flags.exportTeamIndex = true;
+      continue;
+    }
+
+    if (arg === "--refresh-index") {
+      flags.refreshIndex = true;
+      continue;
+    }
+
+    if (arg === "--index-status") {
+      flags.indexStatus = true;
+      continue;
+    }
+
+    if (arg === "--search-components") {
+      flags.searchComponents = true;
+      continue;
+    }
+
+    if (arg === "--preflight") {
+      flags.preflight = true;
       continue;
     }
 
@@ -1114,6 +1203,27 @@ export function parseCommand(argv: string[]): CliCommand {
     if (arg === "--index-dir") {
       const { value, nextIndex } = readFlagValue(argv, index, arg);
       flags.indexDir = value;
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--index-root") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.indexRoot = value;
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--team") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.teamAlias = value;
+      index = nextIndex;
+      continue;
+    }
+
+    if (arg === "--name") {
+      const { value, nextIndex } = readFlagValue(argv, index, arg);
+      flags.nameQuery = value;
       index = nextIndex;
       continue;
     }

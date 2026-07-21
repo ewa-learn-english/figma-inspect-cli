@@ -1,4 +1,4 @@
-import { access, mkdir, readdir, rename, rm } from "node:fs/promises";
+import { access, mkdir, readdir, rename, rm, stat } from "node:fs/promises";
 import path from "node:path";
 import type { DatabaseSync } from "node:sqlite";
 import { FigmaInspectError } from "./errors.js";
@@ -17,6 +17,28 @@ export interface TeamIndexUsageRecord {
   file: TeamIndexFile["file"];
   screenGroups: TeamIndexFile["screenGroups"];
   usage: TeamIndexComponentUsage;
+}
+
+export interface TeamIndexStatus {
+  team: { alias: string; id: string };
+  databasePath: string;
+  exists: boolean;
+  generatedAt?: string;
+  ageSeconds?: number;
+  fileCount?: number;
+  componentSetCount?: number;
+  componentCount?: number;
+}
+
+export interface TeamIndexComponentSearchResult {
+  team: { alias: string; id: string };
+  type: "component-set" | "component";
+  name: string;
+  key?: string;
+  nodeId: string;
+  project: { id: string; name: string };
+  file: { key: string; name: string };
+  url: string;
 }
 
 async function openDatabase(
@@ -185,6 +207,7 @@ function createSchema(database: DatabaseSync): void {
 }
 
 function insertIndex(database: DatabaseSync, index: TeamIndexBundle): void {
+  const generatedAt = index.team.generatedAt ?? new Date().toISOString();
   const insertMetadata = database.prepare(
     "INSERT INTO metadata (name, value) VALUES (?, ?)",
   );
@@ -192,6 +215,7 @@ function insertIndex(database: DatabaseSync, index: TeamIndexBundle): void {
   insertMetadata.run("kind", "figma-team-index");
   insertMetadata.run("team", index.team.team);
   insertMetadata.run("version", String(index.team.version));
+  insertMetadata.run("generated_at", generatedAt);
 
   const insertFile = database.prepare(`
     INSERT INTO files (
@@ -378,13 +402,166 @@ export async function writeTeamIndexDatabase({
       database.close();
     }
 
-    await rm(databasePath, { force: true });
     await rename(temporaryPath, databasePath);
     movedIntoPlace = true;
   } finally {
     if (!movedIntoPlace) {
       await rm(temporaryPath, { force: true });
     }
+  }
+}
+
+function metadataValue(
+  database: DatabaseSync,
+  name: string,
+): string | undefined {
+  const row = database
+    .prepare("SELECT value FROM metadata WHERE name = ?")
+    .get(name) as Record<string, unknown> | undefined;
+  return row === undefined ? undefined : rowString(row, "value");
+}
+
+function countTable(database: DatabaseSync, table: string): number {
+  const row = database
+    .prepare(`SELECT COUNT(*) AS count FROM ${table}`)
+    .get() as Record<string, unknown> | undefined;
+  const value = row?.count;
+  if (typeof value !== "number") {
+    throw new FigmaInspectError(`Invalid team index database count: ${table}.`);
+  }
+  return value;
+}
+
+export async function readTeamIndexStatus(options: {
+  databasePath: string;
+  teamAlias: string;
+  teamId: string;
+  now?: Date;
+}): Promise<TeamIndexStatus> {
+  let databaseStats: Awaited<ReturnType<typeof stat>>;
+  try {
+    databaseStats = await stat(options.databasePath);
+  } catch {
+    return {
+      team: { alias: options.teamAlias, id: options.teamId },
+      databasePath: options.databasePath,
+      exists: false,
+    };
+  }
+
+  const database = await openDatabase(options.databasePath, { readOnly: true });
+  try {
+    assertDatabaseMetadata(database, options.databasePath);
+    const indexedTeamId = metadataValue(database, "team");
+    if (indexedTeamId !== options.teamId) {
+      throw new FigmaInspectError(
+        `Figma team index ${path.basename(options.databasePath)} belongs to a different team.`,
+      );
+    }
+    const generatedAt =
+      metadataValue(database, "generated_at") ??
+      databaseStats.mtime.toISOString();
+    const generatedAtMs = Date.parse(generatedAt);
+    const nowMs = (options.now ?? new Date()).getTime();
+    return {
+      team: { alias: options.teamAlias, id: options.teamId },
+      databasePath: options.databasePath,
+      exists: true,
+      generatedAt,
+      ...(Number.isFinite(generatedAtMs)
+        ? {
+            ageSeconds: Math.max(0, Math.floor((nowMs - generatedAtMs) / 1000)),
+          }
+        : {}),
+      fileCount: countTable(database, "files"),
+      componentSetCount: countTable(database, "component_sets"),
+      componentCount: countTable(database, "components"),
+    };
+  } finally {
+    database.close();
+  }
+}
+
+export async function searchTeamIndexComponents(options: {
+  databasePath: string;
+  teamAlias: string;
+  teamId: string;
+  query: string;
+}): Promise<TeamIndexComponentSearchResult[]> {
+  const status = await readTeamIndexStatus(options);
+  if (!status.exists) {
+    throw new FigmaInspectError(
+      `No ${TEAM_INDEX_DATABASE_FILE} found for Figma team ${options.teamAlias}. Run figma-inspect --refresh-index.`,
+    );
+  }
+
+  const database = await openDatabase(options.databasePath, { readOnly: true });
+  try {
+    const rows = database
+      .prepare(`
+        SELECT
+          type,
+          node_id,
+          component_key,
+          component_name,
+          url,
+          file_key,
+          file_name,
+          project_id,
+          project_name
+        FROM (
+          SELECT
+            'component-set' AS type,
+            component_sets.node_id,
+            component_sets.component_key,
+            component_sets.name AS component_name,
+            component_sets.url,
+            files.file_key,
+            files.name AS file_name,
+            files.project_id,
+            files.project_name
+          FROM component_sets
+          INNER JOIN files ON files.file_key = component_sets.file_key
+          UNION ALL
+          SELECT
+            'component' AS type,
+            components.node_id,
+            components.component_key,
+            components.name AS component_name,
+            components.url,
+            files.file_key,
+            files.name AS file_name,
+            files.project_id,
+            files.project_name
+          FROM components
+          INNER JOIN files ON files.file_key = components.file_key
+        )
+        WHERE instr(lower(component_name), lower(?)) > 0
+        ORDER BY lower(component_name), type, project_name, file_name, node_id
+      `)
+      .all(options.query) as Record<string, unknown>[];
+
+    return rows.map((row) => {
+      const key = rowNullableString(row, "component_key");
+      return {
+        team: { alias: options.teamAlias, id: options.teamId },
+        type: rowString(row, "type") as TeamIndexComponentSearchResult["type"],
+        name: rowString(row, "component_name"),
+        ...(key === undefined ? {} : { key }),
+        nodeId: rowString(row, "node_id"),
+        project: {
+          id: rowString(row, "project_id"),
+          name: rowString(row, "project_name"),
+        },
+        file: {
+          key: rowString(row, "file_key"),
+          name: rowString(row, "file_name"),
+        },
+        url: rowString(row, "url"),
+      };
+    });
+  } finally {
+    database.close();
   }
 }
 

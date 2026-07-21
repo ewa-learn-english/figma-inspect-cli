@@ -13,6 +13,47 @@ describe("parseCommand", () => {
     expect(parseCommand(["-v"])).toEqual({ kind: "version" });
   });
 
+  it("parses managed multi-team index commands", () => {
+    expect(
+      parseCommand([
+        "--refresh-index",
+        "--team",
+        "design",
+        "--index-root",
+        "tmp/indexes",
+        "--json",
+      ]),
+    ).toEqual({
+      kind: "refresh-index",
+      teamAlias: "design",
+      indexRoot: "tmp/indexes",
+      screenSimilarityThreshold: undefined,
+      screenSizeTolerance: undefined,
+      format: "json",
+    });
+    expect(parseCommand(["--index-status"])).toEqual({
+      kind: "index-status",
+      teamAlias: undefined,
+      indexRoot: undefined,
+      format: "yaml",
+    });
+    expect(
+      parseCommand(["--search-components", "--name", "Button", "--json"]),
+    ).toEqual({
+      kind: "search-components",
+      query: "Button",
+      teamAlias: undefined,
+      indexRoot: undefined,
+      format: "json",
+    });
+    expect(parseCommand(["--preflight"])).toEqual({
+      kind: "preflight",
+      teamAlias: undefined,
+      indexRoot: undefined,
+      format: "yaml",
+    });
+  });
+
   it("parses list commands with optional json output", () => {
     expect(parseCommand(["--list-team-projects"])).toEqual({
       kind: "list-team-projects",
@@ -671,12 +712,6 @@ describe("parseCommand", () => {
     expect(() => parseCommand(["--list-file-pages"])).toThrow(
       /Missing --file-key/,
     );
-    expect(() =>
-      parseCommand(["--build-component-set-spec", "--input", "in.json"]),
-    ).toThrow(/Missing --variables/);
-    expect(() =>
-      parseCommand(["--build-component-set-pseudocode", "--input", "in.json"]),
-    ).toThrow(/Missing --variables/);
     expect(() =>
       parseCommand(["--export-component-set", "--output-dir", "out"]),
     ).toThrow(CliError);

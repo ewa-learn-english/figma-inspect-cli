@@ -206,12 +206,11 @@ export async function buildNodeContractFromEntry(options: {
   fileKey: string;
   nodeId: string;
   sourceUrl?: string;
-  variablesPath: string;
+  variablesPath?: string;
   format?: "json" | "yaml";
 }): Promise<NodeContractResult> {
   const { node, kind } = assertNodeContractRoot(options.entry, options.nodeId);
   const nodeContractName = nodeName(node, options.nodeId);
-  const registry = await loadVariableRegistry(options.variablesPath);
   const slim = slimNode(node, { propIdToName: new Map() });
   if (!slim) {
     throw new FigmaInspectError(
@@ -219,7 +218,12 @@ export async function buildNodeContractFromEntry(options: {
     );
   }
 
-  const resolvedSlim = resolveSlimNodeTokens(slim, registry);
+  const resolvedSlim = options.variablesPath
+    ? resolveSlimNodeTokens(
+        slim,
+        await loadVariableRegistry(options.variablesPath),
+      )
+    : slim;
   const { visuals, geometry } = collectBundles(resolvedSlim);
   const dependencies = collectNodeContractDependencies(
     options.entry,
