@@ -114,11 +114,11 @@ const fileComponentsResponseSchema = z
     parseValidEntries(fileComponentSchema, meta.components),
   );
 
-const teamProjectsResponseSchema = z
+const foldersResponseSchema = z
   .object({
-    projects: z.array(z.unknown()),
+    folders: z.array(z.unknown()),
   })
-  .transform(({ projects }) => parseValidEntries(figmaProjectSchema, projects));
+  .transform(({ folders }) => parseValidEntries(figmaProjectSchema, folders));
 
 const projectFilesResponseSchema = z
   .object({
@@ -158,9 +158,9 @@ const teamComponentSetsResponseSchema = z
 
 export function parseTeamProjectsResponse(payload: unknown): FigmaProject[] {
   return parseFigmaResponse(
-    teamProjectsResponseSchema,
+    foldersResponseSchema,
     payload,
-    "Invalid Figma team projects response.",
+    "Invalid Figma folders response.",
   );
 }
 

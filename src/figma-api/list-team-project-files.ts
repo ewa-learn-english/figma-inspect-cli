@@ -1,5 +1,5 @@
 import { listProjectFiles } from "./list-project-files.js";
-import { listTeamProjects } from "./list-team-projects.js";
+import { listProjectFolders, listTeamProjects } from "./list-team-projects.js";
 import type { FigmaTeamProjectFile } from "./schemas.js";
 import type { ListTeamProjectFilesOptions } from "./types.js";
 
@@ -9,6 +9,21 @@ export async function listTeamProjectFiles({
   fetchImpl = fetch,
 }: ListTeamProjectFilesOptions): Promise<FigmaTeamProjectFile[]> {
   const projects = await listTeamProjects({ token, teamId, fetchImpl });
+  let level = projects;
+  while (level.length > 0) {
+    level = (
+      await Promise.all(
+        level.map((project) =>
+          listProjectFolders({
+            token,
+            projectId: project.id,
+            fetchImpl,
+          }),
+        ),
+      )
+    ).flat();
+    projects.push(...level);
+  }
 
   const fileLists = await Promise.all(
     projects.map(async (project) => {

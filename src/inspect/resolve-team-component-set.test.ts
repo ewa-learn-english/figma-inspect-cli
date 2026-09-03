@@ -55,13 +55,23 @@ describe("resolveTeamComponentSetScope", () => {
         });
       }
 
-      if (url.includes("/teams/team-id/projects")) {
+      if (url.includes("/teams/team-id/folders")) {
         return jsonResponse({
-          projects: [{ id: "project-id", name: "Design System" }],
+          folders: [
+            {
+              id: "project-id",
+              name: "Design System",
+              parent_folder_id: null,
+            },
+          ],
         });
       }
 
-      if (url.includes("/projects/project-id/files")) {
+      if (url.includes("/folders/project-id/folders")) {
+        return jsonResponse({ folders: [] });
+      }
+
+      if (url.includes("/folders/project-id/files")) {
         return jsonResponse({
           files: [
             {

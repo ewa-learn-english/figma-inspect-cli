@@ -11,24 +11,24 @@ import {
 } from "./schemas.js";
 
 describe("parseTeamProjectsResponse", () => {
-  it("parses valid projects and coerces numeric ids", () => {
+  it("parses valid folders and coerces numeric ids", () => {
     expect(
       parseTeamProjectsResponse({
-        projects: [{ id: 42, name: "Design System", file_count: 3 }],
+        folders: [{ id: 42, name: "Design System", file_count: 3 }],
       }),
     ).toEqual([{ id: "42", name: "Design System", file_count: 3 }]);
   });
 
-  it("drops malformed project entries", () => {
+  it("drops malformed folder entries", () => {
     expect(
       parseTeamProjectsResponse({
-        projects: [{ id: "1", name: "Valid" }, { id: "2" }],
+        folders: [{ id: "1", name: "Valid" }, { id: "2" }],
       }),
     ).toEqual([{ id: "1", name: "Valid" }]);
   });
 
   it("throws FigmaApiError for invalid payloads", () => {
-    expect(() => parseTeamProjectsResponse({ projects: "bad" })).toThrow(
+    expect(() => parseTeamProjectsResponse({ folders: "bad" })).toThrow(
       FigmaApiError,
     );
   });

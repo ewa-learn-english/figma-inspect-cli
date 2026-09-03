@@ -17,7 +17,7 @@ describe("runFigmaPreflight", () => {
   it("reports team access failures and temporary API failures", async () => {
     indexRoot = await mkdtemp(path.join(os.tmpdir(), "figma-preflight-"));
     const fetchImpl = vi.fn(async (input: string | URL | Request) => {
-      const teamId = String(input).match(/teams\/([^/]+)\/projects/)?.[1];
+      const teamId = String(input).match(/teams\/([^/]+)\/folders/)?.[1];
       const status =
         teamId === "allowed" ? 200 : teamId === "denied" ? 403 : 503;
       return new Response("", { status });

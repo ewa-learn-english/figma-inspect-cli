@@ -1,6 +1,6 @@
 import { constants } from "node:fs";
 import { access, mkdir } from "node:fs/promises";
-import { FIGMA_API_BASE_URL } from "../figma-api/constants.js";
+import { FIGMA_API_V2_BASE_URL } from "../figma-api/constants.js";
 import { fetchFigmaResponse } from "../figma-api/fetch-with-retry.js";
 import type { ConfiguredFigmaTeam } from "./figma-environment.js";
 
@@ -44,7 +44,7 @@ async function checkTeam(options: {
 }): Promise<FigmaPreflightResult["teams"][number]> {
   try {
     const response = await fetchFigmaResponse(
-      `${FIGMA_API_BASE_URL}/teams/${encodeURIComponent(options.team.id)}/projects`,
+      `${FIGMA_API_V2_BASE_URL}/teams/${encodeURIComponent(options.team.id)}/folders`,
       options.token,
       options.fetchImpl,
     );

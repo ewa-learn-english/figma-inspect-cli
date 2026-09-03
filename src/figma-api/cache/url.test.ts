@@ -28,7 +28,7 @@ describe("extractFileKey", () => {
     expect(extractFileKey("https://api.figma.com/v1/files/my-file-key")).toBe(
       "my-file-key",
     );
-    expect(extractFileKey("https://api.figma.com/v1/teams/123/projects")).toBe(
+    expect(extractFileKey("https://api.figma.com/v2/teams/123/folders")).toBe(
       undefined,
     );
   });

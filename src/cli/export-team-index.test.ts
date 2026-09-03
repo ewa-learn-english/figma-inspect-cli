@@ -32,13 +32,23 @@ describe("exportTeamIndex", () => {
   it("writes a SQLite team index", async () => {
     const fetchImpl = vi.fn(async (input: string | URL | Request) => {
       const url = String(input);
-      if (url.endsWith("/teams/team/projects")) {
+      if (url.endsWith("/teams/team/folders")) {
         return jsonResponse({
-          projects: [{ id: "profile-project", name: "Profile" }],
+          folders: [
+            {
+              id: "profile-project",
+              name: "Profile",
+              parent_folder_id: null,
+            },
+          ],
         });
       }
 
-      if (url.endsWith("/projects/profile-project/files")) {
+      if (url.endsWith("/folders/profile-project/folders")) {
+        return jsonResponse({ folders: [] });
+      }
+
+      if (url.endsWith("/folders/profile-project/files")) {
         return jsonResponse({
           files: [
             {

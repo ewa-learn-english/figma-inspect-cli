@@ -17,6 +17,7 @@ export FIGMA_API_TOKEN="figd_..."
 export FIGMA_TEAMS='{"design":"<team_id>","marketing":"<team_id>"}'
 ```
 
+The token must include `folders:read` for team discovery and index refreshes.
 `FIGMA_TEAM_ID=<team_id>` remains supported for existing single-team setups.
 `FIGMA_TEAMS` enables aliases and all-team index commands; aliases are chosen by
 the user and have no built-in meaning.
