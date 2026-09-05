@@ -17,8 +17,8 @@ const teamComponentEntrySchema = z.object({
   id: z.string().min(1),
   key: z.string().min(1),
   name: z.string().min(1),
-  fileKey: z.string().min(1),
-  projectId: z.string(),
+  fileKey: z.string().min(1).optional(),
+  projectId: z.string().optional(),
 });
 
 const metaPropSchema = z.object({

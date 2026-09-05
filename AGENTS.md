@@ -72,8 +72,8 @@ One command per invocation. Source of truth: `src/cli/usage.ts` and `src/cli/par
 | `--build-component-set-pseudocode` | | | writes contract files locally |
 | `--verify-component-contract` | yes | | `--contract-dir`; compares lock to live Figma API |
 | `--verify-node-contract` | yes | | `--contract-dir`; compares frame/component lock to live Figma API |
-| `--export-contract` | yes | maybe | `--output-dir`, `--url` or file/node ref; optional `--variables`; team only when target is `COMPONENT_SET` |
-| `--export-component-set` | yes | yes | `--output-dir`, optional `--variables`, `--url` or component set key/name |
+| `--export-contract` | yes | | `--output-dir`, `--url` or file/node ref; optional `--variables`; auto-detects SECTION, COMPONENT_SET, FRAME, or standalone COMPONENT |
+| `--export-component-set` | yes | for name/key | `--output-dir`, optional `--variables`, `--url` or component set key/name |
 | `--export-node-contract` | yes | | `--output-dir`, optional `--variables`, `--url` or file/node ref |
 
 `--json` on verify affects **stdout format only**. Export commands write JSON
@@ -82,6 +82,11 @@ files stay DSL. `--json` is not supported with `--export-team-index`; the local
 team index is always `figma-index.sqlite3`.
 
 ### Contract artifacts
+
+SECTION exports write `section.index.{yaml,json}`, the complete original response
+in `section.source.json`, and supported child contracts in node-ID directories.
+Nested sections link to the same source; other child types remain in the index
+and source. Preview and nested-asset options apply once to the selected section.
 
 Component-set exports write four files for the model + lock for CI:
 

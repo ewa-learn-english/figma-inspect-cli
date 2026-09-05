@@ -20,17 +20,26 @@ export interface ExportArtifactPathExtras {
 export type ExportArtifactPathResult = ExportArtifactPaths &
   ExportArtifactPathExtras;
 
+export interface ExportSectionResult extends ExportArtifactPathExtras {
+  indexPath: string;
+  sourcePath: string;
+  children: (ExportArtifactPathResult | ExportSectionResult)[];
+}
+
 export function writeExportArtifactPaths(
-  result: ExportArtifactPathResult,
+  result: ExportArtifactPathResult | ExportSectionResult,
   stdout: NodeJS.WriteStream,
 ): void {
-  const lines = [
-    result.visualsContractPath,
-    result.geometryContractPath,
-    result.metaContractPath,
-    result.lockContractPath,
-    result.structureDslPath,
-  ];
+  const lines =
+    "indexPath" in result
+      ? [result.indexPath, result.sourcePath]
+      : [
+          result.visualsContractPath,
+          result.geometryContractPath,
+          result.metaContractPath,
+          result.lockContractPath,
+          result.structureDslPath,
+        ];
   for (const optionalPath of [
     result.previewPath,
     result.assetsDir,
@@ -45,12 +54,19 @@ export function writeExportArtifactPaths(
   }
 
   stdout.write(`${lines.join("\n")}\n`);
+  if ("children" in result) {
+    for (const child of result.children)
+      writeExportArtifactPaths(child, stdout);
+  }
 }
 
 export function writeExportWarnings(
-  result: ExportArtifactPathResult,
+  result: ExportArtifactPathResult | ExportSectionResult,
   stderr: NodeJS.WriteStream,
 ): void {
+  if ("children" in result) {
+    for (const child of result.children) writeExportWarnings(child, stderr);
+  }
   if (result.assetExportWarning) {
     stderr.write(`warning: ${result.assetExportWarning}\n`);
   }

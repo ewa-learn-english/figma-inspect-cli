@@ -106,17 +106,6 @@ export function selectSingleFigmaTeam(
   return teams[0];
 }
 
-export function optionalSingleFigmaTeamId(
-  env: NodeJS.ProcessEnv,
-  teamAlias?: string,
-): string | undefined {
-  if (teamAlias !== undefined || env.FIGMA_TEAM_ID?.trim()) {
-    return selectSingleFigmaTeam(env, teamAlias).id;
-  }
-  const teams = configuredFigmaTeams(env);
-  return teams.length === 1 ? teams[0]?.id : undefined;
-}
-
 export function resolveFigmaIndexRoot(
   env: NodeJS.ProcessEnv,
   indexRoot?: string,

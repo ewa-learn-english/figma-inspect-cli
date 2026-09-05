@@ -6,21 +6,18 @@ import { parse } from "yaml";
 import { FigmaInspectError } from "../inspect/errors.js";
 
 const mocks = vi.hoisted(() => ({
-  resolveTeamComponentSetScope: vi.fn(),
-  loadComponentSetContext: vi.fn(),
+  resolveComponentSetExportContext: vi.fn(),
   buildComponentSetPseudocodeFromRaw: vi.fn(),
   exportVariantAssets: vi.fn(),
   exportNodePreview: vi.fn(),
   exportNestedAssets: vi.fn(),
   layoutRisksForTree: vi.fn(),
-  getComponentSetByKey: vi.fn(),
   listFileComponents: vi.fn(),
   filterFileComponentsForComponentSet: vi.fn(),
 }));
 
 vi.mock("../inspect/index.js", () => ({
-  resolveTeamComponentSetScope: mocks.resolveTeamComponentSetScope,
-  loadComponentSetContext: mocks.loadComponentSetContext,
+  resolveComponentSetExportContext: mocks.resolveComponentSetExportContext,
   buildComponentSetPseudocodeFromRaw: mocks.buildComponentSetPseudocodeFromRaw,
   exportVariantAssets: mocks.exportVariantAssets,
   exportNodePreview: mocks.exportNodePreview,
@@ -29,7 +26,6 @@ vi.mock("../inspect/index.js", () => ({
 }));
 
 vi.mock("../figma-api/index.js", () => ({
-  getComponentSetByKey: mocks.getComponentSetByKey,
   listFileComponents: mocks.listFileComponents,
   filterFileComponentsForComponentSet:
     mocks.filterFileComponentsForComponentSet,
@@ -67,10 +63,10 @@ describe("exportComponentSet", () => {
       loadFixture<string>("TextInput.component-set.structure.dsl"),
     ]);
 
-    mocks.resolveTeamComponentSetScope.mockResolvedValue({
+    mocks.resolveComponentSetExportContext.mockResolvedValue({
       fileKey: "file-key",
       nodeId: "3971:6465",
-      publishedSet: {
+      component: {
         id: "3971:6465",
         key: "component-set-key",
         name: "TextInput",
@@ -78,20 +74,15 @@ describe("exportComponentSet", () => {
         projectId: "583677607",
       },
       teamComponents: [],
-    });
-    mocks.loadComponentSetContext.mockResolvedValue({
-      tree: {
-        id: "3971:6465",
-        type: "COMPONENT_SET",
-        name: "TextInput",
+      context: {
+        tree: {
+          id: "3971:6465",
+          type: "COMPONENT_SET",
+          name: "TextInput",
+        },
       },
     });
     mocks.layoutRisksForTree.mockReturnValue([]);
-    mocks.getComponentSetByKey.mockResolvedValue({
-      key: "component-set-key",
-      node_id: "3971:6465",
-      updated_at: "2026-01-01T00:00:00.000Z",
-    });
     mocks.listFileComponents.mockResolvedValue([]);
     mocks.filterFileComponentsForComponentSet.mockReturnValue([
       {
@@ -204,15 +195,17 @@ describe("exportComponentSet", () => {
       variablesPath: variablesFixturePath,
     });
 
-    expect(mocks.resolveTeamComponentSetScope).toHaveBeenCalledWith({
-      token: "token",
-      teamId: "team-id",
-      componentSet: {
-        kind: "node",
-        fileKey: "file-key",
-        nodeId: "3971:6465",
-      },
-    });
+    expect(mocks.resolveComponentSetExportContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        token: "token",
+        teamId: "team-id",
+        componentSet: {
+          kind: "node",
+          fileKey: "file-key",
+          nodeId: "3971:6465",
+        },
+      }),
+    );
     expect(result.importNotesPath).toBe(
       path.join(outputDir, "import-notes.md"),
     );

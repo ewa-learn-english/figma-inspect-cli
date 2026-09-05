@@ -110,22 +110,26 @@ describe("exportContract", () => {
     expect(mocks.exportComponentSet).not.toHaveBeenCalled();
   });
 
-  it("requires team id only for component-set targets", async () => {
+  it("exports component-set URLs without a team and reuses the resolved node", async () => {
+    const entry = { document: { id: "1:1", type: "COMPONENT_SET" } };
     mocks.resolveExportContractTarget.mockResolvedValue({
       kind: "component-set",
       fileKey: "file-key",
-      nodeId: "213:695",
+      nodeId: "1:1",
+      entry,
     });
-
-    await expect(
-      exportContract({
-        token: "token",
-        outputDir: "out",
-        fileKey: "file-key",
-        nodeId: "213:695",
-        variablesPath: "vars.json",
+    await exportContract({
+      token: "token",
+      outputDir: "out",
+      fileKey: "file-key",
+      nodeId: "1:1",
+    });
+    expect(mocks.exportComponentSet).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entry,
+        componentSet: { kind: "node", fileKey: "file-key", nodeId: "1:1" },
       }),
-    ).rejects.toThrow(/Missing FIGMA_TEAM_ID/);
+    );
   });
 
   it("ignores variant asset export for node targets", async () => {

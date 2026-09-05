@@ -23,7 +23,7 @@ export interface ExportNodePreviewOptions {
   fileKey: string;
   nodeId: string;
   baseName: string;
-  kind: "component-set" | NodeContractKind;
+  kind: "component-set" | "section" | NodeContractKind;
   outputDir: string;
   preview: ExportPreviewOptions;
   fetchImpl?: typeof fetch;
@@ -45,7 +45,7 @@ function previewScale(preview: ExportPreviewOptions): number | undefined {
 function resolveNodePreviewPath(
   directory: string,
   baseName: string,
-  kind: "component-set" | NodeContractKind,
+  kind: "component-set" | "section" | NodeContractKind,
   format: PreviewFormat,
 ): string {
   return path.join(directory, `${baseName}.${kind}.preview.${format}`);

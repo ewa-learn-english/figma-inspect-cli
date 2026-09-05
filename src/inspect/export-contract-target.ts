@@ -1,6 +1,7 @@
+import { getFileNode } from "../figma-api/get-file-node.js";
 import { FigmaInspectError } from "./errors.js";
-import { fetchFileNodeEntry } from "./fetch-file-node-entry.js";
 import { assertNodeContractRoot } from "./node-contract/node-kind.js";
+import { parseFileNodeEntry } from "./schemas.js";
 import type { ExportContractTarget, FigmaNodeRef } from "./types.js";
 
 export interface ResolveExportContractTargetOptions extends FigmaNodeRef {
@@ -11,13 +12,14 @@ export interface ResolveExportContractTargetOptions extends FigmaNodeRef {
 export async function resolveExportContractTarget(
   options: ResolveExportContractTargetOptions,
 ): Promise<ExportContractTarget> {
-  const entry = await fetchFileNodeEntry({
+  const source = await getFileNode({
     token: options.token,
     fileKey: options.fileKey,
     nodeId: options.nodeId,
     fetchImpl: options.fetchImpl,
   });
 
+  const entry = parseFileNodeEntry(source, options.nodeId);
   const node = entry.document;
   const nodeType = node?.type;
   if (!node) {
@@ -26,9 +28,11 @@ export async function resolveExportContractTarget(
     );
   }
 
-  if (nodeType === "COMPONENT_SET") {
+  if (nodeType === "COMPONENT_SET" || nodeType === "SECTION") {
     return {
-      kind: "component-set",
+      kind: nodeType === "SECTION" ? "section" : "component-set",
+      entry,
+      source,
       fileKey: options.fileKey,
       nodeId: node.id ?? options.nodeId,
     };
@@ -41,12 +45,14 @@ export async function resolveExportContractTarget(
     );
     return {
       kind: "node",
+      entry,
+      source,
       fileKey: options.fileKey,
       nodeId: nodeContractRoot.id ?? options.nodeId,
     };
   }
 
   throw new FigmaInspectError(
-    `Figma node ${options.nodeId} is ${nodeType ?? "UNKNOWN"}; --export-contract supports COMPONENT_SET, FRAME, or standalone COMPONENT.`,
+    `Figma node ${options.nodeId} is ${nodeType ?? "UNKNOWN"}; --export-contract supports SECTION, COMPONENT_SET, FRAME, or standalone COMPONENT.`,
   );
 }

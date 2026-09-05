@@ -42,7 +42,6 @@ import {
 } from "./export-result.js";
 import { exportTeamIndex } from "./export-team-index.js";
 import {
-  optionalSingleFigmaTeamId,
   resolveFigmaIndexRoot,
   selectConfiguredFigmaTeams,
   selectSingleFigmaTeam,
@@ -515,7 +514,10 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
   }
 
   if (command.kind === "export-component-set") {
-    const teamId = selectSingleFigmaTeam(io.env, command.teamAlias).id;
+    const teamId =
+      command.componentSet.kind === "node"
+        ? undefined
+        : selectSingleFigmaTeam(io.env, command.teamAlias).id;
 
     try {
       warnUnresolvedVariables(command.variablesPath, io.stderr);
@@ -553,7 +555,6 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
       warnUnresolvedVariables(command.variablesPath, io.stderr);
       const result = await exportContract({
         token,
-        teamId: optionalSingleFigmaTeamId(io.env, command.teamAlias),
         outputDir: command.outputDir,
         fileKey: command.fileKey,
         nodeId: command.nodeId,

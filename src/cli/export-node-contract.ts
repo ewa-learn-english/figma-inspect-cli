@@ -5,6 +5,7 @@ import {
   serializeContractData,
 } from "../inspect/contract/contract-format.js";
 import {
+  buildNodeContractFromEntry,
   buildNodeContractFromRef,
   type ExportPreviewOptions,
   exportNestedAssets,
@@ -19,6 +20,7 @@ import {
   validateNodeContractArtifacts,
   writeNodeContractLock,
 } from "../inspect/index.js";
+import type { FileNodeEntry } from "../inspect/schemas.js";
 import type { FigmaNodeRef } from "../inspect/types.js";
 import type {
   ExportArtifactPathExtras,
@@ -27,6 +29,7 @@ import type {
 
 export interface ExportNodeContractOptions extends FigmaNodeRef {
   token: string;
+  entry?: FileNodeEntry;
   outputDir: string;
   sourceUrl?: string;
   variablesPath?: string;
@@ -87,14 +90,20 @@ export async function exportNodeContract(
   options: ExportNodeContractOptions,
 ): Promise<ExportNodeContractResult> {
   const format = options.format ?? "yaml";
-  const contract = await buildNodeContractFromRef({
+  const contractOptions = {
     token: options.token,
     fileKey: options.fileKey,
     nodeId: options.nodeId,
     sourceUrl: options.sourceUrl,
     variablesPath: options.variablesPath,
     format,
-  });
+  };
+  const contract = options.entry
+    ? await buildNodeContractFromEntry({
+        ...contractOptions,
+        entry: options.entry,
+      })
+    : await buildNodeContractFromRef(contractOptions);
 
   await mkdir(options.outputDir, { recursive: true });
 

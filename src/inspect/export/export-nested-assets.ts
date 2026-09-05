@@ -77,7 +77,7 @@ export interface ExportNestedAssetsOptions {
   fileKey: string;
   root: DocumentNode;
   baseName: string;
-  kind: "component-set" | NodeContractKind;
+  kind: "component-set" | "section" | NodeContractKind;
   outputDir: string;
   nestedAssets: NestedAssetsOptions;
   fetchImpl?: typeof fetch;
@@ -139,7 +139,7 @@ interface NestedAssetsManifest {
     nodeName: string;
     nodeType: string;
     nodePath: string;
-    contractKind: "component-set" | NodeContractKind;
+    contractKind: "component-set" | "section" | NodeContractKind;
   };
   criteria: {
     explicitNodeIds: string[];
@@ -419,7 +419,7 @@ function assetFileName(
 function nestedAssetsManifestPath(
   outputDir: string,
   baseName: string,
-  kind: "component-set" | NodeContractKind,
+  kind: "component-set" | "section" | NodeContractKind,
 ): string {
   return path.join(outputDir, `${baseName}.${kind}.nested-assets.yaml`);
 }

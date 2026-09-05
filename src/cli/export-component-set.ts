@@ -2,11 +2,8 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
   filterFileComponentsForComponentSet,
-  getComponentSetByKey,
   listFileComponents,
 } from "../figma-api/index.js";
-import { readString } from "../inspect/component-set-spec/figma-node.js";
-import type { TeamComponentEntry } from "../inspect/component-set-spec/team-component-registry.js";
 import {
   type ContractFormat,
   contractArtifactFileName,
@@ -38,14 +35,11 @@ import {
   exportNodePreview,
   exportVariantAssets,
   layoutRisksForTree,
-  loadComponentSetContext,
   type NestedAssetsOptions,
-  resolveTeamComponentSetScope,
+  resolveComponentSetExportContext,
 } from "../inspect/index.js";
-import type {
-  ComponentSetTarget,
-  FigmaTeamComponentSet,
-} from "../inspect/types.js";
+import type { FileNodeEntry } from "../inspect/schemas.js";
+import type { ComponentSetTarget } from "../inspect/types.js";
 import type {
   ExportArtifactPathExtras,
   ExportArtifactPaths,
@@ -53,7 +47,8 @@ import type {
 
 export interface ExportComponentSetOptions {
   token: string;
-  teamId: string;
+  teamId?: string;
+  entry?: FileNodeEntry;
   outputDir: string;
   componentSet: ComponentSetTarget;
   sourceUrl?: string;
@@ -75,18 +70,6 @@ function sanitizeFileName(name: string): string {
 
 function dataFileExtension(format: ContractFormat): string {
   return format === "json" ? ".json" : ".yaml";
-}
-
-function teamComponentEntryFromPublishedSet(
-  publishedSet: FigmaTeamComponentSet,
-): TeamComponentEntry {
-  return {
-    id: publishedSet.id,
-    key: publishedSet.key,
-    name: publishedSet.name,
-    fileKey: publishedSet.fileKey,
-    projectId: publishedSet.projectId,
-  };
 }
 
 async function writeDataFile(
@@ -135,30 +118,14 @@ function isAssetExportabilityError(error: unknown): error is FigmaInspectError {
 export async function exportComponentSet(
   options: ExportComponentSetOptions,
 ): Promise<ExportComponentSetResult> {
-  const scope = await resolveTeamComponentSetScope({
+  const scope = await resolveComponentSetExportContext(options);
+  const fileComponents = await listFileComponents({
     token: options.token,
-    teamId: options.teamId,
-    componentSet: options.componentSet,
+    fileKey: scope.fileKey,
   });
-
-  const [context, componentSetMeta, fileComponents] = await Promise.all([
-    loadComponentSetContext({
-      token: options.token,
-      ...scope,
-    }),
-    getComponentSetByKey({
-      token: options.token,
-      componentSetKey: scope.publishedSet.key,
-    }),
-    listFileComponents({
-      token: options.token,
-      fileKey: scope.fileKey,
-    }),
-  ]);
-
-  const raw = context.tree;
-  const baseName = sanitizeFileName(scope.publishedSet.name);
-  const componentSetNodeId = readString(raw, "id") ?? componentSetMeta.node_id;
+  const raw = scope.context.tree;
+  const baseName = sanitizeFileName(scope.component.name);
+  const componentSetNodeId = scope.component.id;
 
   await mkdir(options.outputDir, { recursive: true });
 
@@ -264,7 +231,7 @@ export async function exportComponentSet(
     assets: exportedAssets?.assets,
     format,
     metaContext: {
-      component: teamComponentEntryFromPublishedSet(scope.publishedSet),
+      component: scope.component,
       teamComponents: scope.teamComponents,
     },
   });
@@ -290,8 +257,8 @@ export async function exportComponentSet(
         kind: "component-set-layout-risks",
         componentSet: {
           id: componentSetNodeId,
-          key: componentSetMeta.key,
-          name: scope.publishedSet.name,
+          key: scope.component.key,
+          name: scope.component.name,
         },
         risks: layoutRisks,
       },
@@ -312,7 +279,7 @@ export async function exportComponentSet(
       nodeId: componentSetNodeId,
       nodeType: "COMPONENT_SET",
       ...(options.sourceUrl ? { sourceUrl: options.sourceUrl } : {}),
-      componentSetKey: componentSetMeta.key,
+      componentSetKey: scope.component.key,
     },
     variants: lockVariants,
     fingerprints: {
@@ -340,8 +307,8 @@ export async function exportComponentSet(
     sourceUrl: options.sourceUrl,
     fileKey: scope.fileKey,
     nodeId: componentSetNodeId,
-    componentSetKey: componentSetMeta.key,
-    componentSetName: scope.publishedSet.name,
+    componentSetKey: scope.component.key,
+    componentSetName: scope.component.name,
   });
 
   return {

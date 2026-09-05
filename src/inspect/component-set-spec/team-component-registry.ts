@@ -6,8 +6,8 @@ export interface TeamComponentEntry {
   id: string;
   key: string;
   name: string;
-  fileKey: string;
-  projectId: string;
+  fileKey?: string;
+  projectId?: string;
 }
 
 export class TeamComponentRegistry {
@@ -66,7 +66,7 @@ function parseTeamComponentEntry(
   const projectId =
     readString(value, "projectId") ?? readString(value, "project_id");
 
-  if (!id || !key || !name || !fileKey || !projectId) {
+  if (!id || !key || !name) {
     return undefined;
   }
 

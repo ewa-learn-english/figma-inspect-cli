@@ -760,7 +760,7 @@ describe("runCli", () => {
       previewPath: "/out/Settings.frame.preview.png",
       importNotesPath: "/out/import-notes.md",
     });
-    const { io, output } = createIo({ FIGMA_TEAM_ID: "team" });
+    const { io, output } = createIo({ FIGMA_TEAM_ID: undefined });
     const sourceUrl =
       "https://www.figma.com/design/fileKey/Settings?node-id=213-695&m=dev";
 
@@ -783,7 +783,7 @@ describe("runCli", () => {
     expect(mocks.exportComponentSet).toHaveBeenCalledWith(
       expect.objectContaining({
         token: "token",
-        teamId: "team",
+        teamId: undefined,
         outputDir: "out",
         componentSet: {
           kind: "node",
@@ -799,7 +799,7 @@ describe("runCli", () => {
     );
   });
 
-  it("runs export-contract from a Figma URL with optional team id", async () => {
+  it("runs export-contract from a Figma URL without a team", async () => {
     mocks.exportContract.mockResolvedValue({
       visualsContractPath: "/out/a.yaml",
       geometryContractPath: "/out/b.yaml",
@@ -832,7 +832,6 @@ describe("runCli", () => {
     expect(mocks.exportContract).toHaveBeenCalledWith(
       expect.objectContaining({
         token: "token",
-        teamId: undefined,
         outputDir: "out",
         fileKey: "fileKey",
         nodeId: "208:43935",

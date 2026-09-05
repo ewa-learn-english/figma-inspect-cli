@@ -1,4 +1,4 @@
-export { loadComponentSetContext } from "./component-set-context.js";
+export { resolveComponentSetExportContext } from "./component-set-export-context.js";
 export {
   buildComponentSetPseudocodeFromFile,
   buildComponentSetPseudocodeFromRaw,
@@ -48,6 +48,7 @@ export {
   listComponentSetPropertiesByRef,
 } from "./list-component-set-properties.js";
 export {
+  buildNodeContractFromEntry,
   buildNodeContractFromRef,
   readNodeContractArtifacts,
   resolveNodeContractLockPath,

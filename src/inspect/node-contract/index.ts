@@ -1,4 +1,7 @@
-export { buildNodeContractFromRef } from "./build-node-contract.js";
+export {
+  buildNodeContractFromEntry,
+  buildNodeContractFromRef,
+} from "./build-node-contract.js";
 export { writeNodeContractLock } from "./node-lock.js";
 export {
   readNodeContractArtifacts,

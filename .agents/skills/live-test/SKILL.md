@@ -81,10 +81,10 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 18 | `--build-component-set-spec` | `--input tmp/component-set.json --variables $VARIABLES_PATH --team-components tmp/ComponentSets.json` | collapses known team components to slots |
 | 19 | `--build-component-set-pseudocode` | `--input tmp/component-set.json --variables $VARIABLES_PATH` | writes `<ComponentName>.component-set.{visuals,geometry,meta}.yaml` and `<ComponentName>.component-set.structure.dsl` next to `--input` |
 | 20 | `--build-component-set-pseudocode` | `--input tmp/component-set.json --output-dir tmp --variables $VARIABLES_PATH --team-components tmp/ComponentSets.json` | writes component-set contract files to `tmp/` with token resolution |
-| 21 | `--export-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FIGMA_NODE_URL"` | preferred URL-first variant; auto-detects `COMPONENT_SET`; also writes `import-notes.md`; needs `FIGMA_TEAM_ID` for this target |
+| 21 | `--export-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FIGMA_NODE_URL"` | preferred URL-first variant; auto-detects `COMPONENT_SET`; also writes `import-notes.md`; does not need team configuration |
 | 22 | `--export-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL"` | preferred URL-first variant; auto-detects `FRAME`; writes `<name>.frame.{visuals,geometry,meta,lock}.yaml` and `<name>.frame.structure.dsl` |
 | 23 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME` | explicit component-set variant; writes `<name>.component-set.{visuals,geometry,meta,lock}.yaml`, and `<name>.component-set.structure.dsl`; needs `FIGMA_TEAM_ID` |
-| 24 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FIGMA_NODE_URL"` | explicit component-set URL variant; also writes `import-notes.md`; needs `FIGMA_TEAM_ID` |
+| 24 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FIGMA_NODE_URL"` | explicit component-set URL variant; also writes `import-notes.md`; does not need team configuration |
 | 25 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name ProfileStreakIcon --export-assets` | attempts variant SVG assets; asset-exportable sets write `<name>.assets/*.svg`, store paths in `meta.yaml`, and use asset-backed contracts; runtime-prop sets warn and fall back to runtime contracts; needs `FIGMA_API_TOKEN` + `FIGMA_TEAM_ID` |
 | 26 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME --json` | same as row 23 but writes `.json` files instead of `.yaml` |
 | 27 | `--export-node-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL"` | explicit node-contract URL variant for FRAME |
@@ -170,3 +170,12 @@ npx . --verify-component-lock --lock-file tmp/Cell.component-set.lock.yaml --jso
 ## Maintaining this skill
 
 When CLI commands, flags, env requirements, or default fixture values change, update this file in the same PR/commit as the CLI change. Source of truth for the command list: `src/cli/usage.ts`.
+
+### SECTION URL export
+
+Run `--export-contract --url "$SECTION_NODE_URL" --output-dir tmp/section` with
+a section URL from the task. Check `section.index.yaml`, the full original
+response in `section.source.json`, and each supported child's contract directory.
+Include nested sections and repeated frame names when available. Repeat with
+`--json` and `--export-preview`; verify that the preview is for the selected
+section. URL exports must work with both team environment variables unset.

@@ -59,7 +59,7 @@ Managed index commands without `--team` operate on every `FIGMA_TEAMS` entry.
 | `--inspect-file-node` | `--url <figma-url>` or `--file-key <key> --node-id <id>` | Raw file node |
 | `--build-component-set-spec` | `--input <path>` | Compact local component-set spec |
 | `--build-component-set-pseudocode` | `--input <path>` | Local component-set contract files |
-| `--export-contract` | `--output-dir <dir>` plus URL or file/node ref | Auto-detected component-set, frame, or component contracts |
+| `--export-contract` | `--output-dir <dir>` plus URL or file/node ref | Auto-detected section index or component-set, frame, or component contracts |
 | `--export-component-set` | `--output-dir <dir>` plus URL or component set key/name | Component-set contracts |
 | `--export-node-contract` | `--output-dir <dir>` plus URL or file/node ref | Frame or standalone component contracts |
 | `--verify-component-contract` | `--contract-dir <dir>` | Component-set lock verification |
@@ -172,7 +172,21 @@ npx . --build-component-set-pseudocode --input tmp/Toast.json --variables tmp/cp
 
 ## Export
 
+Exports by URL or file/node reference use the selected node directly and do not
+require a team or scan team projects. Team selection is needed only to discover
+a component set by name or key. Component metadata includes source file/project
+locations only when those are known; remote dependencies are never assigned the
+selected node's file location.
+
 `--export-contract` auto-detects supported node types:
+
+- `SECTION` writes `section.index.yaml` with every direct child's identity,
+  bounds, and contract directory where supported. Frames, components, component
+  sets, and nested sections get separate contracts in node-ID directories.
+  `section.source.json` preserves the complete original node response, including
+  annotations and other children without contracts. Nested indexes reference
+  that same source. `--json` writes JSON indexes and child data artifacts.
+  Preview and nested-asset options apply to the selected section once.
 
 - `COMPONENT_SET` writes `<Name>.component-set.{visuals,geometry,meta}.yaml`,
   `<Name>.component-set.structure.dsl`, and `<Name>.component-set.lock.yaml`.

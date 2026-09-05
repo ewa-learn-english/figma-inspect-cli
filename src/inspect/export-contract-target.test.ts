@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  fetchFileNodeEntry: vi.fn(),
+  getFileNode: vi.fn(),
 }));
 
-vi.mock("./fetch-file-node-entry.js", () => ({
-  fetchFileNodeEntry: mocks.fetchFileNodeEntry,
+vi.mock("../figma-api/get-file-node.js", () => ({
+  getFileNode: mocks.getFileNode,
 }));
 
 import { resolveExportContractTarget } from "./export-contract-target.js";
@@ -16,15 +16,19 @@ describe("resolveExportContractTarget", () => {
   });
 
   it("routes component set nodes to the component-set pipeline", async () => {
-    mocks.fetchFileNodeEntry.mockResolvedValue({
-      document: {
-        id: "213:695",
-        name: "Cell",
-        type: "COMPONENT_SET",
-        isExposedInstance: false,
+    mocks.getFileNode.mockResolvedValue({
+      nodes: {
+        "213:695": {
+          document: {
+            id: "213:695",
+            name: "Cell",
+            type: "COMPONENT_SET",
+            isExposedInstance: false,
+          },
+          componentSets: {},
+          components: {},
+        },
       },
-      componentSets: {},
-      components: {},
     });
 
     await expect(
@@ -33,7 +37,7 @@ describe("resolveExportContractTarget", () => {
         fileKey: "file-key",
         nodeId: "213:695",
       }),
-    ).resolves.toEqual({
+    ).resolves.toMatchObject({
       kind: "component-set",
       fileKey: "file-key",
       nodeId: "213:695",
@@ -41,15 +45,19 @@ describe("resolveExportContractTarget", () => {
   });
 
   it("routes frame nodes to the node pipeline", async () => {
-    mocks.fetchFileNodeEntry.mockResolvedValue({
-      document: {
-        id: "208:43935",
-        name: "Settings",
-        type: "FRAME",
-        isExposedInstance: false,
+    mocks.getFileNode.mockResolvedValue({
+      nodes: {
+        "208:43935": {
+          document: {
+            id: "208:43935",
+            name: "Settings",
+            type: "FRAME",
+            isExposedInstance: false,
+          },
+          componentSets: {},
+          components: {},
+        },
       },
-      componentSets: {},
-      components: {},
     });
 
     await expect(
@@ -58,7 +66,7 @@ describe("resolveExportContractTarget", () => {
         fileKey: "file-key",
         nodeId: "208:43935",
       }),
-    ).resolves.toEqual({
+    ).resolves.toMatchObject({
       kind: "node",
       fileKey: "file-key",
       nodeId: "208:43935",
@@ -66,16 +74,20 @@ describe("resolveExportContractTarget", () => {
   });
 
   it("routes standalone components to the node pipeline", async () => {
-    mocks.fetchFileNodeEntry.mockResolvedValue({
-      document: {
-        id: "900:1",
-        name: "Icon",
-        type: "COMPONENT",
-        isExposedInstance: false,
-      },
-      componentSets: {},
-      components: {
-        "900:1": { key: "component-key", name: "Icon" },
+    mocks.getFileNode.mockResolvedValue({
+      nodes: {
+        "900:1": {
+          document: {
+            id: "900:1",
+            name: "Icon",
+            type: "COMPONENT",
+            isExposedInstance: false,
+          },
+          componentSets: {},
+          components: {
+            "900:1": { key: "component-key", name: "Icon" },
+          },
+        },
       },
     });
 
@@ -85,7 +97,7 @@ describe("resolveExportContractTarget", () => {
         fileKey: "file-key",
         nodeId: "900:1",
       }),
-    ).resolves.toEqual({
+    ).resolves.toMatchObject({
       kind: "node",
       fileKey: "file-key",
       nodeId: "900:1",
@@ -93,19 +105,23 @@ describe("resolveExportContractTarget", () => {
   });
 
   it("rejects components inside component sets", async () => {
-    mocks.fetchFileNodeEntry.mockResolvedValue({
-      document: {
-        id: "3971:6466",
-        name: "State=Default",
-        type: "COMPONENT",
-        isExposedInstance: false,
-      },
-      componentSets: {},
-      components: {
+    mocks.getFileNode.mockResolvedValue({
+      nodes: {
         "3971:6466": {
-          key: "component-key",
-          name: "State=Default",
-          componentSetId: "3971:6465",
+          document: {
+            id: "3971:6466",
+            name: "State=Default",
+            type: "COMPONENT",
+            isExposedInstance: false,
+          },
+          componentSets: {},
+          components: {
+            "3971:6466": {
+              key: "component-key",
+              name: "State=Default",
+              componentSetId: "3971:6465",
+            },
+          },
         },
       },
     });
@@ -120,15 +136,19 @@ describe("resolveExportContractTarget", () => {
   });
 
   it("rejects unsupported nodes with the actual node type", async () => {
-    mocks.fetchFileNodeEntry.mockResolvedValue({
-      document: {
-        id: "500:1",
-        name: "Nested",
-        type: "INSTANCE",
-        isExposedInstance: false,
+    mocks.getFileNode.mockResolvedValue({
+      nodes: {
+        "500:1": {
+          document: {
+            id: "500:1",
+            name: "Nested",
+            type: "INSTANCE",
+            isExposedInstance: false,
+          },
+          componentSets: {},
+          components: {},
+        },
       },
-      componentSets: {},
-      components: {},
     });
 
     await expect(

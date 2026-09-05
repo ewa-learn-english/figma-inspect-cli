@@ -1,4 +1,4 @@
-import type { FigmaComponentSet } from "./schemas.js";
+import type { FigmaComponentSet, FileNodeEntry } from "./schemas.js";
 
 export interface FigmaNodeRef {
   fileKey: string;
@@ -32,9 +32,11 @@ export type ComponentSetTarget =
   | ComponentSetLookup
   | ({ kind: "node" } & FigmaNodeRef);
 
-export type ExportContractTarget =
-  | ({ kind: "component-set" } & FigmaNodeRef)
-  | ({ kind: "node" } & FigmaNodeRef);
+export interface ExportContractTarget extends FigmaNodeRef {
+  kind: "component-set" | "node" | "section";
+  entry: FileNodeEntry;
+  source: unknown;
+}
 
 export interface ComponentSetScopeOptions extends FigmaNodeRef {
   token: string;

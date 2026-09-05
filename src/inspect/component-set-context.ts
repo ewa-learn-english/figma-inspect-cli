@@ -62,7 +62,7 @@ function assertComponentSetNode(
   return node;
 }
 
-function componentSetContextFromNodeEntry(
+export function componentSetContextFromNodeEntry(
   nodeEntry: Awaited<ReturnType<typeof fetchFileNodeEntry>>,
   componentSetNode: DocumentNode,
 ): ComponentSetContext {
