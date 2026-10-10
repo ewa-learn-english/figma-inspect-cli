@@ -239,4 +239,31 @@ describe("buildComponentSetPseudocodeFromRaw structure", () => {
       'template structure2 when State = "Disabled" {',
     );
   });
+
+  it("skips node keys that another node already uses", async () => {
+    const result = await buildComponentSetPseudocodeFromRaw({
+      id: "1:1",
+      type: "COMPONENT_SET",
+      name: "Badge",
+      componentPropertyDefinitions: {
+        State: {
+          type: "VARIANT",
+          defaultValue: "Default",
+          variantOptions: ["Default"],
+        },
+      },
+      children: [
+        variant("Default", [
+          text("Label", "A"),
+          text("Label", "B"),
+          text("Label2", "C"),
+        ]),
+      ],
+    });
+
+    expect(result.structureDsl).toContain("Text label3 {");
+    expect(result.structureDsl).toContain("Text label2 {");
+    expect(result.structureDsl).toContain('content "C"');
+    expect(result.structureDsl).toContain("fallback => allVariants");
+  });
 });
