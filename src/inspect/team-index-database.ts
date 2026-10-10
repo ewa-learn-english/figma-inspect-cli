@@ -1,22 +1,51 @@
-import { access, mkdir, readdir, rename, rm, stat } from "node:fs/promises";
+import { access, mkdir, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import type { DatabaseSync } from "node:sqlite";
 import { FigmaInspectError } from "./errors.js";
-import type {
-  TeamIndexBundle,
-  TeamIndexComponentUsage,
-  TeamIndexFile,
-} from "./team-index.js";
+import type { TeamIndexComponentUsage, TeamIndexFile } from "./team-index.js";
 import type { ComponentSetLookup } from "./types.js";
 
 export const TEAM_INDEX_DATABASE_FILE = "figma-index.sqlite3";
 
 const TEAM_INDEX_SCHEMA_VERSION = "1";
 
+// Dependent tables first, so dropping them never violates a foreign key.
+const TEAM_INDEX_TABLES = [
+  "component_usages",
+  "screen_group_screens",
+  "screen_groups",
+  "screens",
+  "components",
+  "component_sets",
+  "files",
+  "metadata",
+] as const;
+
 export interface TeamIndexUsageRecord {
   file: TeamIndexFile["file"];
   screenGroups: TeamIndexFile["screenGroups"];
   usage: TeamIndexComponentUsage;
+}
+
+export interface FailedIndexFile {
+  key: string;
+  name: string;
+  projectName: string;
+  error: string;
+}
+
+export interface IndexedFileVersion {
+  name: string;
+  lastModified: string;
+  projectId: string;
+  projectName: string;
+}
+
+export interface TeamIndexCounts {
+  fileCount: number;
+  componentSetCount: number;
+  componentCount: number;
+  screenCount: number;
 }
 
 export interface TeamIndexStatus {
@@ -28,6 +57,7 @@ export interface TeamIndexStatus {
   fileCount?: number;
   componentSetCount?: number;
   componentCount?: number;
+  failedFiles?: FailedIndexFile[];
 }
 
 export interface TeamIndexComponentSearchResult {
@@ -103,9 +133,6 @@ function parseJson<T>(raw: string | undefined, fallback: T): T {
 
 function createSchema(database: DatabaseSync): void {
   database.exec(`
-    PRAGMA foreign_keys = ON;
-    PRAGMA journal_mode = DELETE;
-
     CREATE TABLE metadata (
       name TEXT PRIMARY KEY,
       value TEXT NOT NULL
@@ -206,18 +233,8 @@ function createSchema(database: DatabaseSync): void {
   `);
 }
 
-function insertIndex(database: DatabaseSync, index: TeamIndexBundle): void {
-  const generatedAt = index.team.generatedAt ?? new Date().toISOString();
-  const insertMetadata = database.prepare(
-    "INSERT INTO metadata (name, value) VALUES (?, ?)",
-  );
-  insertMetadata.run("schema_version", TEAM_INDEX_SCHEMA_VERSION);
-  insertMetadata.run("kind", "figma-team-index");
-  insertMetadata.run("team", index.team.team);
-  insertMetadata.run("version", String(index.team.version));
-  insertMetadata.run("generated_at", generatedAt);
-
-  const insertFile = database.prepare(`
+function insertFile(database: DatabaseSync, file: TeamIndexFile): void {
+  const insertFileRow = database.prepare(`
     INSERT INTO files (
       file_key,
       name,
@@ -291,124 +308,246 @@ function insertIndex(database: DatabaseSync, index: TeamIndexBundle): void {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
-  database.exec("BEGIN");
-  try {
-    for (const file of index.files) {
-      insertFile.run(
+  insertFileRow.run(
+    file.file.key,
+    file.file.name,
+    file.file.lastModified,
+    file.file.projectId,
+    file.file.projectName,
+    file.componentSets.length,
+    file.components.length,
+    file.screens.length,
+  );
+
+  for (const componentSet of file.componentSets) {
+    insertNode.run(
+      file.file.key,
+      componentSet.id,
+      componentSet.key ?? null,
+      componentSet.name,
+      componentSet.lastModified,
+      componentSet.url,
+    );
+  }
+
+  for (const component of file.components) {
+    insertComponent.run(
+      file.file.key,
+      component.id,
+      component.key ?? null,
+      component.name,
+      component.lastModified,
+      component.url,
+    );
+  }
+
+  for (const screen of file.screens) {
+    insertScreen.run(
+      file.file.key,
+      screen.id,
+      screen.name,
+      screen.size,
+      screen.group,
+      screen.lastModified,
+      screen.url,
+    );
+  }
+
+  for (const group of file.screenGroups) {
+    insertScreenGroup.run(file.file.key, group.id);
+    group.screens.forEach((screen, index) => {
+      insertScreenGroupScreen.run(
         file.file.key,
-        file.file.name,
-        file.file.lastModified,
-        file.file.projectId,
-        file.file.projectName,
-        file.componentSets.length,
-        file.components.length,
-        file.screens.length,
+        group.id,
+        screen.id,
+        screen.name,
+        screen.size,
+        screen.lastModified,
+        screen.url,
+        index,
       );
+    });
+  }
 
-      for (const componentSet of file.componentSets) {
-        insertNode.run(
-          file.file.key,
-          componentSet.id,
-          componentSet.key ?? null,
-          componentSet.name,
-          componentSet.lastModified,
-          componentSet.url,
-        );
-      }
+  for (const usage of file.componentUsages) {
+    insertUsage.run(
+      file.file.key,
+      usage.componentSet.id,
+      usage.componentSet.key ?? null,
+      usage.componentSet.name,
+      usage.screen.id,
+      usage.instance.id,
+      usage.instance.name,
+      usage.instance.path,
+      jsonText(usage.instance.variantProps),
+      JSON.stringify(usage.ancestorChain),
+      nonEmptyJsonText(usage.layoutRisks),
+    );
+  }
+}
 
-      for (const component of file.components) {
-        insertComponent.run(
-          file.file.key,
-          component.id,
-          component.key ?? null,
-          component.name,
-          component.lastModified,
-          component.url,
-        );
-      }
+function isTeamIndex(database: DatabaseSync, teamId: string): boolean {
+  const hasMetadata =
+    database
+      .prepare(
+        "SELECT 1 FROM sqlite_schema WHERE type = 'table' AND name = 'metadata'",
+      )
+      .get() !== undefined;
+  return (
+    hasMetadata &&
+    metadataValue(database, "schema_version") === TEAM_INDEX_SCHEMA_VERSION &&
+    metadataValue(database, "kind") === "figma-team-index" &&
+    metadataValue(database, "team") === teamId
+  );
+}
 
-      for (const screen of file.screens) {
-        insertScreen.run(
-          file.file.key,
-          screen.id,
-          screen.name,
-          screen.size,
-          screen.group,
-          screen.lastModified,
-          screen.url,
-        );
-      }
-
-      for (const group of file.screenGroups) {
-        insertScreenGroup.run(file.file.key, group.id);
-        group.screens.forEach((screen, index) => {
-          insertScreenGroupScreen.run(
-            file.file.key,
-            group.id,
-            screen.id,
-            screen.name,
-            screen.size,
-            screen.lastModified,
-            screen.url,
-            index,
-          );
-        });
-      }
-
-      for (const usage of file.componentUsages) {
-        insertUsage.run(
-          file.file.key,
-          usage.componentSet.id,
-          usage.componentSet.key ?? null,
-          usage.componentSet.name,
-          usage.screen.id,
-          usage.instance.id,
-          usage.instance.name,
-          usage.instance.path,
-          jsonText(usage.instance.variantProps),
-          JSON.stringify(usage.ancestorChain),
-          nonEmptyJsonText(usage.layoutRisks),
-        );
-      }
-    }
-
+function inTransaction(database: DatabaseSync, work: () => void): void {
+  database.exec("BEGIN IMMEDIATE");
+  try {
+    work();
     database.exec("COMMIT");
   } catch (error) {
-    database.exec("ROLLBACK");
+    if (database.isTransaction) {
+      database.exec("ROLLBACK");
+    }
     throw error;
   }
 }
 
-export async function writeTeamIndexDatabase({
+/**
+ * Opens a team index for an in-place refresh. Each file is replaced in its own
+ * transaction, so an interrupted refresh keeps every completed file.
+ */
+export async function openTeamIndexForRefresh({
   databasePath,
-  index,
+  teamId,
 }: {
   databasePath: string;
-  index: TeamIndexBundle;
-}): Promise<void> {
+  teamId: string;
+}): Promise<DatabaseSync> {
   await mkdir(path.dirname(databasePath), { recursive: true });
-  const temporaryPath = `${databasePath}.tmp-${process.pid}-${Date.now()}`;
-  await rm(temporaryPath, { force: true });
-
-  let movedIntoPlace = false;
+  const database = await openDatabase(databasePath);
   try {
-    const database = await openDatabase(temporaryPath);
-    try {
-      createSchema(database);
-      insertIndex(database, index);
-      database.exec("PRAGMA optimize");
-      database.exec("VACUUM");
-    } finally {
-      database.close();
-    }
+    // A large page cache defers the exclusive lock to each commit, so readers
+    // do not wait while a big file is written.
+    database.exec("PRAGMA foreign_keys = ON; PRAGMA cache_size = -262144;");
+    // The write lock is taken before the check, so a concurrent refresh never
+    // sees or replaces a half-created schema.
+    inTransaction(database, () => {
+      if (isTeamIndex(database, teamId)) {
+        return;
+      }
 
-    await rename(temporaryPath, databasePath);
-    movedIntoPlace = true;
-  } finally {
-    if (!movedIntoPlace) {
-      await rm(temporaryPath, { force: true });
-    }
+      for (const table of TEAM_INDEX_TABLES) {
+        database.exec(`DROP TABLE IF EXISTS ${table}`);
+      }
+      createSchema(database);
+      const insertMetadata = database.prepare(
+        "INSERT INTO metadata (name, value) VALUES (?, ?)",
+      );
+      insertMetadata.run("schema_version", TEAM_INDEX_SCHEMA_VERSION);
+      insertMetadata.run("kind", "figma-team-index");
+      insertMetadata.run("team", teamId);
+      insertMetadata.run("version", "1");
+    });
+    return database;
+  } catch (error) {
+    database.close();
+    throw error;
   }
+}
+
+/** Identifies the builder and settings that produced the indexed rows. */
+export function readTeamIndexBuild(database: DatabaseSync): string | undefined {
+  return metadataValue(database, "index_build");
+}
+
+export function readIndexedFileVersions(
+  database: DatabaseSync,
+): Map<string, IndexedFileVersion> {
+  const rows = database
+    .prepare(
+      "SELECT file_key, name, last_modified, project_id, project_name FROM files",
+    )
+    .all() as Record<string, unknown>[];
+  return new Map(
+    rows.map((row) => [
+      rowString(row, "file_key"),
+      {
+        name: rowString(row, "name"),
+        lastModified: rowString(row, "last_modified"),
+        projectId: rowString(row, "project_id"),
+        projectName: rowString(row, "project_name"),
+      },
+    ]),
+  );
+}
+
+export function removeIndexedFiles(
+  database: DatabaseSync,
+  fileKeys: readonly string[],
+): void {
+  const remove = database.prepare("DELETE FROM files WHERE file_key = ?");
+  for (const fileKey of fileKeys) {
+    remove.run(fileKey);
+  }
+}
+
+export function replaceIndexedFile(
+  database: DatabaseSync,
+  file: TeamIndexFile,
+): void {
+  inTransaction(database, () => {
+    removeIndexedFiles(database, [file.file.key]);
+    insertFile(database, file);
+  });
+}
+
+function writeMetadata(
+  database: DatabaseSync,
+  name: string,
+  value: string,
+): void {
+  database
+    .prepare(
+      "INSERT INTO metadata (name, value) VALUES (?, ?) ON CONFLICT(name) DO UPDATE SET value = excluded.value",
+    )
+    .run(name, value);
+}
+
+/**
+ * Starts a build with other settings or builder version. Every indexed file is
+ * marked outdated but stays readable, and an interrupted build resumes.
+ */
+export function startTeamIndexBuild(
+  database: DatabaseSync,
+  build: string,
+): void {
+  inTransaction(database, () => {
+    database.exec("UPDATE files SET last_modified = ''");
+    writeMetadata(database, "index_build", build);
+  });
+}
+
+export function completeTeamIndexRefresh(
+  database: DatabaseSync,
+  {
+    generatedAt,
+    failedFiles,
+  }: { generatedAt: string; failedFiles: readonly FailedIndexFile[] },
+): void {
+  writeMetadata(database, "generated_at", generatedAt);
+  writeMetadata(database, "failed_files", JSON.stringify(failedFiles));
+  database.exec("PRAGMA optimize");
+}
+
+export function countTeamIndex(database: DatabaseSync): TeamIndexCounts {
+  return {
+    fileCount: countTable(database, "files"),
+    componentSetCount: countTable(database, "component_sets"),
+    componentCount: countTable(database, "components"),
+    screenCount: countTable(database, "screens"),
+  };
 }
 
 function metadataValue(
@@ -438,9 +577,8 @@ export async function readTeamIndexStatus(options: {
   teamId: string;
   now?: Date;
 }): Promise<TeamIndexStatus> {
-  let databaseStats: Awaited<ReturnType<typeof stat>>;
   try {
-    databaseStats = await stat(options.databasePath);
+    await stat(options.databasePath);
   } catch {
     return {
       team: { alias: options.teamAlias, id: options.teamId },
@@ -458,24 +596,30 @@ export async function readTeamIndexStatus(options: {
         `Figma team index ${path.basename(options.databasePath)} belongs to a different team.`,
       );
     }
-    const generatedAt =
-      metadataValue(database, "generated_at") ??
-      databaseStats.mtime.toISOString();
-    const generatedAtMs = Date.parse(generatedAt);
+    // generated_at is written when a refresh finishes; without it the index
+    // holds only the files indexed so far.
+    const generatedAt = metadataValue(database, "generated_at");
+    const generatedAtMs = generatedAt ? Date.parse(generatedAt) : Number.NaN;
     const nowMs = (options.now ?? new Date()).getTime();
+    const failedFiles = parseJson<FailedIndexFile[]>(
+      metadataValue(database, "failed_files"),
+      [],
+    );
+    const counts = countTeamIndex(database);
     return {
       team: { alias: options.teamAlias, id: options.teamId },
       databasePath: options.databasePath,
       exists: true,
-      generatedAt,
+      ...(generatedAt ? { generatedAt } : {}),
       ...(Number.isFinite(generatedAtMs)
         ? {
             ageSeconds: Math.max(0, Math.floor((nowMs - generatedAtMs) / 1000)),
           }
         : {}),
-      fileCount: countTable(database, "files"),
-      componentSetCount: countTable(database, "component_sets"),
-      componentCount: countTable(database, "components"),
+      fileCount: counts.fileCount,
+      componentSetCount: counts.componentSetCount,
+      componentCount: counts.componentCount,
+      ...(failedFiles.length > 0 ? { failedFiles } : {}),
     };
   } finally {
     database.close();

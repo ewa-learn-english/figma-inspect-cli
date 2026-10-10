@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { FigmaTeamProjectFile } from "../figma-api/schemas.js";
 import type { DocumentNode, FileNodeEntry } from "./schemas.js";
-import { buildTeamIndex } from "./team-index.js";
+import {
+  buildTeamIndexFile,
+  slimIndexNode,
+  teamIndexSettings,
+} from "./team-index.js";
 
 function figmaNode(
   fields: Omit<DocumentNode, "isExposedInstance"> & {
@@ -126,26 +130,131 @@ function fileEntry(): FileNodeEntry {
   };
 }
 
-describe("buildTeamIndex", () => {
-  it("indexes component sets, standalone components, screens, and similar sizes", () => {
-    const index = buildTeamIndex({
-      teamId: "team",
-      files: [{ metadata: fileMetadata, entry: fileEntry() }],
-    });
+function layoutRiskEntry(): FileNodeEntry {
+  const entry = fileEntry();
+  entry.document = figmaNode({
+    id: "0:0",
+    type: "DOCUMENT",
+    name: "Document",
+    children: [
+      figmaNode({
+        id: "0:1",
+        type: "CANVAS",
+        name: "Components",
+        children: [
+          figmaNode({
+            id: "30:1",
+            type: "COMPONENT_SET",
+            name: "RatingsDivider",
+            children: [
+              figmaNode({
+                id: "30:2",
+                type: "COMPONENT",
+                name: "Direction=Forward",
+              }),
+            ],
+          }),
+        ],
+      }),
+      figmaNode({
+        id: "0:2",
+        type: "CANVAS",
+        name: "Screens",
+        children: [
+          figmaNode({
+            id: "40:1",
+            type: "FRAME",
+            name: "Leagues scroll / Phone",
+            absoluteBoundingBox: { x: 0, y: 0, width: 375, height: 812 },
+            layoutMode: "VERTICAL",
+            counterAxisAlignItems: "CENTER",
+            children: [
+              figmaNode({
+                id: "40:2",
+                type: "INSTANCE",
+                name: "RatingsDivider",
+                componentId: "30:2",
+                layoutSizingHorizontal: "FILL",
+                layoutAlign: "STRETCH",
+                counterAxisAlignItems: "CENTER",
+                children: [
+                  figmaNode({
+                    id: "40:3",
+                    type: "TEXT",
+                    name: "Text",
+                    layoutSizingHorizontal: "FILL",
+                    layoutAlign: "STRETCH",
+                    maxWidth: 520,
+                  }),
+                ],
+              }),
+            ],
+          }),
+          figmaNode({
+            id: "41:1",
+            type: "FRAME",
+            name: "Leagues scroll / iPad Landscape",
+            absoluteBoundingBox: { x: 0, y: 0, width: 1194, height: 834 },
+            layoutMode: "VERTICAL",
+            counterAxisAlignItems: "CENTER",
+            children: [
+              figmaNode({
+                id: "41:2",
+                type: "INSTANCE",
+                name: "RatingsDivider",
+                componentId: "30:2",
+                layoutSizingHorizontal: "FILL",
+                layoutAlign: "STRETCH",
+                counterAxisAlignItems: "CENTER",
+                children: [
+                  figmaNode({
+                    id: "41:3",
+                    type: "TEXT",
+                    name: "Text",
+                    layoutSizingHorizontal: "FILL",
+                    layoutAlign: "STRETCH",
+                    maxWidth: 520,
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+    ],
+  });
+  entry.componentSets = {
+    "30:1": {
+      id: "30:1",
+      key: "ratings-divider-key",
+      name: "RatingsDivider",
+    },
+  };
+  entry.components = {
+    "30:2": {
+      key: "ratings-divider-forward-key",
+      name: "RatingsDivider / Forward",
+      componentSetId: "30:1",
+    },
+  };
+  return entry;
+}
 
-    expect(index.team.files).toEqual([
-      {
-        key: "file-key",
-        name: "Settings",
-        lastModified: "2026-06-17T12:43:44Z",
-        projectId: "profile-project",
-        projectName: "Profile",
-        componentSets: 1,
-        components: 1,
-        screens: 2,
-      },
-    ]);
-    expect(index.files[0]?.componentSets).toEqual([
+describe("buildTeamIndexFile", () => {
+  it("indexes component sets, standalone components, screens, and similar sizes", () => {
+    const index = buildTeamIndexFile(
+      { metadata: fileMetadata, entry: fileEntry() },
+      teamIndexSettings({}),
+    );
+
+    expect(index.file).toEqual({
+      key: "file-key",
+      name: "Settings",
+      lastModified: "2026-06-17T12:43:44Z",
+      projectId: "profile-project",
+      projectName: "Profile",
+    });
+    expect(index.componentSets).toEqual([
       {
         id: "10:1",
         key: "cell-set-key",
@@ -154,7 +263,7 @@ describe("buildTeamIndex", () => {
         url: "https://www.figma.com/design/file-key/Settings?node-id=10-1&m=dev",
       },
     ]);
-    expect(index.files[0]?.components).toEqual([
+    expect(index.components).toEqual([
       {
         id: "11:1",
         key: "logo-key",
@@ -163,11 +272,8 @@ describe("buildTeamIndex", () => {
         url: "https://www.figma.com/design/file-key/Settings?node-id=11-1&m=dev",
       },
     ]);
-    expect(index.files[0]?.screens.map((screen) => screen.id)).toEqual([
-      "20:1",
-      "21:1",
-    ]);
-    expect(index.files[0]?.screenGroups).toEqual([
+    expect(index.screens.map((screen) => screen.id)).toEqual(["20:1", "21:1"]);
+    expect(index.screenGroups).toEqual([
       {
         id: "file-key#20:1,21:1",
         screens: [
@@ -188,7 +294,7 @@ describe("buildTeamIndex", () => {
         ],
       },
     ]);
-    expect(index.files[0]?.screens[0]).toEqual({
+    expect(index.screens[0]).toEqual({
       id: "20:1",
       name: "Settings / Phone",
       size: "390x844",
@@ -196,7 +302,7 @@ describe("buildTeamIndex", () => {
       lastModified: "2026-06-17T12:43:44Z",
       url: "https://www.figma.com/design/file-key/Settings?node-id=20-1&m=dev",
     });
-    expect(index.files[0]?.componentUsages).toEqual([
+    expect(index.componentUsages).toEqual([
       {
         componentSet: {
           id: "10:1",
@@ -259,119 +365,13 @@ describe("buildTeamIndex", () => {
   });
 
   it("indexes layout risks for constrained fill usages on wide screen groups", () => {
-    const entry = fileEntry();
-    entry.document = figmaNode({
-      id: "0:0",
-      type: "DOCUMENT",
-      name: "Document",
-      children: [
-        figmaNode({
-          id: "0:1",
-          type: "CANVAS",
-          name: "Components",
-          children: [
-            figmaNode({
-              id: "30:1",
-              type: "COMPONENT_SET",
-              name: "RatingsDivider",
-              children: [
-                figmaNode({
-                  id: "30:2",
-                  type: "COMPONENT",
-                  name: "Direction=Forward",
-                }),
-              ],
-            }),
-          ],
-        }),
-        figmaNode({
-          id: "0:2",
-          type: "CANVAS",
-          name: "Screens",
-          children: [
-            figmaNode({
-              id: "40:1",
-              type: "FRAME",
-              name: "Leagues scroll / Phone",
-              absoluteBoundingBox: { x: 0, y: 0, width: 375, height: 812 },
-              layoutMode: "VERTICAL",
-              counterAxisAlignItems: "CENTER",
-              children: [
-                figmaNode({
-                  id: "40:2",
-                  type: "INSTANCE",
-                  name: "RatingsDivider",
-                  componentId: "30:2",
-                  layoutSizingHorizontal: "FILL",
-                  layoutAlign: "STRETCH",
-                  counterAxisAlignItems: "CENTER",
-                  children: [
-                    figmaNode({
-                      id: "40:3",
-                      type: "TEXT",
-                      name: "Text",
-                      layoutSizingHorizontal: "FILL",
-                      layoutAlign: "STRETCH",
-                      maxWidth: 520,
-                    }),
-                  ],
-                }),
-              ],
-            }),
-            figmaNode({
-              id: "41:1",
-              type: "FRAME",
-              name: "Leagues scroll / iPad Landscape",
-              absoluteBoundingBox: { x: 0, y: 0, width: 1194, height: 834 },
-              layoutMode: "VERTICAL",
-              counterAxisAlignItems: "CENTER",
-              children: [
-                figmaNode({
-                  id: "41:2",
-                  type: "INSTANCE",
-                  name: "RatingsDivider",
-                  componentId: "30:2",
-                  layoutSizingHorizontal: "FILL",
-                  layoutAlign: "STRETCH",
-                  counterAxisAlignItems: "CENTER",
-                  children: [
-                    figmaNode({
-                      id: "41:3",
-                      type: "TEXT",
-                      name: "Text",
-                      layoutSizingHorizontal: "FILL",
-                      layoutAlign: "STRETCH",
-                      maxWidth: 520,
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          ],
-        }),
-      ],
-    });
-    entry.componentSets = {
-      "30:1": {
-        id: "30:1",
-        key: "ratings-divider-key",
-        name: "RatingsDivider",
-      },
-    };
-    entry.components = {
-      "30:2": {
-        key: "ratings-divider-forward-key",
-        name: "RatingsDivider / Forward",
-        componentSetId: "30:1",
-      },
-    };
+    const entry = layoutRiskEntry();
+    const index = buildTeamIndexFile(
+      { metadata: fileMetadata, entry },
+      teamIndexSettings({}),
+    );
 
-    const index = buildTeamIndex({
-      teamId: "team",
-      files: [{ metadata: fileMetadata, entry }],
-    });
-
-    expect(index.files[0]?.componentUsages[0]?.layoutRisks).toEqual(
+    expect(index.componentUsages[0]?.layoutRisks).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           type: "centered-parent-constrained-fill",
@@ -392,13 +392,29 @@ describe("buildTeamIndex", () => {
     );
   });
 
+  it("builds the same index from slimmed nodes", () => {
+    const settings = teamIndexSettings({});
+    for (const entry of [fileEntry(), layoutRiskEntry()]) {
+      const slimmed = slimIndexNode({
+        ...entry.document,
+        fills: [{ type: "SOLID" }],
+      });
+
+      expect(slimmed).not.toHaveProperty("fills");
+      expect(
+        buildTeamIndexFile(
+          { metadata: fileMetadata, entry: { ...entry, document: slimmed } },
+          settings,
+        ),
+      ).toEqual(
+        buildTeamIndexFile({ metadata: fileMetadata, entry }, settings),
+      );
+    }
+  });
+
   it("rejects invalid similarity options", () => {
-    expect(() =>
-      buildTeamIndex({
-        teamId: "team",
-        files: [{ metadata: fileMetadata, entry: fileEntry() }],
-        screenSimilarityThreshold: 2,
-      }),
-    ).toThrow(/between 0 and 1/);
+    expect(() => teamIndexSettings({ screenSimilarityThreshold: 2 })).toThrow(
+      /between 0 and 1/,
+    );
   });
 });

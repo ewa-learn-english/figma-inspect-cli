@@ -253,6 +253,7 @@ describe("runCli", () => {
       indexRoot: "/tmp/figma-indexes",
       screenSimilarityThreshold: undefined,
       screenSizeTolerance: undefined,
+      log: expect.any(Function),
     });
 
     await runCli(["--preflight", "--json"], createIo(environment).io);
@@ -266,6 +267,37 @@ describe("runCli", () => {
         indexRoot: "/tmp/figma-indexes",
       }),
     );
+  });
+
+  it("writes refresh results before failing on teams and files it could not index", async () => {
+    const results = [
+      {
+        team: { alias: "design", id: "1" },
+        failedFiles: [
+          {
+            key: "file-2",
+            name: "Store Screens",
+            projectName: "Store Assets",
+            error: "Figma API request failed (500 Internal Server Error)",
+          },
+        ],
+      },
+      {
+        team: { alias: "marketing", id: "2" },
+        databasePath: "/tmp/figma-indexes/2/figma-index.sqlite3",
+        error: "Figma API request failed (403 Forbidden)",
+      },
+    ];
+    mocks.refreshManagedTeamIndexes.mockResolvedValue(results);
+    const { io, output } = createIo({
+      FIGMA_TEAM_ID: undefined,
+      FIGMA_TEAMS: '{"design":"1","marketing":"2"}',
+    });
+
+    await expect(runCli(["--refresh-index", "--json"], io)).rejects.toThrow(
+      "Figma index refresh failed for 1 team(s) and 1 file(s); every other team and file was indexed.",
+    );
+    expect(JSON.parse(output())).toEqual(results);
   });
 
   it("writes list output from figma-api helpers", async () => {
@@ -287,6 +319,8 @@ describe("runCli", () => {
     mocks.exportTeamIndex.mockResolvedValue({
       databasePath: "tmp/figma-index/figma-index.sqlite3",
       fileCount: 1,
+      updatedFileCount: 1,
+      failedFiles: [],
       componentSetCount: 2,
       componentCount: 1,
       screenCount: 3,
@@ -312,6 +346,7 @@ describe("runCli", () => {
       outputDir: "tmp/figma-index",
       screenSimilarityThreshold: 0.91,
       screenSizeTolerance: 4,
+      log: expect.any(Function),
     });
     expect(output()).toBe("tmp/figma-index/figma-index.sqlite3\n");
   });

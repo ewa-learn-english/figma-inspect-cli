@@ -94,4 +94,17 @@ describe("listTeamProjects", () => {
       },
     ]);
   });
+
+  it("reads folder listings live even when the disk cache is enabled", async () => {
+    vi.stubEnv("FIGMA_CACHE", "1");
+    const fetchImpl = vi
+      .fn()
+      .mockImplementation(async () => jsonResponse({ folders: [] }));
+    const options = { token: `token-${Date.now()}`, teamId: "team", fetchImpl };
+
+    await listTeamProjectFiles(options);
+    await listTeamProjectFiles(options);
+
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
 });

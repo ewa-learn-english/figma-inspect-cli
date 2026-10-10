@@ -2,17 +2,15 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { writeTeamIndexFixture } from "../test/team-index.js";
 import {
   compactComponentSetResponsiveUsage,
   compactComponentSetUsages,
   inspectComponentSetResponsiveUsage,
   listComponentSetUsages,
 } from "./component-set-usages.js";
-import type { TeamIndexBundle, TeamIndexFile } from "./team-index.js";
-import {
-  TEAM_INDEX_DATABASE_FILE,
-  writeTeamIndexDatabase,
-} from "./team-index-database.js";
+import type { TeamIndexFile } from "./team-index.js";
+import { TEAM_INDEX_DATABASE_FILE } from "./team-index-database.js";
 
 let indexDir: string | undefined;
 
@@ -164,38 +162,12 @@ function unrelatedFileIndex(): TeamIndexFile {
   };
 }
 
-function teamIndexBundle(): TeamIndexBundle {
-  const leagues = leaguesFileIndex();
-  const unrelated = unrelatedFileIndex();
-  return {
-    team: {
-      version: 1,
-      kind: "figma-team-index",
-      team: "team",
-      files: [
-        {
-          ...leagues.file,
-          componentSets: leagues.componentSets.length,
-          components: leagues.components.length,
-          screens: leagues.screens.length,
-        },
-        {
-          ...unrelated.file,
-          componentSets: unrelated.componentSets.length,
-          components: unrelated.components.length,
-          screens: unrelated.screens.length,
-        },
-      ],
-    },
-    files: [leagues, unrelated],
-  };
-}
-
 async function writeIndex(): Promise<string> {
   const directory = await mkdtemp(path.join(os.tmpdir(), "figma-index-"));
-  await writeTeamIndexDatabase({
+  await writeTeamIndexFixture({
     databasePath: path.join(directory, TEAM_INDEX_DATABASE_FILE),
-    index: teamIndexBundle(),
+    teamId: "team",
+    files: [leaguesFileIndex(), unrelatedFileIndex()],
   });
   return directory;
 }

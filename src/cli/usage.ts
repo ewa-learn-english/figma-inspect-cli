@@ -38,9 +38,9 @@ Options:
   --list-team-projects            List projects in a Figma team
   --list-project-files            List files in a Figma project
   --list-team-project-files       List files in all team projects
-  --export-team-index             Write a deterministic team inventory index as SQLite: figma-index.sqlite3
-  --refresh-index                 Rebuild persistent indexes for one or all configured teams
-  --index-status                  Print persistent index creation time, age, and counts
+  --export-team-index             Create or update a team inventory index as SQLite: figma-index.sqlite3
+  --refresh-index                 Update persistent indexes for one or all configured teams; only changed files are downloaded
+  --index-status                  Print persistent index refresh time, age, counts, and files the last refresh could not index
   --search-components             Search component sets and standalone components by name in persistent indexes
   --preflight                     Validate token access, configured teams, and index-root permissions
   --list-team-component-sets      List published component sets in a Figma team

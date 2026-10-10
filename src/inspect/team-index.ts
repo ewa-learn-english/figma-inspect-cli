@@ -14,6 +14,10 @@ import {
 } from "./layout-risks.js";
 import type { DocumentNode, FileNodeEntry } from "./schemas.js";
 
+// Bump when the rows built from the same Figma data change; refreshes then
+// rebuild every file.
+const TEAM_INDEX_BUILDER_VERSION = 1;
+
 const DEFAULT_SCREEN_SIMILARITY_THRESHOLD = 0.9;
 const DEFAULT_SCREEN_SIZE_TOLERANCE = 2;
 
@@ -28,28 +32,36 @@ const SCREEN_SIZE_PRESETS = [
   [1194, 834],
 ] as const;
 
+// Every node field read by the index traversal and its layout risks.
+const INDEX_NODE_FIELDS = [
+  "id",
+  "name",
+  "type",
+  "componentId",
+  "absoluteBoundingBox",
+  "componentProperties",
+  "layoutMode",
+  "layoutSizingHorizontal",
+  "layoutSizingVertical",
+  "layoutAlign",
+  "primaryAxisSizingMode",
+  "counterAxisSizingMode",
+  "primaryAxisAlignItems",
+  "counterAxisAlignItems",
+  "maxWidth",
+  "minWidth",
+  "maxHeight",
+  "minHeight",
+] as const;
+
 export interface BuildTeamIndexFileInput {
   metadata: FigmaTeamProjectFile;
   entry: FileNodeEntry;
 }
 
-export interface BuildTeamIndexOptions {
-  teamId: string;
-  files: readonly BuildTeamIndexFileInput[];
-  generatedAt?: string;
-  screenSimilarityThreshold?: number;
-  screenSizeTolerance?: number;
-}
-
-interface TeamIndexFileSummary {
-  key: string;
-  name: string;
-  lastModified: string;
-  projectId: string;
-  projectName: string;
-  componentSets: number;
-  components: number;
-  screens: number;
+export interface TeamIndexSettings {
+  screenSimilarityThreshold: number;
+  screenSizeTolerance: number;
 }
 
 interface TeamIndexNode {
@@ -122,19 +134,6 @@ export interface TeamIndexFile {
   componentUsages: TeamIndexComponentUsage[];
 }
 
-interface TeamIndex {
-  version: 1;
-  kind: "figma-team-index";
-  team: string;
-  generatedAt: string;
-  files: TeamIndexFileSummary[];
-}
-
-export interface TeamIndexBundle {
-  team: TeamIndex;
-  files: TeamIndexFile[];
-}
-
 interface FoundNode {
   fileKey: string;
   fileName: string;
@@ -191,21 +190,60 @@ interface FoundComponentUsage {
   ancestorChain: LayoutContext[];
 }
 
-function assertTeamIndexOptions(
-  threshold: number,
-  sizeTolerance: number,
-): void {
-  if (!Number.isFinite(threshold) || threshold < 0 || threshold > 1) {
+export function teamIndexSettings(options: {
+  screenSimilarityThreshold?: number;
+  screenSizeTolerance?: number;
+}): TeamIndexSettings {
+  const screenSimilarityThreshold =
+    options.screenSimilarityThreshold ?? DEFAULT_SCREEN_SIMILARITY_THRESHOLD;
+  const screenSizeTolerance =
+    options.screenSizeTolerance ?? DEFAULT_SCREEN_SIZE_TOLERANCE;
+  if (
+    !Number.isFinite(screenSimilarityThreshold) ||
+    screenSimilarityThreshold < 0 ||
+    screenSimilarityThreshold > 1
+  ) {
     throw new FigmaInspectError(
       "Screen similarity threshold must be a number between 0 and 1.",
     );
   }
 
-  if (!Number.isFinite(sizeTolerance) || sizeTolerance < 0) {
+  if (!Number.isFinite(screenSizeTolerance) || screenSizeTolerance < 0) {
     throw new FigmaInspectError(
       "Screen size tolerance must be a non-negative number.",
     );
   }
+
+  return { screenSimilarityThreshold, screenSizeTolerance };
+}
+
+/** Identifies the builder and settings behind indexed rows. */
+export function teamIndexBuild(settings: TeamIndexSettings): string {
+  return JSON.stringify({ builder: TEAM_INDEX_BUILDER_VERSION, ...settings });
+}
+
+/** Copies only indexed fields so large files never stay resident in full. */
+export function slimIndexNode(value: unknown): DocumentNode | undefined {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return undefined;
+  }
+
+  const source = value as Record<string, unknown>;
+  const node: Record<string, unknown> = {
+    isExposedInstance: source.isExposedInstance === true,
+  };
+  for (const field of INDEX_NODE_FIELDS) {
+    if (source[field] !== undefined) {
+      node[field] = source[field];
+    }
+  }
+  if (Array.isArray(source.children)) {
+    node.children = source.children.flatMap(
+      (child) => slimIndexNode(child) ?? [],
+    );
+  }
+
+  return node as DocumentNode;
 }
 
 function figmaNodeUrl(
@@ -788,19 +826,6 @@ function indexComponentUsage(
   };
 }
 
-function teamFileSummary(file: DraftFile): TeamIndexFileSummary {
-  return {
-    key: file.metadata.key,
-    name: file.metadata.name,
-    lastModified: file.metadata.last_modified,
-    projectId: file.metadata.project_id,
-    projectName: file.metadata.project_name,
-    componentSets: file.componentSets.length,
-    components: file.components.length,
-    screens: file.screens.length,
-  };
-}
-
 function fileRef(file: DraftFile): TeamIndexFileRef {
   return {
     key: file.metadata.key,
@@ -811,8 +836,15 @@ function fileRef(file: DraftFile): TeamIndexFileRef {
   };
 }
 
-function fileIndex(file: DraftFile, threshold: number): TeamIndexFile {
-  const groups = assignFileScreenGroups(file, threshold);
+export function buildTeamIndexFile(
+  input: BuildTeamIndexFileInput,
+  settings: TeamIndexSettings,
+): TeamIndexFile {
+  const file = buildDraftFile(input, settings.screenSizeTolerance);
+  const groups = assignFileScreenGroups(
+    file,
+    settings.screenSimilarityThreshold,
+  );
   return {
     version: 1,
     kind: "figma-file-index",
@@ -824,32 +856,5 @@ function fileIndex(file: DraftFile, threshold: number): TeamIndexFile {
     componentUsages: file.componentUsages.map((usage) =>
       indexComponentUsage(usage, groups),
     ),
-  };
-}
-
-export function buildTeamIndex(
-  options: BuildTeamIndexOptions,
-): TeamIndexBundle {
-  const threshold =
-    options.screenSimilarityThreshold ?? DEFAULT_SCREEN_SIMILARITY_THRESHOLD;
-  const sizeTolerance =
-    options.screenSizeTolerance ?? DEFAULT_SCREEN_SIZE_TOLERANCE;
-  assertTeamIndexOptions(threshold, sizeTolerance);
-
-  const draftFiles = [...options.files]
-    .sort((left, right) => {
-      return left.metadata.key.localeCompare(right.metadata.key);
-    })
-    .map((file) => buildDraftFile(file, sizeTolerance));
-
-  return {
-    team: {
-      version: 1,
-      kind: "figma-team-index",
-      team: options.teamId,
-      generatedAt: options.generatedAt ?? new Date().toISOString(),
-      files: draftFiles.map(teamFileSummary),
-    },
-    files: draftFiles.map((file) => fileIndex(file, threshold)),
   };
 }

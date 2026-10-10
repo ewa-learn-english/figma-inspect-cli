@@ -74,12 +74,15 @@ const documentNodeSchema: z.ZodType<DocumentNode> = z.lazy(() =>
   }),
 );
 
-const fileNodeEntrySchema = z.object({
-  document: documentNodeSchema.optional(),
+const componentMapsSchema = z.object({
   componentSets: z.unknown().transform(parseComponentSets),
   components: z
     .unknown()
     .transform((value) => parseValidRecord(componentEntrySchema, value)),
+});
+
+const fileNodeEntrySchema = componentMapsSchema.extend({
+  document: documentNodeSchema.optional(),
 });
 
 export type FileNodeEntry = z.infer<typeof fileNodeEntrySchema>;
@@ -110,8 +113,11 @@ export function parseFileNodeEntry(
   return parsed.data;
 }
 
-export function parseFileEntry(payload: unknown): FileNodeEntry {
-  const parsed = fileNodeEntrySchema.safeParse(payload);
+/** Parses component metadata without copying the document tree. */
+export function parseComponentMaps(
+  payload: unknown,
+): Pick<FileNodeEntry, "componentSets" | "components"> {
+  const parsed = componentMapsSchema.safeParse(payload);
   if (!parsed.success) {
     throw new FigmaInspectError("Invalid Figma file response.");
   }

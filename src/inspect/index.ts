@@ -62,6 +62,8 @@ export {
 } from "./node-contract/index.js";
 export { resolveTeamComponentSetScope } from "./resolve-team-component-set.js";
 export {
-  type BuildTeamIndexFileInput,
-  buildTeamIndex,
+  buildTeamIndexFile,
+  teamIndexBuild,
+  teamIndexSettings,
 } from "./team-index.js";
+export { fetchTeamIndexEntry } from "./team-index-source.js";

@@ -6,12 +6,16 @@ import type {
   ListTeamProjectsOptions,
 } from "./types.js";
 
+// Folder listings carry no version to revalidate a cached copy, and index
+// refreshes rely on their current file modification times.
 async function listFolders(
   url: string,
   token: string,
   fetchImpl: typeof fetch,
 ): Promise<FigmaProject[]> {
-  return parseTeamProjectsResponse(await figmaRequest(url, token, fetchImpl));
+  return parseTeamProjectsResponse(
+    await figmaRequest(url, token, fetchImpl, { cache: false }),
+  );
 }
 
 export async function listTeamProjects({

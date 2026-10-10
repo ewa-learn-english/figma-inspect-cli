@@ -44,6 +44,17 @@ export interface GetFileNodeOptions {
 export interface GetFileOptions {
   token: string;
   fileKey: string;
+  depth?: number;
+  maxBytes?: number;
+  fetchImpl?: typeof fetch;
+}
+
+export interface GetFileNodesOptions {
+  token: string;
+  fileKey: string;
+  nodeIds: readonly string[];
+  depth?: number;
+  maxBytes?: number;
   fetchImpl?: typeof fetch;
 }
 

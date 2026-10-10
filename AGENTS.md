@@ -54,9 +54,9 @@ One command per invocation. Source of truth: `src/cli/usage.ts` and `src/cli/par
 | `--list-team-projects` | yes | yes | |
 | `--list-project-files` | yes | | `--project-id` |
 | `--list-team-project-files` | yes | yes | |
-| `--export-team-index` | yes | yes | `--output-dir`; writes `figma-index.sqlite3`; optional screen grouping thresholds |
-| `--refresh-index` | yes | configured teams | managed per-team indexes; all teams unless `--team` is passed |
-| `--index-status` | | configured teams | local timestamps, ages, and counts |
+| `--export-team-index` | yes | yes | `--output-dir`; creates or updates `figma-index.sqlite3`; optional screen grouping thresholds |
+| `--refresh-index` | yes | configured teams | managed per-team indexes; all teams unless `--team` is passed; downloads only changed files |
+| `--index-status` | | configured teams | local timestamps, ages, counts, and failed files |
 | `--search-components` | | configured teams | local case-insensitive component-name search |
 | `--preflight` | yes | configured teams | token/team access plus index-root permissions |
 | `--list-team-component-sets` | yes | yes | |

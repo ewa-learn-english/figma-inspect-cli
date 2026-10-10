@@ -14,10 +14,10 @@ import {
   resolveTeamIndexDatabasePath,
 } from "./figma-environment.js";
 
-export type ManagedIndexRefreshResult = ExportTeamIndexResult &
-  Readonly<{
-    team: ConfiguredFigmaTeam;
-  }>;
+export type ManagedIndexRefreshResult = Readonly<{
+  team: ConfiguredFigmaTeam;
+}> &
+  (ExportTeamIndexResult | Readonly<{ databasePath: string; error: string }>);
 
 export async function refreshManagedTeamIndexes(options: {
   token: string;
@@ -26,22 +26,34 @@ export async function refreshManagedTeamIndexes(options: {
   screenSimilarityThreshold?: number;
   screenSizeTolerance?: number;
   fetchImpl?: typeof fetch;
+  log?: (message: string) => void;
 }): Promise<ManagedIndexRefreshResult[]> {
+  const { log } = options;
   const results: ManagedIndexRefreshResult[] = [];
   for (const team of options.teams) {
     const databasePath = resolveTeamIndexDatabasePath(
       options.indexRoot,
       team.id,
     );
-    const result = await exportTeamIndex({
-      token: options.token,
-      teamId: team.id,
-      outputDir: path.dirname(databasePath),
-      screenSimilarityThreshold: options.screenSimilarityThreshold,
-      screenSizeTolerance: options.screenSizeTolerance,
-      fetchImpl: options.fetchImpl,
-    });
-    results.push({ team, ...result });
+    const teamLog =
+      log && ((message: string) => log(`${team.alias}: ${message}`));
+    try {
+      const result = await exportTeamIndex({
+        token: options.token,
+        teamId: team.id,
+        outputDir: path.dirname(databasePath),
+        screenSimilarityThreshold: options.screenSimilarityThreshold,
+        screenSizeTolerance: options.screenSizeTolerance,
+        fetchImpl: options.fetchImpl,
+        log: teamLog,
+      });
+      results.push({ team, ...result });
+    } catch (error) {
+      // One team's failure, such as a listing error, leaves the others to run.
+      const message = error instanceof Error ? error.message : String(error);
+      teamLog?.(`failed: ${message}`);
+      results.push({ team, databasePath, error: message });
+    }
   }
   return results;
 }

@@ -61,7 +61,7 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 2 | `--list-project-files` | `--project-id $PROJECT_ID` | |
 | 3 | `--list-team-project-files` | | needs `FIGMA_TEAM_ID` |
 | 4 | `--export-team-index` | `--output-dir $TEAM_INDEX_DIR` | writes `figma-index.sqlite3`; use `--team` when `FIGMA_TEAMS` has multiple entries |
-| 4a | `--refresh-index` | `--index-root $MANAGED_INDEX_ROOT` | rebuilds all configured teams; with only `FIGMA_TEAM_ID`, rebuilds the legacy team |
+| 4a | `--refresh-index` | `--index-root $MANAGED_INDEX_ROOT` | updates all configured teams; a repeated run reports `0 changed` on stderr and downloads no files |
 | 4b | `--index-status` | `--index-root $MANAGED_INDEX_ROOT --json` | local timestamps and counts; no API token required |
 | 4c | `--search-components` | `--index-root $MANAGED_INDEX_ROOT --name $COMPONENT_SET_NAME --json` | local case-insensitive name search |
 | 4d | `--preflight` | `--index-root $MANAGED_INDEX_ROOT --json` | token/team access and writable index root |

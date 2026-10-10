@@ -32,6 +32,7 @@ import {
   verifyComponentLock,
   verifyNodeContracts,
 } from "../inspect/index.js";
+import type { FailedIndexFile } from "../inspect/team-index-database.js";
 import { CliError } from "./errors.js";
 import { exportComponentSet } from "./export-component-set.js";
 import { exportContract } from "./export-contract.js";
@@ -66,6 +67,29 @@ import { parseCommand } from "./parse-args.js";
 import type { CliIo } from "./types.js";
 import { usage } from "./usage.js";
 import { readPackageVersion } from "./version.js";
+
+function writeProgress(stderr: NodeJS.WriteStream): (message: string) => void {
+  return (message) => stderr.write(`${message}\n`);
+}
+
+function assertRefreshComplete(
+  results: readonly (
+    | { failedFiles: readonly FailedIndexFile[] }
+    | { error: string }
+  )[],
+): void {
+  const failedTeams = results.filter((result) => "error" in result).length;
+  const failedFiles = results.reduce(
+    (total, result) =>
+      total + ("failedFiles" in result ? result.failedFiles.length : 0),
+    0,
+  );
+  if (failedTeams + failedFiles > 0) {
+    throw new CliError(
+      `Figma index refresh failed for ${failedTeams} team(s) and ${failedFiles} file(s); every other team and file was indexed.`,
+    );
+  }
+}
 
 function warnUnresolvedVariables(
   variablesPath: string | undefined,
@@ -473,8 +497,10 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         indexRoot: resolveFigmaIndexRoot(io.env, command.indexRoot),
         screenSimilarityThreshold: command.screenSimilarityThreshold,
         screenSizeTolerance: command.screenSizeTolerance,
+        log: writeProgress(io.stderr),
       });
       writeData(results, command.format, io.stdout);
+      assertRefreshComplete(results);
     } catch (error) {
       if (
         error instanceof FigmaApiError ||
@@ -497,8 +523,10 @@ export async function runCli(argv: string[], io: CliIo): Promise<void> {
         outputDir: command.outputDir,
         screenSimilarityThreshold: command.screenSimilarityThreshold,
         screenSizeTolerance: command.screenSizeTolerance,
+        log: writeProgress(io.stderr),
       });
       io.stdout.write(`${result.databasePath}\n`);
+      assertRefreshComplete([result]);
     } catch (error) {
       if (
         error instanceof FigmaApiError ||

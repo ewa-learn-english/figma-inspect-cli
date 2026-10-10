@@ -1,6 +1,5 @@
 import { fetchFigmaResponse } from "../fetch-with-retry.js";
-import { FigmaApiError } from "../figma-api-error.js";
-import { formatFigmaError } from "../format-figma-error.js";
+import { readFigmaResponse } from "../read-figma-response.js";
 import { ENTRY_TTL_MS, FILE_VERSION_MAX_AGE_MS } from "./constants.js";
 import { extractVersionMetadata } from "./extract-metadata.js";
 import { FigmaCacheStore } from "./store.js";
@@ -21,12 +20,7 @@ async function fetchFromNetwork(
   fetchImpl: typeof fetch,
 ): Promise<FetchedResponse> {
   const response = await fetchFigmaResponse(url, token, fetchImpl);
-
-  if (!response.ok) {
-    throw new FigmaApiError(await formatFigmaError(response));
-  }
-
-  const body = await response.json();
+  const body = await readFigmaResponse(response);
   const metadata = extractVersionMetadata(body);
 
   return {

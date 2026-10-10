@@ -43,9 +43,9 @@ Managed index commands without `--team` operate on every `FIGMA_TEAMS` entry.
 | `--list-team-projects` | none | Team projects |
 | `--list-project-files` | `--project-id <id>` | Files in one project |
 | `--list-team-project-files` | none | Files across team projects |
-| `--export-team-index` | `--output-dir <dir>` | `figma-index.sqlite3` |
-| `--refresh-index` | optional `--team <alias>` | Rebuilt persistent indexes for one or all configured teams |
-| `--index-status` | optional `--team <alias>` | Index timestamps, ages, and counts |
+| `--export-team-index` | `--output-dir <dir>` | Created or updated `figma-index.sqlite3` |
+| `--refresh-index` | optional `--team <alias>` | Updated persistent indexes for one or all configured teams |
+| `--index-status` | optional `--team <alias>` | Index timestamps, ages, counts, and files that could not be indexed |
 | `--search-components` | `--name <query>`; optional `--team <alias>` | Component sets and standalone components matching a name substring |
 | `--preflight` | optional `--team <alias>` | Token access, team access, and index-root validation |
 | `--list-team-component-sets` | none | Published team component sets |
@@ -120,9 +120,10 @@ npx . --list-file-component-sets --file-key <file_key>
 `<output-dir>/figma-index.sqlite3`. The database includes component sets,
 standalone components, screens, screen groups, component-set usages, ancestor
 layout context, and layout risks, with indexes optimized for local lookup
-commands. Local lookup commands print compact summaries by default; pass
-`--full` when you need the raw stored usage records. If the file is committed in
-a consuming repo, store it in Git LFS:
+commands. Rerunning it updates the database in place, as described under
+[index refreshes](#index-refreshes). Local lookup commands print compact
+summaries by default; pass `--full` when you need the raw stored usage records.
+If the file is committed in a consuming repo, store it in Git LFS:
 
 ```gitattributes
 .agents/design/figma-index/*.sqlite3 filter=lfs diff=lfs merge=lfs -text
@@ -139,8 +140,30 @@ constrained fill/stretch patterns that need manual layout review.
 `--refresh-index` stores one `figma-index.sqlite3` per configured team under
 `FIGMA_INDEX_ROOT`, which defaults to `~/.figma-inspect-cli/indexes`. This path
 is outside the npm package, so package upgrades and reinstalls do not remove the
-indexes. Each database records `generatedAt`; `--index-status` falls back to the
-database modification time for indexes produced by older CLI versions.
+indexes. Each database records `generatedAt` when a refresh finishes; an index
+without it is still being built or was interrupted and holds the files indexed
+so far.
+
+### Index refreshes
+
+Both index commands update an existing database in place. A file is downloaded
+only when its name, project, or Figma modification time changed; every file is
+downloaded again when the screen-grouping options or the CLI's indexed rows
+changed. Files removed from the team are dropped. Each file is written in its own transaction, so an
+interrupted refresh keeps every completed file and the next run continues with
+the rest. Progress lines on stderr name each downloaded file.
+
+Figma rate-limits file downloads (Tier 1 of its REST API limits, 10–20 requests
+per minute for Dev and Full seats), so the first build of a large team can take
+tens of minutes; the CLI waits out `429` responses. A file over 128 MiB, or one
+Figma refuses as too large, is downloaded page by page and then in batches of
+child nodes, which keeps memory use bounded.
+
+A file that still fails keeps its previous rows and is retried by the next
+refresh. With several teams, a team whose refresh fails is reported with `error`
+and the remaining teams continue. Failed files appear under `failedFiles` in the JSON
+output, on stderr, and in `--index-status`; the command exits with status 1
+after indexing everything else.
 
 The CLI does not run a scheduler. Callers can check `ageSeconds` and run
 `--refresh-index` when an index is missing or older than their freshness policy
