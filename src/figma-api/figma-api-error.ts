@@ -12,3 +12,14 @@ export class FigmaResponseTooLargeError extends FigmaApiError {
     this.name = "FigmaResponseTooLargeError";
   }
 }
+
+/**
+ * The file endpoints cannot read this file, such as a FigJam board, a Slides
+ * deck, or a file whose owner disabled exporting.
+ */
+export class FigmaUnreadableFileError extends FigmaApiError {
+  constructor(message: string) {
+    super(message);
+    this.name = "FigmaUnreadableFileError";
+  }
+}

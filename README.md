@@ -159,8 +159,10 @@ tens of minutes; the CLI waits out `429` responses. A file over 128 MiB, or one
 Figma refuses as too large, is downloaded page by page and then in batches of
 child nodes, which keeps memory use bounded.
 
-A file that still fails keeps its previous rows and is retried by the next
-refresh. With several teams, a team whose refresh fails is reported with `error`
+Files that Figma's file endpoint cannot read, such as FigJam boards or files
+whose owner disabled exporting, are recorded without content and skipped until
+they change. A file that still fails keeps its
+previous rows and is retried by the next refresh. With several teams, a team whose refresh fails is reported with `error`
 and the remaining teams continue. Failed files appear under `failedFiles` in the JSON
 output, on stderr, and in `--index-status`; the command exits with status 1
 after indexing everything else.

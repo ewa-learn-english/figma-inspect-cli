@@ -69,6 +69,12 @@ function figmaTeam(files: () => ListedFile[], failingKeys = new Set<string>()) {
     const fileKey = url.match(/\/files\/([^/?]+)$/)?.[1];
     if (fileKey) {
       fileRequests.push(fileKey);
+      if (fileKey.startsWith("board")) {
+        return jsonResponse(
+          { status: 400, err: "File type not supported by this endpoint" },
+          400,
+        );
+      }
       return failingKeys.has(fileKey)
         ? jsonResponse({ status: 500, err: "Upstream failure" }, 500)
         : fileResponse(`${fileKey} / Phone`);
@@ -368,5 +374,32 @@ describe("exportTeamIndex", () => {
     fileRequests.length = 0;
     await exportTeamIndex(options);
     expect(fileRequests).toEqual(["b"]);
+  });
+
+  it("records files Figma cannot read as empty without retrying them", async () => {
+    const { fetchImpl, fileRequests } = figmaTeam(() => [
+      { key: "board-1", name: "Retro", last_modified: "2026-07-01T00:00:00Z" },
+    ]);
+    const options = {
+      token: "token",
+      teamId: "team",
+      outputDir: outputDir ?? "",
+      fetchImpl,
+    };
+    const log = vi.fn();
+
+    const result = await exportTeamIndex({ ...options, log });
+    expect(result).toMatchObject({
+      fileCount: 1,
+      screenCount: 0,
+      failedFiles: [],
+    });
+    expect(log).toHaveBeenLastCalledWith(
+      "[1/1] Profile / Retro (board-1) skipped: Figma API request failed (400 Internal Server Error): File type not supported by this endpoint",
+    );
+
+    fileRequests.length = 0;
+    await exportTeamIndex(options);
+    expect(fileRequests).toEqual([]);
   });
 });

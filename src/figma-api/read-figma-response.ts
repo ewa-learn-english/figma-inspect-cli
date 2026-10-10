@@ -2,10 +2,15 @@ import { constants } from "node:buffer";
 import {
   FigmaApiError,
   FigmaResponseTooLargeError,
+  FigmaUnreadableFileError,
 } from "./figma-api-error.js";
 import { formatFigmaError } from "./format-figma-error.js";
 
 const FIGMA_TOO_LARGE_MESSAGE = "Request too large";
+const UNREADABLE_FILE_MESSAGES = new Map([
+  [400, "File type not supported"],
+  [403, "File not exportable"],
+]);
 // 413 and 414 also reject a request by its size, such as a long node id list.
 const TOO_LARGE_STATUSES = new Set([413, 414]);
 
@@ -51,7 +56,11 @@ export async function readFigmaResponse(
   const tooLarge =
     TOO_LARGE_STATUSES.has(response.status) ||
     (response.status === 400 && message.includes(FIGMA_TOO_LARGE_MESSAGE));
-  throw tooLarge
-    ? new FigmaResponseTooLargeError(message)
+  if (tooLarge) {
+    throw new FigmaResponseTooLargeError(message);
+  }
+  const unreadable = UNREADABLE_FILE_MESSAGES.get(response.status);
+  throw unreadable !== undefined && message.includes(unreadable)
+    ? new FigmaUnreadableFileError(message)
     : new FigmaApiError(message);
 }

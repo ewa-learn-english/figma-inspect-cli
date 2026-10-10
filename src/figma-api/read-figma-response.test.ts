@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   FigmaApiError,
   FigmaResponseTooLargeError,
+  FigmaUnreadableFileError,
 } from "./figma-api-error.js";
 import { readFigmaResponse } from "./read-figma-response.js";
 
@@ -56,6 +57,22 @@ describe("readFigmaResponse", () => {
     await expect(readFigmaResponse(response)).rejects.toBeInstanceOf(
       FigmaResponseTooLargeError,
     );
+  });
+
+  it("classifies files the file endpoints cannot read", async () => {
+    for (const [status, err] of [
+      [400, "File type not supported by this endpoint"],
+      [403, "File not exportable"],
+    ] as const) {
+      await expect(
+        readFigmaResponse(jsonResponse({ status, err }, status)),
+      ).rejects.toBeInstanceOf(FigmaUnreadableFileError);
+    }
+    await expect(
+      readFigmaResponse(
+        jsonResponse({ status: 403, err: "Invalid token" }, 403),
+      ),
+    ).rejects.not.toBeInstanceOf(FigmaUnreadableFileError);
   });
 
   it("keeps other failures as Figma API errors", async () => {

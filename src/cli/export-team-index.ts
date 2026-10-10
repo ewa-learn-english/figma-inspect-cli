@@ -1,4 +1,5 @@
 import path from "node:path";
+import { FigmaUnreadableFileError } from "../figma-api/figma-api-error.js";
 import { listTeamProjectFiles } from "../figma-api/list-team-project-files.js";
 import type { FigmaTeamProjectFile } from "../figma-api/schemas.js";
 import {
@@ -7,6 +8,7 @@ import {
   teamIndexBuild,
   teamIndexSettings,
 } from "../inspect/index.js";
+import type { FileNodeEntry } from "../inspect/schemas.js";
 import {
   completeTeamIndexRefresh,
   countTeamIndex,
@@ -38,6 +40,12 @@ export type ExportTeamIndexResult = TeamIndexCounts &
     updatedFileCount: number;
     failedFiles: FailedIndexFile[];
   }>;
+
+const EMPTY_FILE_ENTRY: FileNodeEntry = {
+  document: { isExposedInstance: false, children: [] },
+  componentSets: {},
+  components: {},
+};
 
 function isIndexed(
   indexed: IndexedFileVersion | undefined,
@@ -105,6 +113,19 @@ export async function exportTeamIndex({
         );
         log?.(`${label} indexed`);
       } catch (error) {
+        if (error instanceof FigmaUnreadableFileError) {
+          // Recording an unreadable file empty keeps later refreshes from
+          // retrying it until it changes.
+          replaceIndexedFile(
+            database,
+            buildTeamIndexFile(
+              { metadata: file, entry: EMPTY_FILE_ENTRY },
+              settings,
+            ),
+          );
+          log?.(`${label} skipped: ${error.message}`);
+          continue;
+        }
         const message = error instanceof Error ? error.message : String(error);
         failedFiles.push({
           key: file.key,
