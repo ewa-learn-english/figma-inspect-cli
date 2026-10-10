@@ -195,3 +195,48 @@ describe("buildComponentSetPseudocodeFromRaw", () => {
     expect(expectedDsl).toContain("scheme = visuals[Active][State][Writing]");
   });
 });
+
+describe("buildComponentSetPseudocodeFromRaw structure", () => {
+  const text = (name: string, characters: string) => ({
+    type: "TEXT",
+    name,
+    characters,
+    style: { fontFamily: "Inter", fontSize: 14, fontWeight: 500 },
+  });
+  const variant = (state: string, children: unknown[]) => ({
+    id: `2:${state}`,
+    type: "COMPONENT",
+    name: `State=${state}`,
+    layoutMode: "HORIZONTAL",
+    absoluteBoundingBox: { width: 96, height: 32 },
+    children,
+  });
+
+  it("keeps duplicate node names distinct and groups variants by structure", async () => {
+    const result = await buildComponentSetPseudocodeFromRaw({
+      id: "1:1",
+      type: "COMPONENT_SET",
+      name: "Badge",
+      componentPropertyDefinitions: {
+        State: {
+          type: "VARIANT",
+          defaultValue: "Default",
+          variantOptions: ["Default", "Hover", "Disabled"],
+        },
+      },
+      children: [
+        variant("Default", [text("Label", "A"), text("Label", "B")]),
+        variant("Hover", [text("Label", "A"), text("Label", "B")]),
+        variant("Disabled", [text("Label", "A")]),
+      ],
+    });
+
+    expect(result.structureDsl).toContain("Text label2 {");
+    expect(result.structureDsl).toContain('State = "Default" => structure1');
+    expect(result.structureDsl).toContain('State = "Hover" => structure1');
+    expect(result.structureDsl).toContain('State = "Disabled" => structure2');
+    expect(result.structureDsl).toContain(
+      'template structure2 when State = "Disabled" {',
+    );
+  });
+});

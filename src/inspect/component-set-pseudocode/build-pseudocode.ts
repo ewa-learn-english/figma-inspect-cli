@@ -5,6 +5,10 @@ import {
   readComponentSetFile,
 } from "../component-set-spec/build-spec.js";
 import { loadTeamComponentRegistry } from "../component-set-spec/team-component-registry.js";
+import type {
+  ComponentSetSpec,
+  SlimNode,
+} from "../component-set-spec/types.js";
 import {
   type ContractFormat,
   contractArtifactFileName,
@@ -24,6 +28,7 @@ import {
   type MetaContract,
   type MetaContractContext,
 } from "./meta-contract.js";
+import { nodeKey } from "./slim-node-guards.js";
 import { buildStructureContract } from "./structure-contract.js";
 import { renderStructureDsl } from "./structure-dsl.js";
 import { buildUniversalContracts } from "./universal.js";
@@ -88,8 +93,57 @@ export function resolveMetaContractPath(
   );
 }
 
+function collectNodeKeys(node: SlimNode, keys: Set<string>, root = false) {
+  keys.add(nodeKey(node, { root }));
+  for (const child of node.children ?? []) {
+    collectNodeKeys(child, keys);
+  }
+}
+
+function normalizeLayoutNames(layout: SlimNode): SlimNode {
+  const reservedKeys = new Set<string>();
+  const usedKeys = new Set<string>();
+  collectNodeKeys(layout, reservedKeys, true);
+
+  const visit = (node: SlimNode, root = false): SlimNode => {
+    const baseKey = nodeKey(node, { root });
+    let key = baseKey;
+    if (usedKeys.has(key)) {
+      let suffix = 2;
+      do {
+        key = `${baseKey}${suffix}`;
+        suffix += 1;
+      } while (usedKeys.has(key) || reservedKeys.has(key));
+    }
+    usedKeys.add(key);
+    return {
+      ...node,
+      ...(key === baseKey ? {} : { name: key }),
+      ...(node.children
+        ? { children: node.children.map((child) => visit(child)) }
+        : {}),
+    };
+  };
+
+  return visit(layout, true);
+}
+
+/**
+ * Contract bundles are flat maps, so node keys must be unique across a whole
+ * variant tree, including normalized-name collisions between nested siblings.
+ */
+function normalizeContractNodeNames(spec: ComponentSetSpec): ComponentSetSpec {
+  return {
+    ...spec,
+    variants: spec.variants.map((variant) => ({
+      ...variant,
+      layout: normalizeLayoutNames(variant.layout),
+    })),
+  };
+}
+
 function buildComponentSetContracts(
-  spec: Awaited<ReturnType<typeof buildComponentSetSpecFromRaw>>,
+  inputSpec: ComponentSetSpec,
   componentSet: Record<string, unknown>,
   metaContext?: MetaContractContext,
   options: Pick<
@@ -97,6 +151,7 @@ function buildComponentSetContracts(
     "assetBacked" | "assets" | "format"
   > = {},
 ): ComponentSetContractResult {
+  const spec = normalizeContractNodeNames(inputSpec);
   const assetBacked =
     options.assetBacked === true && hasAssetContractMap(options.assets);
   const model = buildPseudocodeModelFromSpec(spec);

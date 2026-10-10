@@ -2,6 +2,7 @@ import { normalizePropName } from "../component-set-spec/prop-name.js";
 import type {
   ComponentSetPropDefinition,
   ComponentSetSpec,
+  ComponentSetVariant,
   SlimNode,
 } from "../component-set-spec/types.js";
 import type { ContractFormat } from "../contract/contract-format.js";
@@ -274,17 +275,70 @@ function convertRoot(
   return convertNode(unwrapRoot(node), definitions, { root: true });
 }
 
-function findRepresentativeLayout(
+function matchesWhen(
+  variant: ComponentSetVariant,
+  when: Record<string, string>,
+): boolean {
+  return Object.entries(when).every(
+    ([axis, value]) => variant.when[axis] === value,
+  );
+}
+
+/**
+ * Groups variants whose structure differs only by node names, which are DSL
+ * comments. Keys, topology, content/instance props and visibility stay distinct.
+ */
+function buildVariantStructures(
   spec: ComponentSetSpec,
-  when: Record<string, string> | undefined,
-): SlimNode | undefined {
-  if (!when || Object.keys(when).length === 0) {
-    return spec.variants[0]?.layout;
+  definitions: Record<string, SlimNode>,
+): Pick<StructureContract, "templates" | "dispatch" | "fallback"> {
+  const groups = new Map<
+    string,
+    { root: StructureNode; variants: ComponentSetVariant[] }
+  >();
+  for (const variant of spec.variants) {
+    const root = convertRoot(variant.layout, definitions);
+    const signature = JSON.stringify(root, (key, value) =>
+      key === "name" ? undefined : value,
+    );
+    const group = groups.get(signature);
+    if (group) {
+      group.variants.push(variant);
+    } else {
+      groups.set(signature, { root, variants: [variant] });
+    }
   }
 
-  return spec.variants.find((variant) =>
-    Object.entries(when).every(([axis, value]) => variant.when[axis] === value),
-  )?.layout;
+  const templates: Record<string, StructureTemplate> = {};
+  const dispatch: StructureDispatchEntry[] = [];
+  for (const group of groups.values()) {
+    const [first] = group.variants;
+    const commonWhen = Object.fromEntries(
+      Object.entries(first.when).filter(([axis, value]) =>
+        group.variants.every((variant) => variant.when[axis] === value),
+      ),
+    );
+    const members = new Set(group.variants);
+    const commonWhenIsExact = spec.variants.every(
+      (variant) => !matchesWhen(variant, commonWhen) || members.has(variant),
+    );
+    const when = commonWhenIsExact ? commonWhen : undefined;
+    const name =
+      groups.size === 1
+        ? "allVariants"
+        : `structure${Object.keys(templates).length + 1}`;
+    templates[name] = { when, root: group.root };
+    if (groups.size > 1) {
+      const conditions = when
+        ? [when]
+        : group.variants.map((variant) => variant.when);
+      for (const condition of conditions) {
+        dispatch.push({ when: condition, template: name });
+      }
+    }
+  }
+
+  return { templates, dispatch, fallback: Object.keys(templates)[0] ?? null };
 }
 
 function collectInstances(
@@ -385,28 +439,10 @@ export function buildStructureContract(
     fragments[id] = convertFragment(node, definitions);
   }
 
-  const templates: Record<string, StructureTemplate> = {};
-  for (const template of model.templates) {
-    const layout = findRepresentativeLayout(spec, template.when);
-    if (!layout) {
-      continue;
-    }
-    templates[template.name] = {
-      when: template.when,
-      root: convertRoot(layout, definitions),
-    };
-  }
-
-  const dispatch: StructureDispatchEntry[] = model.templates
-    .filter(
-      (template) => template.when && Object.keys(template.when).length > 0,
-    )
-    .map((template) => ({
-      when: template.when ?? {},
-      template: template.name,
-    }));
-
-  const fallback = model.templates[0]?.name ?? null;
+  const { templates, dispatch, fallback } = buildVariantStructures(
+    spec,
+    definitions,
+  );
 
   return {
     version: 1,
