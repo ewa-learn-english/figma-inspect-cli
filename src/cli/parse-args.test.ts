@@ -461,9 +461,28 @@ describe("parseCommand", () => {
       variablesPath: "vars.json",
       exportAssets: false,
       assetFormat: undefined,
-      preview: { format: "png", scale: 2 },
+      preview: { format: "webp", scale: 2 },
       format: "yaml",
     });
+  });
+
+  it.each([
+    "--preview-format",
+    "--asset-format",
+  ])("rejects the replaced PNG output for %s", (flag) => {
+    expect(() =>
+      parseCommand([
+        "--export-contract",
+        "--output-dir",
+        "out",
+        "--file-key",
+        "fileKey",
+        "--node-id",
+        "1:2",
+        flag,
+        "png",
+      ]),
+    ).toThrow(/Expected .*webp/);
   });
 
   it("parses export-contract nested asset options", () => {
@@ -491,7 +510,7 @@ describe("parseCommand", () => {
         "--asset-format",
         "svg",
         "--asset-format",
-        "png",
+        "webp",
         "--asset-scale",
         "3",
       ]),
@@ -509,7 +528,7 @@ describe("parseCommand", () => {
         includeRegex: "icon|logo",
         nodeTypes: ["INSTANCE", "VECTOR"],
         maxAssets: 4,
-        formats: ["svg", "png"],
+        formats: ["svg", "webp"],
         scale: 3,
       },
       format: "yaml",
@@ -772,7 +791,7 @@ describe("parseCommand", () => {
         "--component-set-key",
         "a",
         "--asset-format",
-        "png",
+        "webp",
       ]),
     ).toThrow(/requires --export-assets or --export-nested-assets/);
     expect(() =>
@@ -786,7 +805,7 @@ describe("parseCommand", () => {
         "a",
         "--export-assets",
         "--asset-format",
-        "png",
+        "webp",
       ]),
     ).toThrow(/--export-assets supports svg/);
     expect(() =>
@@ -903,7 +922,7 @@ describe("parseCommand", () => {
         "--asset-scale",
         "3",
       ]),
-    ).toThrow(/only supported with --asset-format png/);
+    ).toThrow(/only supported with --asset-format webp/);
     expect(() =>
       parseCommand([
         "--export-contract",
@@ -953,7 +972,7 @@ describe("parseCommand", () => {
         "--preview-scale",
         "2",
       ]),
-    ).toThrow(/only supported with --preview-format png/);
+    ).toThrow(/only supported with --preview-format webp/);
     expect(() =>
       parseCommand([
         "--export-contract",
@@ -966,7 +985,7 @@ describe("parseCommand", () => {
         "--node-id",
         "208:43935",
         "--preview-format",
-        "png",
+        "webp",
       ]),
     ).toThrow(/require --export-preview/);
     expect(() =>

@@ -107,8 +107,17 @@ Frame and standalone component exports use the same shape with `<kind>` set to
 - `<Name>.<kind>.lock.yaml`
 
 With `--export-assets`: `<Name>.assets/*.svg` on disk; paths referenced from
-`meta.assets`. With `--export-nested-assets`: `<Name>.assets/*.{svg,png}` plus
-`<Name>.<kind>.nested-assets.yaml`.
+`meta.assets`. With `--export-nested-assets`: `<Name>.assets/*.svg` by default,
+or WebP files when selected, plus `<Name>.<kind>.nested-assets.yaml`.
+With `--export-preview`: `<Name>.<kind>.preview.webp` by default.
+
+Preview and nested-asset format selectors accept `webp` or `svg`. WebP exports
+request PNG from Figma and convert it locally with lossless compression,
+preserving pixel values (including transparent RGB) and embedded ICC profiles.
+WebP defaults to scale 2; scale flags apply only to WebP. Nested assets default
+to SVG, while previews default to WebP. PNG is not an output format. SVG remains
+vector output, and variant `--export-assets` remains SVG.
+The npm encoder dependency supplies the runtime; no system `cwebp` is required.
 
 ## Environment
 

@@ -12,10 +12,10 @@ import {
 
 export const DEFAULT_PREVIEW_SCALE = 2;
 
-export type PreviewFormat = "png" | "svg";
+export type PreviewFormat = "webp" | "svg";
 
 export type ExportPreviewOptions =
-  | { format: "png"; scale: number }
+  | { format: "webp"; scale: number }
   | { format: "svg" };
 
 export interface ExportNodePreviewOptions {
@@ -34,7 +34,7 @@ export interface ExportNodePreviewResult {
 }
 
 function previewScale(preview: ExportPreviewOptions): number | undefined {
-  if (preview.format === "png") {
+  if (preview.format === "webp") {
     assertPositiveScale(preview.scale, "Preview scale");
     return preview.scale;
   }
@@ -55,7 +55,7 @@ function normalizePreviewBytes(
   bytes: Uint8Array,
   preview: ExportPreviewOptions,
   nodeId: string,
-): Uint8Array {
+): Promise<Uint8Array> {
   return normalizeRenderedImageBytes(
     bytes,
     preview.format,
@@ -71,7 +71,7 @@ export async function exportNodePreview(
     token: options.token,
     fileKey: options.fileKey,
     nodeIds: [options.nodeId],
-    format: options.preview.format,
+    format: options.preview.format === "webp" ? "png" : "svg",
     scale: previewScale(options.preview),
     fetchImpl: options.fetchImpl,
   });
@@ -89,7 +89,7 @@ export async function exportNodePreview(
   await mkdir(options.outputDir, { recursive: true });
   await writeFile(
     previewPath,
-    normalizePreviewBytes(rawBytes, options.preview, options.nodeId),
+    await normalizePreviewBytes(rawBytes, options.preview, options.nodeId),
   );
 
   return { previewPath };

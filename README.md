@@ -77,8 +77,9 @@ Common optional flags:
 - `--team <alias>` selects one entry from `FIGMA_TEAMS`. Omit it on managed
   index commands to operate on every configured team.
 - `--index-root <dir>` overrides `FIGMA_INDEX_ROOT` for managed indexes.
-- `--export-preview`, `--preview-format png|svg`, and `--preview-scale <scale>`
-  write a root preview image next to exported contracts.
+- `--export-preview`, `--preview-format webp|svg`, and `--preview-scale <scale>`
+  write a root preview image next to exported contracts. The default is lossless
+  WebP at scale 2; select `svg` for a vector preview.
 - `--export-assets` attempts to write one SVG per component-set variant. It is
   supported by `--export-component-set` and by `--export-contract` when the
   target is a `COMPONENT_SET`. Runtime component sets with text, boolean, or
@@ -87,8 +88,10 @@ Common optional flags:
   and standalone `COMPONENT` targets.
 - `--export-nested-assets` writes selected nested nodes as sidecar assets. Use
   `--asset-node-id <id>` or `--asset-include-regex <regex>` to choose nodes.
-  `--asset-format svg|png`, `--asset-scale <scale>`, `--asset-node-types <csv>`,
-  and `--asset-max <number>` refine nested asset export.
+  `--asset-format webp|svg`, `--asset-scale <scale>`, `--asset-node-types <csv>`,
+  and `--asset-max <number>` refine nested asset export. The default is SVG.
+  Select `webp` for lossless raster output at scale 2, or repeat `--asset-format`
+  to export both WebP and SVG.
 - `--screen-similarity-threshold <number>` and `--screen-size-tolerance <px>`
   refine screen grouping for `--export-team-index`.
 - `--index-dir <dir>` is required by local component usage lookup commands.
@@ -237,13 +240,24 @@ npx . --export-contract --output-dir tmp --variables tmp/cp-ds-styles-variables-
 npx . --export-contract --output-dir tmp --variables tmp/cp-ds-styles-variables-local.json --url "<figma_url>" --export-preview --preview-format svg
 npx . --export-component-set --output-dir tmp --variables tmp/cp-ds-styles-variables-local.json --component-set-name ProfileStreakIcon --export-assets
 npx . --export-node-contract --output-dir tmp --variables tmp/cp-ds-styles-variables-local.json --url "<frame_url>" --export-nested-assets --asset-node-id <nested_node_id>
-npx . --export-node-contract --output-dir tmp --variables tmp/cp-ds-styles-variables-local.json --url "<frame_url>" --export-nested-assets --asset-include-regex "icon|logo" --asset-node-types INSTANCE,VECTOR --asset-format svg --asset-format png
+npx . --export-node-contract --output-dir tmp --variables tmp/cp-ds-styles-variables-local.json --url "<frame_url>" --export-nested-assets --asset-include-regex "icon|logo" --asset-node-types INSTANCE,VECTOR --asset-format svg --asset-format webp
 ```
 
 Variant asset export writes `<Name>.assets/*.svg` and references those paths from
 `meta.assets` when the component set can be flattened to variant SVGs. Nested
-asset export writes `<Name>.assets/*.{svg,png}` plus
-`<Name>.<kind>.nested-assets.yaml`.
+asset export writes `<Name>.assets/*.svg` by default, or WebP files when selected,
+plus `<Name>.<kind>.nested-assets.yaml`. Preview export writes
+`<Name>.<kind>.preview.webp` by default.
+
+For WebP output, the CLI requests PNG from Figma and converts it locally with
+lossless compression. Pixel values, including RGB beneath transparent pixels,
+are preserved, and embedded ICC profiles are retained. PNG-specific metadata
+such as resolution and text chunks does not carry over. The encoder is included
+as an npm dependency; no system `cwebp` installation is required.
+
+Use `--preview-format svg` or `--asset-format svg` when vector output is needed.
+Scale flags apply to WebP output. Format selectors accept `webp` and `svg`;
+`png` is no longer an output format.
 
 ## Verify
 

@@ -173,12 +173,12 @@ function readFlagValue(
 }
 
 function parsePreviewFormat(value: string): PreviewFormat {
-  if (value === "png" || value === "svg") {
+  if (value === "webp" || value === "svg") {
     return value;
   }
 
   throw new CliError(
-    `Unsupported --preview-format ${JSON.stringify(value)}. Expected png or svg.`,
+    `Unsupported --preview-format ${JSON.stringify(value)}. Expected webp or svg.`,
   );
 }
 
@@ -194,12 +194,12 @@ function parsePreviewScale(value: string): number {
 }
 
 function parseAssetFormat(value: string): NestedAssetFormat {
-  if (value === "svg" || value === "png") {
+  if (value === "svg" || value === "webp") {
     return value;
   }
 
   throw new CliError(
-    `Unsupported --asset-format ${JSON.stringify(value)}. Expected svg or png.`,
+    `Unsupported --asset-format ${JSON.stringify(value)}. Expected svg or webp.`,
   );
 }
 
@@ -304,7 +304,7 @@ function resolveAssetFormat(flags: ParsedFlags): "svg" | undefined {
   const formats = uniqueAssetFormats(flags.assetFormats);
   if (formats.some((format) => format !== "svg")) {
     throw new CliError(
-      "--asset-format png is only supported with --export-nested-assets; --export-assets supports svg.",
+      "--asset-format webp is only supported with --export-nested-assets; --export-assets supports svg.",
     );
   }
 
@@ -346,9 +346,9 @@ function resolveNestedAssetsOptions(
   const formats = uniqueAssetFormats(
     flags.assetFormats.length > 0 ? flags.assetFormats : ["svg"],
   );
-  if (flags.assetScale !== undefined && !formats.includes("png")) {
+  if (flags.assetScale !== undefined && !formats.includes("webp")) {
     throw new CliError(
-      "--asset-scale is only supported with --asset-format png.",
+      "--asset-scale is only supported with --asset-format webp.",
     );
   }
 
@@ -393,11 +393,11 @@ function resolvePreviewOptions(
     );
   }
 
-  const format = flags.previewFormat ?? "png";
+  const format = flags.previewFormat ?? "webp";
   if (format === "svg") {
     if (flags.previewScale !== undefined) {
       throw new CliError(
-        "--preview-scale is only supported with --preview-format png.",
+        "--preview-scale is only supported with --preview-format webp.",
       );
     }
 

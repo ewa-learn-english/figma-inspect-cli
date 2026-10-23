@@ -792,7 +792,7 @@ describe("runCli", () => {
       metaContractPath: "/out/c.yaml",
       lockContractPath: "/out/d.yaml",
       structureDslPath: "/out/e.dsl",
-      previewPath: "/out/Settings.frame.preview.png",
+      previewPath: "/out/Settings.frame.preview.webp",
       importNotesPath: "/out/import-notes.md",
     });
     const { io, output } = createIo({ FIGMA_TEAM_ID: undefined });
@@ -826,11 +826,11 @@ describe("runCli", () => {
           nodeId: "213:695",
         },
         sourceUrl,
-        preview: { format: "png", scale: 3 },
+        preview: { format: "webp", scale: 3 },
       }),
     );
     expect(output()).toBe(
-      "/out/a.yaml\n/out/b.yaml\n/out/c.yaml\n/out/d.yaml\n/out/e.dsl\n/out/Settings.frame.preview.png\n/out/import-notes.md\n",
+      "/out/a.yaml\n/out/b.yaml\n/out/c.yaml\n/out/d.yaml\n/out/e.dsl\n/out/Settings.frame.preview.webp\n/out/import-notes.md\n",
     );
   });
 
@@ -841,7 +841,7 @@ describe("runCli", () => {
       metaContractPath: "/out/c.yaml",
       lockContractPath: "/out/d.yaml",
       structureDslPath: "/out/e.dsl",
-      previewPath: "/out/Settings.frame.preview.png",
+      previewPath: "/out/Settings.frame.preview.webp",
       importNotesPath: "/out/import-notes.md",
     });
     const { io, output } = createIo({ FIGMA_TEAM_ID: undefined });
@@ -871,11 +871,11 @@ describe("runCli", () => {
         fileKey: "fileKey",
         nodeId: "208:43935",
         sourceUrl,
-        preview: { format: "png", scale: 3 },
+        preview: { format: "webp", scale: 3 },
       }),
     );
     expect(output()).toBe(
-      "/out/a.yaml\n/out/b.yaml\n/out/c.yaml\n/out/d.yaml\n/out/e.dsl\n/out/Settings.frame.preview.png\n/out/import-notes.md\n",
+      "/out/a.yaml\n/out/b.yaml\n/out/c.yaml\n/out/d.yaml\n/out/e.dsl\n/out/Settings.frame.preview.webp\n/out/import-notes.md\n",
     );
   });
 
@@ -983,7 +983,7 @@ describe("runCli", () => {
         "--asset-node-id",
         "401-2",
         "--asset-format",
-        "png",
+        "webp",
         "--asset-scale",
         "3",
       ],
@@ -999,7 +999,7 @@ describe("runCli", () => {
         sourceUrl,
         nestedAssets: {
           nodeIds: ["401:2"],
-          formats: ["png"],
+          formats: ["webp"],
           scale: 3,
         },
       }),

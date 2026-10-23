@@ -451,8 +451,8 @@ async function exportFiles(options: {
       token: options.token,
       fileKey: options.fileKey,
       nodeIds: options.selected.map((record) => record.nodeId),
-      format,
-      scale: format === "png" ? options.scale : undefined,
+      format: format === "webp" ? "png" : "svg",
+      scale: format === "webp" ? options.scale : undefined,
       fetchImpl: options.fetchImpl,
     });
 
@@ -472,7 +472,7 @@ async function exportFiles(options: {
 
       await writeFile(
         absolutePath,
-        normalizeRenderedImageBytes(
+        await normalizeRenderedImageBytes(
           rawBytes,
           format,
           record.nodeId,
@@ -483,7 +483,7 @@ async function exportFiles(options: {
       entry.files.push({
         format,
         path: relativePath,
-        ...(format === "png" ? { scale: options.scale } : {}),
+        ...(format === "webp" ? { scale: options.scale } : {}),
       });
     }
   }
@@ -501,7 +501,7 @@ export async function exportNestedAssets(
     );
   }
 
-  if (formats.includes("png")) {
+  if (formats.includes("webp")) {
     assertPositiveScale(options.nestedAssets.scale, "Nested asset scale");
   }
 

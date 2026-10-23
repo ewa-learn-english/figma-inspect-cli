@@ -1,7 +1,12 @@
 import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import sharp from "sharp";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  RENDERED_PNG_BYTES,
+  RENDERED_RGBA_BYTES,
+} from "../../../test/fixtures/rendered-image.js";
 import { FigmaInspectError } from "../errors.js";
 import { exportNodePreview } from "./export-node-preview.js";
 
@@ -10,10 +15,6 @@ function jsonResponse(body: unknown, status = 200): Response {
     status,
     headers: { "content-type": "application/json" },
   });
-}
-
-function pngPayload(): Uint8Array {
-  return new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00]);
 }
 
 function svgPayload(): Uint8Array {
@@ -31,9 +32,9 @@ describe("exportNodePreview", () => {
     vi.unstubAllEnvs();
   });
 
-  it("exports a PNG preview at the requested scale", async () => {
+  it("downloads PNG at the requested scale and writes a lossless WebP preview", async () => {
     const outputDir = await mkdtemp(path.join(tmpdir(), "figma-preview-png-"));
-    const bytes = pngPayload();
+    const bytes = RENDERED_PNG_BYTES;
     const fetchImpl = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
 
@@ -60,16 +61,16 @@ describe("exportNodePreview", () => {
       baseName: "Settings",
       kind: "frame",
       outputDir,
-      preview: { format: "png", scale: 2 },
+      preview: { format: "webp", scale: 2 },
       fetchImpl,
     });
 
     expect(result.previewPath).toBe(
-      path.join(outputDir, "Settings.frame.preview.png"),
+      path.join(outputDir, "Settings.frame.preview.webp"),
     );
-    await expect(readFile(result.previewPath)).resolves.toEqual(
-      Buffer.from(bytes),
-    );
+    const output = sharp(await readFile(result.previewPath));
+    await expect(output.metadata()).resolves.toMatchObject({ format: "webp" });
+    await expect(output.raw().toBuffer()).resolves.toEqual(RENDERED_RGBA_BYTES);
   });
 
   it("exports a normalized SVG preview", async () => {
@@ -139,7 +140,7 @@ describe("exportNodePreview", () => {
         baseName: "Settings",
         kind: "frame",
         outputDir,
-        preview: { format: "png", scale: 2 },
+        preview: { format: "webp", scale: 2 },
         fetchImpl,
       }),
     ).rejects.toThrow(FigmaInspectError);

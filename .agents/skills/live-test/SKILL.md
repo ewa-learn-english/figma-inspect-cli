@@ -88,13 +88,20 @@ Keep this list aligned with `src/cli/usage.ts`. Test **all** of them every run:
 | 25 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name ProfileStreakIcon --export-assets` | attempts variant SVG assets; asset-exportable sets write `<name>.assets/*.svg`, store paths in `meta.yaml`, and use asset-backed contracts; runtime-prop sets warn and fall back to runtime contracts; needs `FIGMA_API_TOKEN` + `FIGMA_TEAM_ID` |
 | 26 | `--export-component-set` | `--output-dir tmp --variables $VARIABLES_PATH --component-set-name $COMPONENT_SET_NAME --json` | same as row 23 but writes `.json` files instead of `.yaml` |
 | 27 | `--export-node-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL"` | explicit node-contract URL variant for FRAME |
-| 28 | `--export-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL" --export-preview` | also writes `<name>.frame.preview.png` at PNG scale 2; use `--preview-format svg` for SVG |
-| 29 | `--export-node-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL" --export-nested-assets --asset-node-id "$NESTED_ASSET_NODE_ID" --asset-format svg --asset-format png` | also writes `<name>.frame.nested-assets.yaml` and `<name>.assets/*.{svg,png}` |
+| 28 | `--export-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL" --export-preview` | also writes `<name>.frame.preview.webp` at scale 2; lossless WebP converted locally from Figma PNG; use `--preview-format svg` for a vector preview |
+| 29 | `--export-node-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL" --export-nested-assets --asset-node-id "$NESTED_ASSET_NODE_ID" --asset-format webp` | selects lossless WebP at scale 2; also writes `<name>.frame.nested-assets.yaml` and `<name>.assets/*.webp`; omitting `--asset-format` keeps the default SVG |
 | 30 | `--verify-node-contract` | `--contract-dir tmp` | compares frame/component node locks to live Figma (source, tree, kind); needs `FIGMA_API_TOKEN` |
 | 31 | `--verify-node-contract` | `--contract-dir tmp --node-name "$FRAME_NODE_NAME" --json` | verifies one node contract; JSON output only |
 | 32 | `--verify-component-contract` | `--contract-dir tmp` | compares each lock to live Figma (source, tree, variants); needs `FIGMA_API_TOKEN` |
 | 33 | `--verify-component-contract` | `--contract-dir tmp --component-name Cell --json` | verifies one component; JSON output only |
 | 34 | `--verify-component-lock` | `--lock-file tmp/Cell.component-set.lock.yaml --json` | verifies one component-set lock without reading contract artifacts; JSON output only |
+| 35 | `--export-node-contract` | `--output-dir tmp --variables $VARIABLES_PATH --url "$FRAME_NODE_URL" --export-nested-assets --asset-node-id "$NESTED_ASSET_NODE_ID" --asset-format svg --asset-format webp` | exports both vector SVG and lossless WebP assets; `png` is not an output format |
+
+WebP output preserves pixel values, including RGB beneath transparent pixels,
+and embedded ICC profiles. The CLI uses its npm encoder dependency; no system
+`cwebp` installation is required. Scale flags apply to WebP, not SVG. Nested
+assets default to SVG, while previews default to WebP. Variant `--export-assets`
+remains SVG-only.
 
 Example:
 
@@ -132,7 +139,8 @@ npx . --export-component-set --output-dir tmp --variables "$VARIABLES_PATH" --ur
 npx . --export-component-set --output-dir tmp --variables "$VARIABLES_PATH" --component-set-name "$COMPONENT_SET_NAME" --json
 npx . --export-node-contract --output-dir tmp --variables "$VARIABLES_PATH" --url "$FRAME_NODE_URL"
 npx . --export-contract --output-dir tmp --variables "$VARIABLES_PATH" --url "$FRAME_NODE_URL" --export-preview
-npx . --export-node-contract --output-dir tmp --variables "$VARIABLES_PATH" --url "$FRAME_NODE_URL" --export-nested-assets --asset-node-id "$NESTED_ASSET_NODE_ID" --asset-format svg --asset-format png
+npx . --export-node-contract --output-dir tmp --variables "$VARIABLES_PATH" --url "$FRAME_NODE_URL" --export-nested-assets --asset-node-id "$NESTED_ASSET_NODE_ID" --asset-format webp
+npx . --export-node-contract --output-dir tmp --variables "$VARIABLES_PATH" --url "$FRAME_NODE_URL" --export-nested-assets --asset-node-id "$NESTED_ASSET_NODE_ID" --asset-format svg --asset-format webp
 npx . --verify-node-contract --contract-dir tmp
 npx . --verify-node-contract --contract-dir tmp --node-name "$FRAME_NODE_NAME" --json
 npx . --verify-component-contract --contract-dir tmp

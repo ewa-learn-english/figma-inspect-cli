@@ -1,8 +1,13 @@
 import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import sharp from "sharp";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { parse } from "yaml";
+import {
+  RENDERED_PNG_BYTES,
+  RENDERED_RGBA_BYTES,
+} from "../../../test/fixtures/rendered-image.js";
 import { FigmaInspectError } from "../errors.js";
 import { exportNestedAssets } from "./export-nested-assets.js";
 
@@ -11,10 +16,6 @@ function jsonResponse(body: unknown, status = 200): Response {
     status,
     headers: { "content-type": "application/json" },
   });
-}
-
-function pngPayload(): Uint8Array {
-  return new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00]);
 }
 
 function svgPayload(): Uint8Array {
@@ -93,7 +94,7 @@ describe("exportNestedAssets", () => {
       }
 
       if (url.endsWith(".png")) {
-        return new Response(pngPayload(), { status: 200 });
+        return new Response(RENDERED_PNG_BYTES, { status: 200 });
       }
 
       throw new Error(`Unexpected fetch URL: ${url}`);
@@ -110,7 +111,7 @@ describe("exportNestedAssets", () => {
         nodeIds: ["208:44003"],
         includeRegex: "icon",
         nodeTypes: ["VECTOR"],
-        formats: ["svg", "png"],
+        formats: ["svg", "webp"],
         scale: 3,
       },
       fetchImpl,
@@ -130,7 +131,7 @@ describe("exportNestedAssets", () => {
       explicitNodeIds: ["208:44003"],
       includeRegex: "icon",
       nodeTypes: ["VECTOR"],
-      formats: ["svg", "png"],
+      formats: ["svg", "webp"],
       scale: 3,
     });
     expect(manifest.exports.map((entry) => entry.nodeId)).toEqual([
@@ -143,7 +144,7 @@ describe("exportNestedAssets", () => {
     );
     expect(manifest.exports[0]?.files).toEqual([
       expect.objectContaining({ format: "svg" }),
-      expect.objectContaining({ format: "png", scale: 3 }),
+      expect.objectContaining({ format: "webp", scale: 3 }),
     ]);
     expect(manifest.candidates.filter((entry) => entry.selected)).toHaveLength(
       2,
@@ -156,6 +157,15 @@ describe("exportNestedAssets", () => {
     await expect(readFile(svgPath, "utf8")).resolves.toBe(
       '<svg viewBox="0 0 24 24"><path d="M0 0h24v24H0z"/></svg>',
     );
+
+    const webpPath = path.join(
+      outputDir,
+      manifest.exports[0]?.files[1]?.path ?? "",
+    );
+    expect(webpPath).toMatch(/\.webp$/);
+    const image = sharp(await readFile(webpPath));
+    await expect(image.metadata()).resolves.toMatchObject({ format: "webp" });
+    await expect(image.raw().toBuffer()).resolves.toEqual(RENDERED_RGBA_BYTES);
   });
 
   it("records skipped selected nodes when asset max is reached", async () => {

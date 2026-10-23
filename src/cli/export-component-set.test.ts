@@ -315,7 +315,7 @@ describe("exportComponentSet", () => {
       outputDir,
       componentSet: { kind: "key", value: "component-set-key" },
       variablesPath: variablesFixturePath,
-      preview: { format: "png", scale: 2 },
+      preview: { format: "webp", scale: 2 },
     });
 
     expect(mocks.exportNodePreview).toHaveBeenCalledWith({
@@ -325,17 +325,17 @@ describe("exportComponentSet", () => {
       baseName: "TextInput",
       kind: "component-set",
       outputDir,
-      preview: { format: "png", scale: 2 },
+      preview: { format: "webp", scale: 2 },
     });
     expect(result.previewPath).toBe(
-      path.join(outputDir, "TextInput.component-set.preview.png"),
+      path.join(outputDir, "TextInput.component-set.preview.webp"),
     );
   });
 
   it("exports selected nested assets when nested asset export is enabled", async () => {
     const nestedAssets = {
       nodeIds: ["3971:6470"],
-      formats: ["svg", "png"] as const,
+      formats: ["svg", "webp"] as const,
       scale: 2,
     };
 

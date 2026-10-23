@@ -22,9 +22,9 @@ export const usage = `Usage:
   figma-inspect --verify-component-contract --contract-dir <dir> [--component-name <name>] [--json]
   figma-inspect --verify-component-lock --lock-file <path> [--json]
   figma-inspect --verify-node-contract --contract-dir <dir> [--node-name <name>] [--json]
-  figma-inspect --export-contract --output-dir <dir> [--variables <path>] (--url <figma-url> | --file-key <key> --node-id <id>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-assets] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|png] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
-  figma-inspect --export-component-set --output-dir <dir> [--variables <path>] [--team <alias>] (--url <figma-url> | --component-set-key <key> | --component-set-name <name>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-assets] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|png] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
-  figma-inspect --export-node-contract --output-dir <dir> [--variables <path>] (--url <figma-url> | --file-key <key> --node-id <id>) [--export-preview] [--preview-format png|svg] [--preview-scale <scale>] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|png] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
+  figma-inspect --export-contract --output-dir <dir> [--variables <path>] (--url <figma-url> | --file-key <key> --node-id <id>) [--export-preview] [--preview-format webp|svg] [--preview-scale <scale>] [--export-assets] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|webp] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
+  figma-inspect --export-component-set --output-dir <dir> [--variables <path>] [--team <alias>] (--url <figma-url> | --component-set-key <key> | --component-set-name <name>) [--export-preview] [--preview-format webp|svg] [--preview-scale <scale>] [--export-assets] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|webp] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
+  figma-inspect --export-node-contract --output-dir <dir> [--variables <path>] (--url <figma-url> | --file-key <key> --node-id <id>) [--export-preview] [--preview-format webp|svg] [--preview-scale <scale>] [--export-nested-assets (--asset-node-id <id> | --asset-include-regex <regex>)] [--asset-format svg|webp] [--asset-scale <scale>] [--asset-node-types <csv>] [--asset-max <number>] [--json]
 
 Environment:
   FIGMA_API_TOKEN  Figma personal access token (required for --verify-component-contract, --verify-component-lock, --verify-node-contract, and all API commands below)
@@ -60,17 +60,17 @@ Options:
   --export-contract               Export contract files for a Figma URL or node ref; auto-detects SECTION, COMPONENT_SET, FRAME, or standalone COMPONENT; URL/ref exports need no team
   --export-component-set          Export component contract files for a published team component set as YAML; writes <ComponentName>.component-set.lock.yaml; with --export-assets attempts variant SVG assets and falls back to a runtime contract when the set has runtime props
   --export-node-contract          Export FRAME or standalone COMPONENT node contract files as YAML; writes <Name>.frame.* or <Name>.component.* plus lock
-  --export-preview                Export one root node preview image next to contract artifacts; writes <Name>.<node-type>.preview.png by default
-  --preview-format <format>       Preview export format; supports png or svg (default: png)
-  --preview-scale <scale>         PNG preview scale for the Figma Images API (default: 2)
+  --export-preview                Export one root node preview image next to contract artifacts; writes <Name>.<node-type>.preview.webp by default
+  --preview-format <format>       Preview export format; supports webp or svg (default: webp)
+  --preview-scale <scale>         Raster preview scale for the Figma Images API (default: 2)
   --export-assets                 Attempt one SVG asset per component variant via the Figma Images API (with --export-component-set or --export-contract targeting a COMPONENT_SET; skipped with warning when the set has runtime props; ignored by --export-contract for FRAME/COMPONENT targets)
   --export-nested-assets          Export selected nested nodes as sidecar assets and write <Name>.<kind>.nested-assets.yaml
   --asset-node-id <id>            Nested asset node id to export; repeatable; URL-style ids such as 208-43935 are accepted
   --asset-include-regex <regex>   Select nested asset nodes whose name or path matches the regex
   --asset-node-types <csv>        Comma-separated Figma node types allowed for regex selection (default: common visual nodes)
   --asset-max <number>            Maximum nested asset nodes to export after selection
-  --asset-format <format>         Asset export format; svg for --export-assets, svg or png for --export-nested-assets (repeatable; default: svg)
-  --asset-scale <scale>           PNG nested asset scale for the Figma Images API (default: 2)
+  --asset-format <format>         Asset export format; svg for --export-assets, svg or webp for --export-nested-assets (repeatable; default: svg)
+  --asset-scale <scale>           Raster nested asset scale for the Figma Images API (default: 2)
   --screen-similarity-threshold <number> Screen similarity threshold for index export (default: 0.9)
   --screen-size-tolerance <px>     Screen frame size tolerance in pixels for index export (default: 2)
   --index-dir <dir>               Local team index directory (required with --list-component-set-usages and --inspect-component-set-responsive-usage)

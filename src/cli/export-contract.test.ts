@@ -51,7 +51,7 @@ describe("exportContract", () => {
       exportAssets: true,
       assetFormat: "svg",
       nestedAssets: { nodeIds: ["401:2"], formats: ["svg"], scale: 2 },
-      preview: { format: "png", scale: 2 },
+      preview: { format: "webp", scale: 2 },
     });
 
     expect(mocks.exportComponentSet).toHaveBeenCalledWith(
@@ -66,7 +66,7 @@ describe("exportContract", () => {
         exportAssets: true,
         assetFormat: "svg",
         nestedAssets: { nodeIds: ["401:2"], formats: ["svg"], scale: 2 },
-        preview: { format: "png", scale: 2 },
+        preview: { format: "webp", scale: 2 },
       }),
     );
     expect(mocks.exportNodeContract).not.toHaveBeenCalled();
@@ -94,7 +94,7 @@ describe("exportContract", () => {
       sourceUrl:
         "https://www.figma.com/design/file-key/Settings?node-id=208-43935",
       variablesPath: "vars.json",
-      nestedAssets: { nodeIds: ["401:2"], formats: ["png"], scale: 3 },
+      nestedAssets: { nodeIds: ["401:2"], formats: ["webp"], scale: 3 },
       preview: { format: "svg" },
     });
 
@@ -103,7 +103,7 @@ describe("exportContract", () => {
         token: "token",
         fileKey: "file-key",
         nodeId: "208:43935",
-        nestedAssets: { nodeIds: ["401:2"], formats: ["png"], scale: 3 },
+        nestedAssets: { nodeIds: ["401:2"], formats: ["webp"], scale: 3 },
         preview: { format: "svg" },
       }),
     );
